@@ -15,7 +15,7 @@ defmodule SpazioSolazzoWeb.CoworkingLive do
       |> Ash.Query.filter(space_id == ^space.id)
       |> Ash.read()
 
-    {:ok, templates} =
+    {:ok, time_slots} =
       BookingSystem.TimeSlotTemplate
       |> Ash.Query.filter(space_id == ^space.id)
       |> Ash.read()
@@ -27,9 +27,9 @@ defmodule SpazioSolazzoWeb.CoworkingLive do
      |> assign(
        space: space,
        assets: assets,
-       templates: templates,
+       time_slots: time_slots,
        selected_asset: nil,
-       selected_template: nil,
+       selected_time_slot: nil,
        selected_date: Date.utc_today(),
        form: form,
        show_modal: false,
@@ -67,12 +67,12 @@ defmodule SpazioSolazzoWeb.CoworkingLive do
     {:noreply, assign(socket, selected_asset: asset, bookings: bookings)}
   end
 
-  def handle_event("select_slot", %{"template_id" => template_id}, socket) do
-    template = Enum.find(socket.assigns.templates, &(&1.id == template_id))
+  def handle_event("select_slot", %{"time_slot_id" => time_slot_id}, socket) do
+    time_slot = Enum.find(socket.assigns.time_slots, &(&1.id == time_slot_id))
 
     {:noreply,
      socket
-     |> assign(selected_template: template, show_modal: true)}
+     |> assign(selected_time_slot: time_slot, show_modal: true)}
   end
 
   def handle_event("validate_form", %{"customer_name" => name, "customer_email" => email}, socket) do
@@ -87,7 +87,7 @@ defmodule SpazioSolazzoWeb.CoworkingLive do
       :ok ->
         booking_params = %{
           asset_id: socket.assigns.selected_asset.id,
-          time_slot_template_id: socket.assigns.selected_template.id,
+          time_slot_template_id: socket.assigns.selected_time_slot.id,
           date: socket.assigns.selected_date,
           customer_name: form_data["customer_name"],
           customer_email: form_data["customer_email"]
@@ -167,9 +167,9 @@ defmodule SpazioSolazzoWeb.CoworkingLive do
     end
   end
 
-  defp slot_booked?(template_id, bookings) do
+  defp slot_booked?(time_slot_id, bookings) do
     Enum.any?(bookings, fn booking ->
-      booking.time_slot_template_id == template_id
+      booking.time_slot_template_id == time_slot_id
     end)
   end
 end

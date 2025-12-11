@@ -59,11 +59,11 @@
           <div>
             <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Time Slots</h2>
             <div class="space-y-3">
-              <%= for template <- @templates do %>
-                <% booked = slot_booked?(template.id, @bookings) %>
+              <%= for time_slot <- @time_slots do %>
+                <% booked = slot_booked?(time_slot.id, @bookings) %>
                 <button
                   phx-click={unless booked, do: "select_slot"}
-                  phx-value-template_id={template.id}
+                  phx-value-time_slot_id={time_slot.id}
                   disabled={booked}
                   class={[
                     "w-full p-4 rounded-lg border transition-all text-left",
@@ -84,11 +84,11 @@
                           else: "text-gray-900 dark:text-white"
                         )
                       ]}>
-                        {template.name}
+                        {time_slot.name}
                       </p>
                       <p class="text-sm text-gray-600 dark:text-gray-300">
-                        {Calendar.strftime(template.start_time, "%I:%M %p")} - {Calendar.strftime(
-                          template.end_time,
+                        {Calendar.strftime(time_slot.start_time, "%I:%M %p")} - {Calendar.strftime(
+                          time_slot.end_time,
                           "%I:%M %p"
                         )}
                       </p>
@@ -121,8 +121,8 @@
   <.modal :if={@show_modal} id="booking-modal" show on_cancel={JS.push("cancel_booking")}>
     <:title>Complete Your Booking</:title>
     <:subtitle>
-      <%= if @selected_asset && @selected_template do %>
-        {@selected_asset.name} - {@selected_template.name} on {Calendar.strftime(
+      <%= if @selected_asset && @selected_time_slot do %>
+        {@selected_asset.name} - {@selected_time_slot.name} on {Calendar.strftime(
           @selected_date,
           "%B %d, %Y"
         )}

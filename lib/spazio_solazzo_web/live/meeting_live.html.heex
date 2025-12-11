@@ -40,11 +40,11 @@
         </p>
 
         <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
-          <%= for template <- @templates do %>
-            <% booked = slot_booked?(template.id, @bookings) %>
+          <%= for time_slot <- @time_slots do %>
+            <% booked = slot_booked?(time_slot.id, @bookings) %>
             <button
               phx-click={unless booked, do: "select_slot"}
-              phx-value-template_id={template.id}
+              phx-value-time_slot_id={time_slot.id}
               disabled={booked}
               class={[
                 "p-4 border-2 rounded-lg transition-all text-center",
@@ -63,7 +63,7 @@
                   else: "text-gray-900 dark:text-white"
                 )
               ]}>
-                {Calendar.strftime(template.start_time, "%I:%M %p")}
+                {Calendar.strftime(time_slot.start_time, "%I:%M %p")}
               </p>
               <p class={[
                 "text-xs mt-1",
@@ -84,8 +84,8 @@
   <.modal :if={@show_modal} id="booking-modal" show on_cancel={JS.push("cancel_booking")}>
     <:title>Complete Your Booking</:title>
     <:subtitle>
-      <%= if @selected_template do %>
-        {@asset.name} - {Calendar.strftime(@selected_template.start_time, "%I:%M %p")} on {Calendar.strftime(
+      <%= if @selected_time_slot do %>
+        {@asset.name} - {Calendar.strftime(@selected_time_slot.start_time, "%I:%M %p")} on {Calendar.strftime(
           @selected_date,
           "%B %d, %Y"
         )}
