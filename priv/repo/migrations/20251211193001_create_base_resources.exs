@@ -78,7 +78,8 @@ defmodule SpazioSolazzo.Repo.Migrations.CreateBaseResources do
             name: "assets_space_id_fkey",
             type: :uuid,
             prefix: "public"
-          ), null: false
+          ),
+          null: false
     end
   end
 

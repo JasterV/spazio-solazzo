@@ -118,90 +118,19 @@
     </div>
   </div>
 
-  <.modal :if={@show_modal} id="booking-modal" show on_cancel={JS.push("cancel_booking")}>
-    <:title>Complete Your Booking</:title>
-    <:subtitle>
-      <%= if @selected_asset && @selected_time_slot do %>
-        {@selected_asset.name} - {@selected_time_slot.name} on {Calendar.strftime(
-          @selected_date,
-          "%B %d, %Y"
-        )}
-      <% end %>
-    </:subtitle>
+  <.live_component
+    module={SpazioSolazzoWeb.BookingComponents.BookingFormComponent}
+    id="booking-modal"
+    show={@show_modal}
+    selected_time_slot={@selected_time_slot}
+    asset={@selected_asset}
+    selected_date={@selected_date}
+    on_cancel={JS.push("cancel_booking")}
+  />
 
-    <.form for={@form} id="booking-form" phx-submit="create_booking" phx-change="validate_form">
-      <div class="mt-6 space-y-4">
-        <.input
-          field={@form[:customer_name]}
-          type="text"
-          label="Full Name"
-          placeholder="John Doe"
-          required
-        />
-        <.input
-          field={@form[:customer_email]}
-          type="email"
-          label="Email"
-          placeholder="john@example.com"
-          required
-        />
-      </div>
-
-      <div class="mt-6 flex items-center gap-3">
-        <button
-          type="submit"
-          class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
-        >
-          Book Now
-        </button>
-        <button
-          type="button"
-          phx-click="cancel_booking"
-          class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg transition-colors"
-        >
-          Cancel
-        </button>
-      </div>
-    </.form>
-  </.modal>
-
-  <.modal
-    :if={@show_success_modal}
+  <SpazioSolazzoWeb.BookingComponents.BookingConfirmationModal.render
     id="success-modal"
-    show
-    on_cancel={JS.push("close_success_modal")}
-  >
-    <:title>
-      <div class="flex items-center gap-3">
-        <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
-          <svg
-            class="w-6 h-6 text-green-600"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M5 13l4 4L19 7"
-            />
-          </svg>
-        </div>
-        <span>Booking Successful!</span>
-      </div>
-    </:title>
-
-    <div class="mt-6">
-      <p class="text-gray-600 text-center mb-6">
-        Your booking has been confirmed. You will receive a confirmation email shortly.
-      </p>
-      <button
-        phx-click="close_success_modal"
-        class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
-      >
-        Got it!
-      </button>
-    </div>
-  </.modal>
+    show={@show_success_modal}
+    on_close={JS.push("close_success_modal")}
+  />
 </Layouts.app>

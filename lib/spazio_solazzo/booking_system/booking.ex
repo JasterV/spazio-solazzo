@@ -10,13 +10,6 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
     repo SpazioSolazzo.Repo
   end
 
-  pub_sub do
-    module SpazioSolazzoWeb.Endpoint
-    prefix "booking"
-
-    publish :create, ["created"]
-  end
-
   actions do
     defaults [:read]
 
@@ -62,6 +55,13 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
         end
       end
     end
+  end
+
+  pub_sub do
+    module SpazioSolazzoWeb.Endpoint
+    prefix "booking"
+
+    publish :create, ["created"]
   end
 
   attributes do
