@@ -1,0 +1,62 @@
+<Layouts.app flash={@flash} current_user={@current_user}>
+  <.page_header
+    booking_path={~p"/book/asset/#{@asset.id}"}
+    price="€40"
+    price_unit="hour"
+    capacity="Up to 8 People"
+    images={@images}
+  >
+    <:title>{@space.name}</:title>
+    <:description>
+      A private, sun-drenched sanctuary designed for focus and collaboration. Step into a space where Sicilian charm meets modern productivity.
+    </:description>
+  </.page_header>
+
+  <.features_section
+    title="Everything you need to succeed"
+    description="We've equipped the Meeting Room with top-tier amenities so you can focus on the agenda, not the logistics."
+  >
+    <:feature
+      icon="hero-tv"
+      title="4K Presentation"
+      description="Crystal clear 65&quot; monitor ready for your slide decks. Connect via HDMI or wireless casting."
+      color="sky"
+    />
+    <:feature
+      icon="hero-video-camera"
+      title="Video Conferencing"
+      description="Logitech Rally bar with AI framing and noise cancellation for seamless remote meetings."
+      color="orange"
+    />
+    <:feature
+      icon="hero-pencil"
+      title="Creative Tools"
+      description="Wall-to-wall glass whiteboard, sticky notes, and markers to capture every brainstorming session."
+      color="yellow"
+    />
+    <:feature
+      icon="hero-wifi"
+      title="Fiber Internet"
+      description="Dedicated 1Gbps symmetrical fiber line ensuring you never drop a call or buffer a video."
+      color="emerald"
+    />
+    <:feature
+      icon="hero-home"
+      title="Ergonomic Comfort"
+      description="Herman Miller chairs and a solid oak table designed to keep you comfortable during long sessions."
+      color="indigo"
+    />
+    <:feature
+      icon="hero-cake"
+      title="Catering Available"
+      description="Pre-order coffee carafes, Sicilian pastries, or light lunch options from local partners."
+      color="purple"
+    />
+  </.features_section>
+
+  <.house_rules title="House Rules">
+    <:rule>Please clean the whiteboard after use.</:rule>
+    <:rule>Outside food is allowed, but please be tidy.</:rule>
+    <:rule>Cancel up to 24 hours before for a full refund.</:rule>
+  </.house_rules>
+</Layouts.app>

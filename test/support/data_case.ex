@@ -1,0 +1,81 @@
+defmodule SpazioSolazzo.DataCase do
+  @moduledoc """
+  This module defines the setup for tests requiring
+  access to the application's data layer.
+
+  You may define functions here to be used as helpers in
+  your tests.
+
+  Finally, if the test case interacts with the database,
+  we enable the SQL sandbox, so changes done to the database
+  are reverted at the end of every test. If you are using
+  PostgreSQL, you can even run database tests asynchronously
+  by setting `use SpazioSolazzo.DataCase, async: true`, although
+  this option is not recommended for other databases.
+  """
+
+  use ExUnit.CaseTemplate
+
+  using do
+    quote do
+      alias SpazioSolazzo.Repo
+
+      use Oban.Testing, repo: SpazioSolazzo.Repo
+
+      import Ecto
+      import Ecto.Changeset
+      import Ecto.Query
+      import SpazioSolazzo.DataCase
+    end
+  end
+
+  setup tags do
+    SpazioSolazzo.DataCase.setup_sandbox(tags)
+    SpazioSolazzo.DataCase.init_mailbox()
+    :ok
+  end
+
+  @doc """
+  Sets up the sandbox based on the test tags.
+  """
+  def setup_sandbox(tags) do
+    pid = Ecto.Adapters.SQL.Sandbox.start_owner!(SpazioSolazzo.Repo, shared: not tags[:async])
+    on_exit(fn -> Ecto.Adapters.SQL.Sandbox.stop_owner(pid) end)
+  end
+
+  @doc """
+  Initialize the local Swoosh mailbox. Ensure the in-memory storage process is started
+  so tests can safely call into it.
+  """
+  def init_mailbox() do
+    case Swoosh.Adapters.Local.Storage.Memory.start() do
+      {:ok, _pid} -> :ok
+      {:error, {:already_started, _pid}} -> :ok
+      {:error, _} -> :ok
+    end
+
+    Swoosh.Adapters.Local.Storage.Memory.delete_all()
+    on_exit(fn -> Swoosh.Adapters.Local.Storage.Memory.delete_all() end)
+  end
+
+  @doc """
+  Safely pop an email from the Swoosh mailbox with retry logic.
+
+  This is necessary because `Oban.drain_queue/1` doesn't guarantee that
+  jobs have finished executing by the time it returns. This helper will
+  retry a few times with small delays to handle the race condition.
+  """
+  def pop_email(retry_count \\ 10, delay_ms \\ 10) do
+    case Swoosh.Adapters.Local.Storage.Memory.all() do
+      [] when retry_count > 0 ->
+        Process.sleep(delay_ms)
+        pop_email(retry_count - 1, delay_ms)
+
+      [] ->
+        raise "No emails found in mailbox after retries"
+
+      _emails ->
+        Swoosh.Adapters.Local.Storage.Memory.pop()
+    end
+  end
+end

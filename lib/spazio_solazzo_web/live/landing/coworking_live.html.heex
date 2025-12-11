@@ -1,0 +1,83 @@
+<Layouts.app flash={@flash} current_user={@current_user}>
+  <.page_header
+    booking_path="#interactive-floor-plan"
+    booking_label="Explore Desks & Book"
+    price="€25"
+    price_unit="day"
+    capacity="5 Desks"
+    images={@images}
+  >
+    <:title>{@space.name}</:title>
+    <:description>
+      Join a vibrant community of innovators in the heart of Palermo. A flexible, open-plan sanctuary designed for focus and connection.
+    </:description>
+  </.page_header>
+
+  <.features_section
+    title="Everything for the modern nomad"
+    description="We've curated the perfect environment for productivity, ensuring you have the tools to thrive in Sicily."
+  >
+    <:feature
+      icon="hero-wifi"
+      title="Fiber Internet"
+      description="Dedicated 1Gbps symmetrical fiber line ensuring you never drop a call or buffer a video."
+      color="emerald"
+    >
+    </:feature>
+    <:feature
+      icon="hero-home"
+      title="Ergonomic Comfort"
+      description="Herman Miller chairs and spacious desks designed to keep you comfortable all day."
+      color="indigo"
+    />
+    <:feature
+      icon="hero-cake"
+      title="Community Kitchen"
+      description="Unlimited freshly brewed Sicilian coffee, herbal teas, and a space to share meals."
+      color="purple"
+    />
+  </.features_section>
+
+  <section class="py-20 px-6 bg-white dark:bg-slate-900" id="interactive-floor-plan">
+    <div class="mx-auto max-w-[1200px]">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl font-bold text-slate-900 dark:text-white mb-4">
+          Interactive Floor Plan
+        </h2>
+        <p class="text-slate-600 dark:text-slate-400 max-w-lg mx-auto">
+          Select any desk to customize your booking details on the next page, where availability is confirmed.
+        </p>
+      </div>
+      <div class="bg-slate-50 dark:bg-slate-800/50 rounded-3xl p-8 md:p-12 border border-slate-200 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none relative overflow-hidden">
+        <div class="absolute top-6 right-6 opacity-10 pointer-events-none select-none">
+          <.icon name="hero-building-office-2" class="w-32 h-32 text-sky-500" />
+        </div>
+        <div class="flex flex-col items-center gap-10">
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-6 w-full max-w-3xl">
+            <.link
+              :for={asset <- @assets}
+              navigate={~p"/book/asset/#{asset.id}"}
+              class="group relative flex flex-col items-center gap-3 cursor-pointer"
+            >
+              <div class="w-full aspect-[4/3] rounded-xl bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 group-hover:border-sky-500 dark:group-hover:border-teal-500 group-hover:shadow-lg group-hover:shadow-sky-500/20 dark:group-hover:shadow-teal-500/20 transition-all duration-300 flex items-center justify-center relative">
+                <.icon
+                  name="hero-computer-desktop"
+                  class="w-12 h-12 text-slate-300 group-hover:text-sky-500 dark:group-hover:text-teal-500 transition-colors"
+                />
+              </div>
+              <span class="text-sm font-bold text-slate-500 group-hover:text-sky-500 dark:group-hover:text-teal-500 transition-colors">
+                {asset.name}
+              </span>
+            </.link>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <.house_rules title="Coworking House Rules">
+    <:rule>Please keep phone calls to the dedicated booths.</:rule>
+    <:rule>Clean your desk area before leaving.</:rule>
+    <:rule>Be respectful of quiet zones.</:rule>
+  </.house_rules>
+</Layouts.app>

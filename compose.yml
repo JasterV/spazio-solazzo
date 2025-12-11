@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: 279066465364.dkr.ecr.eu-west-1.amazonaws.com/docker-hub/library/postgres:16
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+    networks:
+      - integration
+
+networks:
+  integration:
+    name: "spazio-solazzo-integration"
+    driver: "bridge"
+    

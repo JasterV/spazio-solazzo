@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{@email.subject}</title>
+    <style>
+      /* Base & Typography */
+      body { margin: 0; padding: 0; background-color: #f4f4f4; font-family: 'Segoe UI', Arial, sans-serif; }
+      p { margin: 0 0 15px 0; padding: 0; color: #333333; line-height: 1.6; font-size: 15px; }
+
+      /* Container Component Style */
+      .container {
+        max-width: 600px;
+        margin: 40px auto;
+        background-color: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e0e0e0;
+        padding: 40px;
+        overflow: hidden;
+      }
+
+      /* Headers */
+      h1 { margin: 0 0 25px 0; text-align: center; font-size: 24px; }
+      .text-orange { color: #FF7043; }
+      .text-purple { color: #673AB7; }
+
+      /* Components: Details List */
+      .details-list { list-style: none; padding-left: 0; border-left: 4px solid #FFCCBC; padding-left: 20px; margin: 20px 0; }
+      .details-list li { margin-bottom: 8px; color: #555; }
+
+      /* Components: Buttons */
+      .btn-wrapper { text-align: center; margin: 25px 0; }
+      .btn { padding: 12px 30px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold; font-size: 16px; color: #ffffff !important; }
+      .btn-primary { background-color: #FFB300; border: 1px solid #F57C00; }
+      .btn-danger { background-color: #EF5350; border: 1px solid #D32F2F; }
+
+      /* Components: Code Box */
+      .code-box { text-align: center; background-color: #F3E5F5; padding: 25px; border-radius: 8px; margin: 25px 0; border: 1px dashed #D1C4E9; }
+      .code-text { font-size: 32px; letter-spacing: 8px; font-family: monospace; color: #9C27B0; font-weight: bold; margin: 10px 0 0 0; }
+
+      /* Utilities */
+      .text-center { text-align: center; }
+      .text-sm { font-size: 13px; color: #888; }
+      .divider { border: 0; height: 1px; background-color: #f0f0f0; margin: 30px 0; }
+    </style>
+  </head>
+  <body>
+    <.email_container>
+      {@inner_content}
+    </.email_container>
+  </body>
+</html>
