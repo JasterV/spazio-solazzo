@@ -53,7 +53,7 @@ config :spark,
 config :spazio_solazzo,
   ecto_repos: [SpazioSolazzo.Repo],
   generators: [timestamp_type: :utc_datetime],
-  ash_domains: [SpazioSolazzo.BookingSystem, SpazioSolazzo.Accounts]
+  ash_domains: [SpazioSolazzo.BookingSystem]
 
 config :ash_phoenix, :pub_sub_module, SpazioSolazzo.PubSub
 

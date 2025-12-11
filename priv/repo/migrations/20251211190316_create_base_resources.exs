@@ -1,4 +1,4 @@
-defmodule SpazioSolazzo.Repo.Migrations.MigrateResources1 do
+defmodule SpazioSolazzo.Repo.Migrations.CreateBaseResources do
   @moduledoc """
   Updates resources based on their most recent snapshots.
 

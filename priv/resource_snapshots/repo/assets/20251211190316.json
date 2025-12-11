@@ -13,7 +13,7 @@
       "type": "uuid"
     },
     {
-      "allow_nil?": true,
+      "allow_nil?": false,
       "default": "nil",
       "generated?": false,
       "precision": null,
@@ -25,7 +25,7 @@
       "type": "text"
     },
     {
-      "allow_nil?": true,
+      "allow_nil?": false,
       "default": "nil",
       "generated?": false,
       "precision": null,
@@ -61,7 +61,7 @@
   "custom_indexes": [],
   "custom_statements": [],
   "has_create_action": true,
-  "hash": "3F117F7464671FC880E3DDBF597478692AEF65DEC84903B0865E1503005E0E1D",
+  "hash": "9963E969271F1646E610F1D97B462471D9CCA9F6EAF55C13C4024E68DF2CC18A",
   "identities": [],
   "multitenancy": {
     "attribute": null,
