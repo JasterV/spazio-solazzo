@@ -1,0 +1,80 @@
+defmodule SpazioSolazzo.BookingSystem.Booking do
+  use Ash.Resource,
+    otp_app: :spazio_solazzo,
+    domain: SpazioSolazzo.BookingSystem,
+    data_layer: AshPostgres.DataLayer,
+    notifiers: [Ash.Notifier.PubSub]
+
+  postgres do
+    table "bookings"
+    repo SpazioSolazzo.Repo
+  end
+
+  pub_sub do
+    module SpazioSolazzoWeb.Endpoint
+    prefix "booking"
+
+    publish :create, ["created"]
+  end
+
+  actions do
+    defaults [:read]
+
+    create :create do
+      argument :time_slot_template_id, :uuid, allow_nil?: false
+      argument :asset_id, :uuid, allow_nil?: false
+      argument :date, :date, allow_nil?: false
+      argument :customer_name, :string, allow_nil?: false
+      argument :customer_email, :string, allow_nil?: false
+
+      change manage_relationship(:time_slot_template_id, :time_slot_template,
+               type: :append_and_remove
+             )
+
+      change manage_relationship(:asset_id, :asset, type: :append_and_remove)
+
+      change fn changeset, _ctx ->
+        template_id = Ash.Changeset.get_argument(changeset, :time_slot_template_id)
+
+        case Ash.get(SpazioSolazzo.BookingSystem.TimeSlotTemplate, template_id) do
+          {:ok, template} ->
+            changeset
+            |> Ash.Changeset.force_change_attribute(:start_time, template.start_time)
+            |> Ash.Changeset.force_change_attribute(:end_time, template.end_time)
+            |> Ash.Changeset.force_change_attribute(
+              :date,
+              Ash.Changeset.get_argument(changeset, :date)
+            )
+            |> Ash.Changeset.force_change_attribute(
+              :customer_name,
+              Ash.Changeset.get_argument(changeset, :customer_name)
+            )
+            |> Ash.Changeset.force_change_attribute(
+              :customer_email,
+              Ash.Changeset.get_argument(changeset, :customer_email)
+            )
+
+          {:error, _} ->
+            Ash.Changeset.add_error(changeset,
+              field: :time_slot_template_id,
+              message: "Template not found"
+            )
+        end
+      end
+    end
+  end
+
+  attributes do
+    uuid_primary_key :id
+    attribute :date, :date
+    attribute :customer_name, :string
+    attribute :customer_email, :string
+    attribute :start_time, :time
+    attribute :end_time, :time
+  end
+
+  relationships do
+    belongs_to :asset, SpazioSolazzo.BookingSystem.Asset
+    belongs_to :time_slot_template, SpazioSolazzo.BookingSystem.TimeSlotTemplate
+  end
+end

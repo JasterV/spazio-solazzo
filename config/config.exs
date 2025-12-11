@@ -53,7 +53,9 @@ config :spark,
 config :spazio_solazzo,
   ecto_repos: [SpazioSolazzo.Repo],
   generators: [timestamp_type: :utc_datetime],
-  ash_domains: [SpazioSolazzo.Accounts]
+  ash_domains: [SpazioSolazzo.BookingSystem, SpazioSolazzo.Accounts]
+
+config :ash_phoenix, :pub_sub_module, SpazioSolazzo.PubSub
 
 # Configure the endpoint
 config :spazio_solazzo, SpazioSolazzoWeb.Endpoint,

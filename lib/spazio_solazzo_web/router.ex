@@ -41,7 +41,11 @@ defmodule SpazioSolazzoWeb.Router do
   scope "/", SpazioSolazzoWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
+    live "/", PageLive, :index
+    live "/coworking", CoworkingLive, :index
+    live "/meeting", MeetingLive, :index
+    live "/music", MusicLive, :index
+
     auth_routes AuthController, SpazioSolazzo.Accounts.User, path: "/auth"
     sign_out_route AuthController
 

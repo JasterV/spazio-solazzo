@@ -1,7 +1,3 @@
-
-Here is the updated project plan for **Spazio Solazzo**, optimized to use Ash command-line generators (`igniter`) to automate the boilerplate code creation.
-
-````markdown
 # Project Plan: Spazio Solazzo
 
 **Target Stack:** Phoenix v1.8, Ash Framework, AshPostgres, Tailwind CSS v4.
@@ -29,7 +25,7 @@ mix ash.gen.domain SpazioSolazzo.BookingSystem
 ````
 
 **2. Generate Resources:**
-Use the `--uuid-primary-key` flag (standard for Ash) and `--extend postgres` to auto-configure the data layer.
+Use the `--uuid-primary-key` flag and `--extend postgres`.
 
 ```bash
 # Reference Data: Spaces (Musicians, Meeting, Coworking)
@@ -72,7 +68,7 @@ mix ash.gen.resource SpazioSolazzo.BookingSystem.Booking \
 
 ## 3\. Business Logic Implementation
 
-After generation, open `lib/spazio_solazzo/booking_system/resources/booking.ex` and manually add the specific action logic (this part cannot be generated yet).
+After generation, open `lib/spazio_solazzo/booking_system/resources/booking.ex` and manually add the specific action logic.
 
 ```elixir
 actions do
@@ -107,10 +103,7 @@ end
 
 **The Workflow:**
 
-1.  Run the codegen task to create the migration file based on the resources we just generated:
-    ```bash
-    mix ash.codegen initial_setup
-    ```
+1.  Run `mix ash.codegen initial_setup`.
 2.  **MANUAL STEP:** Open the generated migration file (in `priv/repo/migrations/`).
 3.  Replace the `up` function for the `bookings` table creation with the **Exclusion Constraint** logic:
 
@@ -138,35 +131,60 @@ end
 
 -----
 
-## 5\. UI Generation (AshPhoenix)
+## 5\. UI Implementation (Homepage & Bookings)
 
-We will use `mix ash_phoenix.gen.live` to scaffold the LiveViews. This gives us a working form, URL handling, and validation logic out of the box.
+### A. The Homepage (`/`)
 
-### A. Generate the Booking Flow
+We do **not** use a generator for the homepage logic, we build a simple navigational view.
 
-We generate a LiveView for creating bookings. Since this is a public form, we disable the actor checks for now (or set it to generic).
+  * **Controller/Live:** `SpazioSolazzoWeb.PageLive`
+  * **Template:** A grid of 3 Cards.
+  * **Content:**
+    1.  **Musicians:** Image, Title -\> Link to `/music`
+    2.  **Meeting Room:** Image, Title -\> Link to `/meeting`
+    3.  **Coworking:** Image, Title -\> Link to `/coworking`
+
+### B. The Booking Views
+
+We will use `mix ash_phoenix.gen.live` to generate the foundation, then customize heavily.
+
+**1. Generate Base LiveViews:**
 
 ```bash
+# Generate a generic booking LiveView to get the FormComponent and infrastructure
 mix ash_phoenix.gen.live SpazioSolazzo.BookingSystem.Booking \
   --domain SpazioSolazzo.BookingSystem \
   --live-view SpazioSolazzoWeb.BookingLive \
-  --uri /bookings \
   --no-actor
 ```
 
-**What this gives you:**
+**2. Configure Router:**
+We will map specific routes to specific LiveViews (or variant mounts of the same LiveView).
 
-  * `Index`, `Show`, and `FormComponent` LiveViews.
-  * Automatic handling of `to_form`.
-  * Error message display.
+```elixir
+scope "/", SpazioSolazzoWeb do
+  pipe_through :browser
 
-### B. Customization (The "Spazio Solazzo" Grid)
+  live "/", PageLive, :index
+  live "/coworking", CoworkingLive, :index
+  live "/meeting", MeetingLive, :index
+  live "/music", MusicLive, :index
+end
+```
 
-The generator creates a standard table/list view. You will update `booking_live/index.html.heex` to implement the specific UI needs:
+*Note: You can reuse the generated `BookingLive` logic or copy it into 3 separate LiveViews for cleaner separation of concerns.*
 
-1.  **Coworking:** Replace the standard table with a Map/Grid of tables.
-2.  **Meeting/Music:** Replace the list with a Calendar/Grid of time slots.
-3.  **Availability:** Use the generated `form_component` but wrap it in the logic that disables buttons based on availability.
+**3. Customizing the Views:**
+
+  * **`/coworking`:**
+      * **Load:** Assets (Tables) + TimeSlotTemplates.
+      * **UI:** Stream of Table Cards. Clicking one opens the Date/Slot picker.
+  * **`/meeting`:**
+      * **Load:** Single Asset (Meeting Room) + Hourly Templates.
+      * **UI:** Calendar view.
+  * **`/music`:**
+      * **Load:** Single Asset (Studio) + Evening Templates.
+      * **UI:** Calendar view restricted to evening.
 
 -----
 
@@ -188,8 +206,9 @@ Validate every stage.
 
 **File:** `test/spazio_solazzo_web/live/booking_live_test.exs`
 
-  * **Test Case 1:** Render the page, assert `TimeSlotTemplate` buttons are visible.
-  * **Test Case 2:** Select a date with an existing booking. Assert the overlapping button has the `disabled` attribute.
+  * **Test Case 1:** Navigate to `/`. Assert 3 space cards are present.
+  * **Test Case 2:** Click "Coworking". Assert redirection to `/coworking`.
+  * **Test Case 3:** Select a date with an existing booking. Assert the overlapping button has the `disabled` attribute.
 
 -----
 
@@ -222,9 +241,9 @@ Create `priv/repo/seeds.exs`:
 
 ### Phase 5: Frontend
 
-1.  Run `mix ash_phoenix.gen.live` (Section 5).
-2.  Refactor the generated `index.html.heex` to show the Space-specific Grids instead of a raw list of bookings.
-3.  Implement `slot_available?` logic in the LiveView.
+1.  Build `PageLive` (Homepage) with the 3 navigation cards.
+2.  Run `mix ash_phoenix.gen.live` to scaffold the booking form logic.
+3.  Create the 3 separate LiveViews (`CoworkingLive`, etc.) adapting the generated code to the specific UI grids.
 
 ### Phase 6: Final Verification
 
