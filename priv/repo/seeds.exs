@@ -11,7 +11,8 @@ IO.puts("Seeding Spazio Solazzo booking system...")
   BookingSystem.Space
   |> Ash.Changeset.for_create(:create, %{
     name: "Coworking",
-    slug: "coworking"
+    slug: "coworking",
+    description: "Flexible desk spaces for remote work"
   })
   |> Ash.create()
 
@@ -22,7 +23,8 @@ IO.puts("✓ Created Coworking space")
   BookingSystem.Space
   |> Ash.Changeset.for_create(:create, %{
     name: "Meeting Room",
-    slug: "meeting"
+    slug: "meeting",
+    description: "Private conference rooms by the hour"
   })
   |> Ash.create()
 
@@ -33,7 +35,8 @@ IO.puts("✓ Created Meeting Room space")
   BookingSystem.Space
   |> Ash.Changeset.for_create(:create, %{
     name: "Music Studio",
-    slug: "music"
+    slug: "music",
+    description: "Evening recording sessions"
   })
   |> Ash.create()
 

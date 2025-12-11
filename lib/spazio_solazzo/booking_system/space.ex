@@ -13,13 +13,14 @@ defmodule SpazioSolazzo.BookingSystem.Space do
     defaults [:read, :update, :destroy]
 
     create :create do
-      accept [:name, :slug]
+      accept [:name, :slug, :description]
     end
   end
 
   attributes do
     uuid_primary_key :id
     attribute :name, :string, allow_nil?: false, public?: true
+    attribute :description, :string, allow_nil?: false, public?: true
     attribute :slug, :string, allow_nil?: false, public?: true
   end
 end
