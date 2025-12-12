@@ -36,12 +36,11 @@
         <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
           <%= for time_slot <- @time_slots do %>
             <% booked = slot_booked?(time_slot.id, @bookings) %>
-            <SpazioSolazzoWeb.BookingComponents.TimeSlotButton.render
+            <SpazioSolazzoWeb.BookingComponents.TimeSlotButton.compact
               phx-click={unless booked, do: "select_slot"}
               phx-value-time_slot_id={time_slot.id}
               time_slot={time_slot}
               booked={booked}
-              variant={:compact}
             />
           <% end %>
         </div>
