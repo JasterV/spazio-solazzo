@@ -20,6 +20,10 @@ defmodule SpazioSolazzoWeb.CoworkingLive do
       |> Ash.Query.filter(space_id == ^space.id)
       |> Ash.read()
 
+    if connected?(socket) do
+      Phoenix.PubSub.subscribe(SpazioSolazzo.PubSub, "booking:created")
+    end
+
     {:ok,
      socket
      |> assign(
@@ -54,11 +58,6 @@ defmodule SpazioSolazzoWeb.CoworkingLive do
 
   def handle_event("select_asset", %{"id" => id}, socket) do
     asset = Enum.find(socket.assigns.assets, &(&1.id == id))
-
-    if connected?(socket) do
-      Phoenix.PubSub.subscribe(SpazioSolazzo.PubSub, "booking:created")
-    end
-
     bookings = load_bookings(asset.id, socket.assigns.selected_date)
 
     {:noreply, assign(socket, selected_asset: asset, bookings: bookings)}
@@ -102,14 +101,17 @@ defmodule SpazioSolazzoWeb.CoworkingLive do
     end
   end
 
-  def handle_info(%{topic: "booking:created", payload: %{data: booking}}, socket) do
-    if socket.assigns.selected_asset && booking.asset_id == socket.assigns.selected_asset.id &&
-         booking.date == socket.assigns.selected_date do
-      bookings = load_bookings(socket.assigns.selected_asset.id, socket.assigns.selected_date)
-      {:noreply, assign(socket, bookings: bookings)}
-    else
-      {:noreply, socket}
-    end
+  def handle_info(
+        %{topic: "booking:created", payload: %{data: %{asset_id: asset_id, date: date}}},
+        socket = %{assigns: %{selected_asset: %{id: asset_id}, selected_date: date}}
+      ) do
+    bookings = load_bookings(asset_id, date)
+    {:noreply, assign(socket, bookings: bookings)}
+  end
+
+  # Catches all other received booking creation events
+  def handle_info(%{topic: "booking:created", payload: _payload}, socket) do
+    {:noreply, socket}
   end
 
   defp create_booking(params) do

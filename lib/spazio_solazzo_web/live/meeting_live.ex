@@ -98,6 +98,19 @@ defmodule SpazioSolazzoWeb.MeetingLive do
     end
   end
 
+  def handle_info(
+        %{topic: "booking:created", payload: %{data: %{asset_id: asset_id, date: date}}},
+        socket = %{assigns: %{asset: %{id: asset_id}, selected_date: date}}
+      ) do
+    bookings = load_bookings(asset_id, date)
+    {:noreply, assign(socket, bookings: bookings)}
+  end
+
+  # Catches all other received booking creation events
+  def handle_info(%{topic: "booking:created", payload: _payload}, socket) do
+    {:noreply, socket}
+  end
+
   defp create_booking(params) do
     BookingSystem.Booking
     |> Ash.Changeset.for_create(:create, params)

@@ -272,6 +272,38 @@ defmodule SpazioSolazzoWeb.CoreComponents do
     """
   end
 
+  # 🎯 Specific clause for type="date" with inline classes
+  def input(%{type: "date"} = assigns) do
+    ~H"""
+    <div>
+      <label>
+        <span
+          :if={@label}
+          class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+        >
+          {@label}
+        </span>
+        <input
+          type={@type}
+          name={@name}
+          id={@id}
+          value={Phoenix.HTML.Form.normalize_value(@type, @value)}
+          class={
+            [
+              # Use @class if provided, otherwise use the very long inline string:
+              @class ||
+                "block w-full max-w-xs px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white",
+              @errors != [] && (@error_class || "input-error")
+            ]
+          }
+          {@rest}
+        />
+      </label>
+      <.error :for={msg <- @errors}>{msg}</.error>
+    </div>
+    """
+  end
+
   # All other inputs text, datetime-local, url, password, etc. are handled here...
   def input(assigns) do
     ~H"""

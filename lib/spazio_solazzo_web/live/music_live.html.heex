@@ -12,20 +12,14 @@
         <p class="text-gray-600 dark:text-gray-300 mt-2">{@asset.name} - Evening sessions</p>
 
         <div class="mt-6">
-          <label
-            for="date-picker"
-            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-          >
-            Select Date
-          </label>
           <.form for={%{}} phx-change="change_date">
-            <input
+            <.input
+              label="Select Date"
               type="date"
               id="date-picker"
               name="date"
               value={Date.to_string(@selected_date)}
               min={Date.to_string(Date.utc_today())}
-              class="block w-full max-w-xs px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
             />
           </.form>
         </div>
