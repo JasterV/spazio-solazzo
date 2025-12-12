@@ -1,14 +1,8 @@
-## Bugs to fix
-
-- When a booked time slot overlaps other time slots, those time slots must be marked as booked too
-
 ## Required next
 
 - Users have to validate their booking with a code sent to their email, otherwise the booking can't be confirmed
 
 - Time slots should be configurable for each day of the week, for example on sundays we might want to close or saturdays might have less available hours, as well as tuesdays for the jam room
-
-- Unit tests for each live view should be implemented
 
 ## Ideas
 
