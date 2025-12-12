@@ -83,8 +83,7 @@ IO.puts("✓ Created music studio asset")
 # Create Coworking Time Slot Templates
 coworking_slots = [
   %{name: "Morning (9am-1pm)", start_time: ~T[09:00:00], end_time: ~T[13:00:00]},
-  %{name: "Afternoon (2pm-6pm)", start_time: ~T[14:00:00], end_time: ~T[18:00:00]},
-  %{name: "Full Day (9am-6pm)", start_time: ~T[09:00:00], end_time: ~T[18:00:00]}
+  %{name: "Afternoon (2pm-6pm)", start_time: ~T[14:00:00], end_time: ~T[18:00:00]}
 ]
 
 for slot <- coworking_slots do
@@ -121,8 +120,7 @@ IO.puts("✓ Created #{length(meeting_slots)} meeting room hourly slots")
 # Create Music Studio Evening Slots
 music_slots = [
   %{name: "Evening Session 1 (6pm-8pm)", start_time: ~T[18:00:00], end_time: ~T[20:00:00]},
-  %{name: "Evening Session 2 (8pm-10pm)", start_time: ~T[20:00:00], end_time: ~T[22:00:00]},
-  %{name: "Full Evening (6pm-10pm)", start_time: ~T[18:00:00], end_time: ~T[22:00:00]}
+  %{name: "Evening Session 2 (8pm-10pm)", start_time: ~T[20:00:00], end_time: ~T[22:00:00]}
 ]
 
 for slot <- music_slots do

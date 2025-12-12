@@ -10,10 +10,12 @@ defmodule SpazioSolazzo.BookingSystem.TimeSlotTemplate do
   end
 
   actions do
-    defaults [:read, :update, :destroy]
+    defaults [:read, :destroy]
 
     create :create do
       accept [:name, :start_time, :end_time, :space_id]
+
+      change {SpazioSolazzo.BookingSystem.Changes.PreventCreationOverlap, []}
     end
   end
 
