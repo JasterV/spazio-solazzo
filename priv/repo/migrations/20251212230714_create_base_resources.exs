@@ -36,6 +36,10 @@ defmodule SpazioSolazzo.Repo.Migrations.CreateBaseResources do
       add :slug, :text, null: false
     end
 
+    create unique_index(:spaces, [:name], name: "spaces_unique_name_index")
+
+    create unique_index(:spaces, [:slug], name: "spaces_unique_slug_index")
+
     create table(:bookings, primary_key: false) do
       add :id, :uuid, null: false, default: fragment("gen_random_uuid()"), primary_key: true
       add :date, :date
@@ -81,9 +85,15 @@ defmodule SpazioSolazzo.Repo.Migrations.CreateBaseResources do
           ),
           null: false
     end
+
+    create unique_index(:assets, [:name, :space_id], name: "assets_unique_name_per_space_index")
   end
 
   def down do
+    drop_if_exists unique_index(:assets, [:name, :space_id],
+                     name: "assets_unique_name_per_space_index"
+                   )
+
     drop constraint(:assets, "assets_space_id_fkey")
 
     alter table(:assets) do
@@ -103,6 +113,10 @@ defmodule SpazioSolazzo.Repo.Migrations.CreateBaseResources do
     drop table(:assets)
 
     drop table(:bookings)
+
+    drop_if_exists unique_index(:spaces, [:slug], name: "spaces_unique_slug_index")
+
+    drop_if_exists unique_index(:spaces, [:name], name: "spaces_unique_name_index")
 
     alter table(:spaces) do
       remove :slug

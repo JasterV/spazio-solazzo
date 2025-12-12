@@ -23,4 +23,9 @@ defmodule SpazioSolazzo.BookingSystem.Space do
     attribute :description, :string, allow_nil?: false, public?: true
     attribute :slug, :string, allow_nil?: false, public?: true
   end
+
+  identities do
+    identity :unique_name, [:name]
+    identity :unique_slug, [:slug]
+  end
 end

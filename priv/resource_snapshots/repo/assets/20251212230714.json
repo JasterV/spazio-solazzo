@@ -61,8 +61,27 @@
   "custom_indexes": [],
   "custom_statements": [],
   "has_create_action": true,
-  "hash": "9963E969271F1646E610F1D97B462471D9CCA9F6EAF55C13C4024E68DF2CC18A",
-  "identities": [],
+  "hash": "9FAD08E854AEBC8A2C7C7466BBC5254CAFB16C2A860034688C3C1142E183052C",
+  "identities": [
+    {
+      "all_tenants?": false,
+      "base_filter": null,
+      "index_name": "assets_unique_name_per_space_index",
+      "keys": [
+        {
+          "type": "atom",
+          "value": "name"
+        },
+        {
+          "type": "atom",
+          "value": "space_id"
+        }
+      ],
+      "name": "unique_name_per_space",
+      "nils_distinct?": true,
+      "where": null
+    }
+  ],
   "multitenancy": {
     "attribute": null,
     "global": null,

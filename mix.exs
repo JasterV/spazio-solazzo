@@ -90,10 +90,17 @@ defmodule SpazioSolazzo.MixProject do
   # See the documentation for `Mix` for more info on aliases.
   defp aliases do
     [
-      setup: ["deps.get", "ash.setup", "assets.setup", "assets.build", "run priv/repo/seeds.exs"],
+      setup: [
+        "deps.get",
+        "ecto.drop",
+        "ash.setup",
+        "assets.setup",
+        "assets.build",
+        "run priv/repo/seeds.exs"
+      ],
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
-      test: ["ash.setup --quiet", "test"],
+      test: ["test"],
       "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
       "assets.build": ["compile", "tailwind spazio_solazzo", "esbuild spazio_solazzo"],
       "assets.deploy": [

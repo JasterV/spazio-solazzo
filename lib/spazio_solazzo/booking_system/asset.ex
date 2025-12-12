@@ -14,6 +14,7 @@ defmodule SpazioSolazzo.BookingSystem.Asset do
 
     create :create do
       accept [:name, :space_id]
+      change SpazioSolazzo.BookingSystem.Changes.PreventDuplicateAsset
     end
   end
 
@@ -27,5 +28,9 @@ defmodule SpazioSolazzo.BookingSystem.Asset do
       allow_nil? false
       public? true
     end
+  end
+
+  identities do
+    identity :unique_name_per_space, [:name, :space_id]
   end
 end
