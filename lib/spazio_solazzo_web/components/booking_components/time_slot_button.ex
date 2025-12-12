@@ -9,22 +9,26 @@ defmodule SpazioSolazzoWeb.BookingComponents.TimeSlotButton do
     ~H"""
     <button
       disabled={@booked}
-      class={[
-        # Base Compact Classes
-        "p-4 border-2 transition-all text-center rounded-lg",
-        # State Classes
-        if(@booked,
-          do: "border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 cursor-not-allowed opacity-75",
-          else: "border-gray-200 dark:border-gray-600 hover:border-indigo-600 dark:hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 cursor-pointer"
-        )
-      ]}
+      class={
+        [
+          # Base Compact Classes
+          "p-4 border-2 transition-all text-center rounded-lg",
+          # State Classes
+          if(@booked,
+            do:
+              "border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 cursor-not-allowed opacity-75",
+            else:
+              "border-gray-200 dark:border-gray-600 hover:border-indigo-600 dark:hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 cursor-pointer"
+          )
+        ]
+      }
       {@rest}
     >
       <p class={["font-semibold", text_color(@booked, :primary)]}>
-        <%= Calendar.strftime(@time_slot.start_time, "%I:%M %p") %>
+        {Calendar.strftime(@time_slot.start_time, "%I:%M %p")}
       </p>
       <p class={["text-xs mt-1", text_color(@booked, :secondary)]}>
-        <%= if @booked, do: "Booked", else: "Available" %>
+        {if @booked, do: "Booked", else: "Available"}
       </p>
     </button>
     """
@@ -43,13 +47,15 @@ defmodule SpazioSolazzoWeb.BookingComponents.TimeSlotButton do
       class={[
         "w-full p-4 border transition-all text-left rounded-lg",
         if(@booked,
-          do: "bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 cursor-not-allowed opacity-75",
-          else: "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-indigo-600 dark:hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 cursor-pointer"
+          do:
+            "bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 cursor-not-allowed opacity-75",
+          else:
+            "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-indigo-600 dark:hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 cursor-pointer"
         )
       ]}
       {@rest}
     >
-      <%= large_content(assigns) %>
+      {large_content(assigns)}
     </button>
     """
   end
@@ -67,13 +73,15 @@ defmodule SpazioSolazzoWeb.BookingComponents.TimeSlotButton do
       class={[
         "w-full p-6 border-2 transition-all text-left rounded-lg",
         if(@booked,
-          do: "border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 cursor-not-allowed opacity-75",
-          else: "border-gray-200 dark:border-gray-600 hover:border-purple-600 dark:hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-900/30 cursor-pointer"
+          do:
+            "border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 cursor-not-allowed opacity-75",
+          else:
+            "border-gray-200 dark:border-gray-600 hover:border-purple-600 dark:hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-900/30 cursor-pointer"
         )
       ]}
       {@rest}
     >
-      <%= large_content(assigns) %>
+      {large_content(assigns)}
     </button>
     """
   end
@@ -87,17 +95,17 @@ defmodule SpazioSolazzoWeb.BookingComponents.TimeSlotButton do
           @variant == :large && "font-semibold",
           text_color(@booked, :primary)
         ]}>
-          <%= @time_slot.name %>
+          {@time_slot.name}
         </p>
         <p class={[
           @variant == :xlarge && "mt-1",
           @variant == :large && "text-sm",
           "text-gray-600 dark:text-gray-300"
         ]}>
-          <%= Calendar.strftime(@time_slot.start_time, "%I:%M %p") %> - <%= Calendar.strftime(
+          {Calendar.strftime(@time_slot.start_time, "%I:%M %p")} - {Calendar.strftime(
             @time_slot.end_time,
             "%I:%M %p"
-          ) %>
+          )}
         </p>
       </div>
 
