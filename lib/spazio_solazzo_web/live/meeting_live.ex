@@ -5,19 +5,11 @@ defmodule SpazioSolazzoWeb.MeetingLive do
   require Ash.Query
 
   def mount(_params, _session, socket) do
-    {:ok, space} =
-      BookingSystem.Space
-      |> Ash.Query.filter(slug == "meeting")
-      |> Ash.read_one()
-
-    {:ok, asset} =
-      BookingSystem.Asset
-      |> Ash.Query.filter(space_id == ^space.id)
-      |> Ash.read_one()
-
     selected_date = Date.utc_today()
-    time_slots = load_time_slots_for_date(space.id, selected_date)
-    bookings = load_bookings(asset.id, selected_date)
+    {:ok, space} = BookingSystem.get_space_by_slug("meeting")
+    {:ok, asset} = BookingSystem.get_asset_by_space_id(space.id)
+    {:ok, time_slots} = BookingSystem.get_space_time_slots_by_date(space.id, selected_date)
+    {:ok, bookings} = BookingSystem.list_asset_bookings_by_date(asset.id, selected_date)
 
     if connected?(socket) do
       Phoenix.PubSub.subscribe(SpazioSolazzo.PubSub, "booking:created")
@@ -41,11 +33,17 @@ defmodule SpazioSolazzoWeb.MeetingLive do
      )}
   end
 
+  # -------------------------------------------
+  # ---------------- UI EVENTS ----------------
+  # -------------------------------------------
+
   def handle_event("change_date", %{"date" => date_string}, socket) do
     case Date.from_iso8601(date_string) do
       {:ok, date} ->
-        time_slots = load_time_slots_for_date(socket.assigns.space.id, date)
-        bookings = load_bookings(socket.assigns.asset.id, date)
+        {:ok, time_slots} =
+          BookingSystem.get_space_time_slots_by_date(socket.assigns.space.id, date)
+
+        {:ok, bookings} = BookingSystem.list_asset_bookings_by_date(socket.assigns.asset.id, date)
 
         {:noreply,
          assign(socket,
@@ -61,10 +59,7 @@ defmodule SpazioSolazzoWeb.MeetingLive do
 
   def handle_event("select_slot", %{"time_slot_id" => time_slot_id}, socket) do
     time_slot = Enum.find(socket.assigns.time_slots, &(&1.id == time_slot_id))
-
-    {:noreply,
-     socket
-     |> assign(selected_time_slot: time_slot, show_booking_modal: true)}
+    {:noreply, assign(socket, selected_time_slot: time_slot, show_booking_modal: true)}
   end
 
   def handle_event("cancel_booking", _params, socket) do
@@ -82,18 +77,17 @@ defmodule SpazioSolazzoWeb.MeetingLive do
     {:noreply, assign(socket, show_success_modal: false)}
   end
 
+  # ------------------------------------------------
+  # ---------------- Internal events ----------------
+  # -------------------------------------------------
+
   def handle_info({:booking_form_validated, form_data}, socket) do
     booking_params = %{
-      asset_id: socket.assigns.asset.id,
-      time_slot_template_id: socket.assigns.selected_time_slot.id,
-      date: socket.assigns.selected_date,
       customer_name: form_data["customer_name"],
       customer_email: form_data["customer_email"]
     }
 
-    case BookingSystem.EmailVerification
-         |> Ash.Changeset.for_create(:create, %{email: form_data["customer_email"]})
-         |> Ash.create() do
+    case BookingSystem.create_verification_code(booking_params.customer_email) do
       {:ok, verification} ->
         Phoenix.PubSub.subscribe(
           SpazioSolazzo.PubSub,
@@ -123,9 +117,13 @@ defmodule SpazioSolazzoWeb.MeetingLive do
     )
 
     result =
-      BookingSystem.Booking
-      |> Ash.Changeset.for_create(:create, assigns.pending_booking_data)
-      |> Ash.create()
+      BookingSystem.create_booking(
+        socket.assigns.selected_time_slot.id,
+        socket.assigns.asset.id,
+        socket.assigns.selected_date,
+        socket.assigns.pending_booking_data.customer_name,
+        socket.assigns.pending_booking_data.customer_email
+      )
 
     case result do
       {:ok, _booking} ->
@@ -168,50 +166,13 @@ defmodule SpazioSolazzoWeb.MeetingLive do
         %{topic: "booking:created", payload: %{data: %{asset_id: asset_id, date: date}}},
         socket = %{assigns: %{asset: %{id: asset_id}, selected_date: date}}
       ) do
-    bookings = load_bookings(asset_id, date)
+    {:ok, bookings} = BookingSystem.list_asset_bookings_by_date(asset_id, date)
     {:noreply, assign(socket, bookings: bookings)}
-  end
-
-  # Catches all other received booking creation events
-  def handle_info(%{topic: "booking:created", payload: _payload}, socket) do
-    {:noreply, socket}
   end
 
   # Catch-all for any unexpected messages
   def handle_info(_msg, socket) do
     {:noreply, socket}
-  end
-
-  defp load_time_slots_for_date(space_id, date) do
-    day_of_week = day_of_week_atom(date)
-
-    case BookingSystem.TimeSlotTemplate
-         |> Ash.Query.filter(space_id == ^space_id and day_of_week == ^day_of_week)
-         |> Ash.read() do
-      {:ok, slots} -> slots
-      {:error, _} -> []
-    end
-  end
-
-  defp day_of_week_atom(date) do
-    case Date.day_of_week(date) do
-      1 -> :monday
-      2 -> :tuesday
-      3 -> :wednesday
-      4 -> :thursday
-      5 -> :friday
-      6 -> :saturday
-      7 -> :sunday
-    end
-  end
-
-  defp load_bookings(asset_id, date) do
-    case BookingSystem.Booking
-         |> Ash.Query.filter(asset_id == ^asset_id and date == ^date)
-         |> Ash.read() do
-      {:ok, bookings} -> bookings
-      {:error, _} -> []
-    end
   end
 
   defp slot_booked?(time_slot_id, bookings) do

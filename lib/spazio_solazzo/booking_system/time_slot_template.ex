@@ -18,6 +18,19 @@ defmodule SpazioSolazzo.BookingSystem.TimeSlotTemplate do
       accept [:name, :start_time, :end_time, :space_id, :day_of_week]
       change {Changes.PreventCreationOverlap, []}
     end
+
+    read :get_space_time_slots_by_date do
+      argument :space_id, :string do
+        allow_nil? false
+      end
+
+      argument :date, :date do
+        allow_nil? false
+      end
+
+      filter expr(space_id == ^arg(:space_id))
+      prepare SpazioSolazzo.BookingSystem.TimeSlotTemplate.Preparations.FilterByDate
+    end
   end
 
   attributes do

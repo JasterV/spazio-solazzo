@@ -24,6 +24,13 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
   actions do
     defaults [:read]
 
+    read :list_asset_bookings_by_date do
+      argument :asset_id, :uuid, allow_nil?: false
+      argument :date, :date, allow_nil?: false
+
+      filter expr(asset_id == ^arg(:asset_id) and date == ^arg(:date))
+    end
+
     create :create do
       argument :time_slot_template_id, :uuid, allow_nil?: false
       argument :asset_id, :uuid, allow_nil?: false
