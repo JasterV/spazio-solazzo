@@ -18,18 +18,18 @@ defmodule SpazioSolazzoWeb.MeetingLive do
     {:ok,
      socket
      |> assign(
-       space: space,
        asset: asset,
-       time_slots: time_slots,
        bookings: bookings,
+       email_verification_id: nil,
+       pending_booking_data: nil,
        selected_date: selected_date,
        selected_time_slot: nil,
        show_booking_modal: false,
-       show_verification_modal: false,
-       show_verification_expired_modal: false,
        show_success_modal: false,
-       email_verification_id: nil,
-       pending_booking_data: nil
+       show_verification_expired_modal: false,
+       show_verification_modal: false,
+       space: space,
+       time_slots: time_slots
      )}
   end
 

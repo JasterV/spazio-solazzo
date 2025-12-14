@@ -9,6 +9,7 @@ defmodule SpazioSolazzo.BookingSystem do
 
     resource SpazioSolazzo.BookingSystem.Asset do
       define :get_asset_by_space_id, action: :read, get_by: [:space_id]
+      define :get_space_assets, action: :get_space_assets, args: [:space_id]
     end
 
     resource SpazioSolazzo.BookingSystem.TimeSlotTemplate do

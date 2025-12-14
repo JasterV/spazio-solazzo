@@ -11,6 +11,14 @@ defmodule SpazioSolazzo.BookingSystem.Asset do
 
   actions do
     defaults [:read, create: :*]
+
+    read :get_space_assets do
+      argument :space_id, :string do
+        allow_nil? false
+      end
+
+      filter expr(space_id == ^arg(:space_id))
+    end
   end
 
   attributes do
