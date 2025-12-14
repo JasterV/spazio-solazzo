@@ -49,11 +49,26 @@
   <.live_component
     module={SpazioSolazzoWeb.BookingComponents.BookingFormComponent}
     id="booking-modal"
-    show={@show_modal}
+    show={@show_booking_modal}
     selected_time_slot={@selected_time_slot}
     asset={@asset}
     selected_date={@selected_date}
     on_cancel={JS.push("cancel_booking")}
+  />
+
+  <.live_component
+    module={SpazioSolazzoWeb.BookingComponents.EmailVerificationComponent}
+    id="email-verification-modal"
+    show={@show_verification_modal}
+    verification_id={@email_verification_id}
+    verification_email={@pending_booking_data && @pending_booking_data.customer_email}
+    on_cancel={JS.push("cancel_booking")}
+  />
+
+  <SpazioSolazzoWeb.BookingComponents.EmailVerificationExpiredComponent.render
+    id="email-verification-expired-modal"
+    show={@show_verification_expired_modal}
+    on_close={JS.push("cancel_booking")}
   />
 
   <SpazioSolazzoWeb.BookingComponents.BookingConfirmationModal.render

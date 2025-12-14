@@ -20,6 +20,8 @@ defmodule SpazioSolazzo.BookingSystem.SpaceTest do
     error_messages = Ash.Error.error_descriptions(error)
 
     assert String.contains?(error_messages, "unique") or
-             String.contains?(error_messages, "unique constraint")
+             String.contains?(error_messages, "unique constraint") or
+             String.contains?(error_messages, "taken") or
+             String.contains?(error_messages, "has already been")
   end
 end

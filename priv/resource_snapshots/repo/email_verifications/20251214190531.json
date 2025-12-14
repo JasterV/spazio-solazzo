@@ -21,7 +21,7 @@
       "references": null,
       "scale": null,
       "size": null,
-      "source": "name",
+      "source": "email",
       "type": "text"
     },
     {
@@ -33,51 +33,20 @@
       "references": null,
       "scale": null,
       "size": null,
-      "source": "start_time",
-      "type": "time"
+      "source": "code",
+      "type": "text"
     },
     {
       "allow_nil?": false,
-      "default": "nil",
+      "default": "fragment(\"(now() AT TIME ZONE 'utc')\")",
       "generated?": false,
       "precision": null,
       "primary_key?": false,
       "references": null,
       "scale": null,
       "size": null,
-      "source": "end_time",
-      "type": "time"
-    },
-    {
-      "allow_nil?": false,
-      "default": "nil",
-      "generated?": false,
-      "precision": null,
-      "primary_key?": false,
-      "references": {
-        "deferrable": false,
-        "destination_attribute": "id",
-        "destination_attribute_default": null,
-        "destination_attribute_generated": null,
-        "index?": false,
-        "match_type": null,
-        "match_with": null,
-        "multitenancy": {
-          "attribute": null,
-          "global": null,
-          "strategy": null
-        },
-        "name": "time_slot_templates_space_id_fkey",
-        "on_delete": null,
-        "on_update": null,
-        "primary_key?": true,
-        "schema": "public",
-        "table": "spaces"
-      },
-      "scale": null,
-      "size": null,
-      "source": "space_id",
-      "type": "uuid"
+      "source": "inserted_at",
+      "type": "utc_datetime_usec"
     }
   ],
   "base_filter": null,
@@ -85,7 +54,7 @@
   "custom_indexes": [],
   "custom_statements": [],
   "has_create_action": true,
-  "hash": "A4084A9E710B635EACBF711B55B4E3E074DFC037F0793B2D515EE5F2FC875B9A",
+  "hash": "EE991B58901B854E79A8E8EFC16C7164FBDA9E10F881CE19915038B8CE577692",
   "identities": [],
   "multitenancy": {
     "attribute": null,
@@ -94,5 +63,5 @@
   },
   "repo": "Elixir.SpazioSolazzo.Repo",
   "schema": null,
-  "table": "time_slot_templates"
+  "table": "email_verifications"
 }

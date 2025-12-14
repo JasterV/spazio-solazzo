@@ -10,11 +10,14 @@ defmodule SpazioSolazzo.BookingSystem.Asset do
   end
 
   actions do
-    defaults [:read, :update, :destroy]
+    defaults [:read, create: :*]
 
-    create :create do
-      accept [:name, :space_id]
-      change SpazioSolazzo.BookingSystem.Changes.PreventDuplicateAsset
+    read :get_space_assets do
+      argument :space_id, :string do
+        allow_nil? false
+      end
+
+      filter expr(space_id == ^arg(:space_id))
     end
   end
 

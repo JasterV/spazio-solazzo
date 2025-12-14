@@ -32,8 +32,7 @@ defmodule SpazioSolazzo.BookingSystem.AssetTest do
 
     message = Ash.Error.error_descriptions(error)
 
-    assert String.contains?(message, "asset with this name already exists for the space") or
-             String.contains?(message, "unique") or String.contains?(message, "unique constraint")
+    assert String.contains?(message, "already been taken")
   end
 
   test "allows same asset name for different spaces", %{space: space} do

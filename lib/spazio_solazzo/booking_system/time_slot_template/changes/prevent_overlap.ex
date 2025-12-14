@@ -1,4 +1,4 @@
-defmodule SpazioSolazzo.BookingSystem.Changes.PreventCreationOverlap do
+defmodule SpazioSolazzo.BookingSystem.TimeSlotTemplate.Changes.PreventCreationOverlap do
   @moduledoc false
 
   use Ash.Resource.Change
@@ -16,21 +16,23 @@ defmodule SpazioSolazzo.BookingSystem.Changes.PreventCreationOverlap do
     space_id = Ash.Changeset.get_attribute(changeset, :space_id)
     start_time = Ash.Changeset.get_attribute(changeset, :start_time)
     end_time = Ash.Changeset.get_attribute(changeset, :end_time)
+    day_of_week = Ash.Changeset.get_attribute(changeset, :day_of_week)
 
-    data =
+    overlapping =
       TimeSlotTemplate
       |> Ash.Query.filter(space_id == ^space_id)
+      |> Ash.Query.filter(day_of_week == ^day_of_week)
       |> Ash.Query.filter(start_time < ^end_time and end_time > ^start_time)
       |> Ash.read()
 
-    case data do
+    case overlapping do
       {:ok, []} ->
         changeset
 
       {:ok, _} ->
         Changeset.add_error(changeset,
           field: :base,
-          message: "time slot overlaps with existing template for this space"
+          message: "time slot overlaps with existing template for this space and day"
         )
 
       {:error, err} ->

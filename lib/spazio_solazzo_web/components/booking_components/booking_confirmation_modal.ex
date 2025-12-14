@@ -1,6 +1,5 @@
 defmodule SpazioSolazzoWeb.BookingComponents.BookingConfirmationModal do
-  use Phoenix.Component
-  alias Phoenix.LiveView.JS
+  use SpazioSolazzoWeb, :html
 
   attr :id, :string, required: true
   attr :show, :boolean, default: false
@@ -14,8 +13,6 @@ defmodule SpazioSolazzoWeb.BookingComponents.BookingConfirmationModal do
       class="relative z-50"
       role="dialog"
       aria-modal="true"
-      phx-mounted={@show && show_modal(@id)}
-      phx-remove={hide_modal(@id)}
     >
       <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
       <div class="fixed inset-0 z-10 overflow-y-auto">
@@ -65,41 +62,5 @@ defmodule SpazioSolazzoWeb.BookingComponents.BookingConfirmationModal do
       </div>
     </div>
     """
-  end
-
-  defp show_modal(js \\ %JS{}, id) when is_binary(id) do
-    js
-    |> JS.show(
-      to: "##{id}",
-      transition:
-        {"transition-all transform ease-out duration-300",
-         "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95",
-         "opacity-100 translate-y-0 sm:scale-100"}
-    )
-    |> JS.show(
-      to: "##{id}-container",
-      transition:
-        {"transition-all transform ease-out duration-300",
-         "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95",
-         "opacity-100 translate-y-0 sm:scale-100"}
-    )
-  end
-
-  defp hide_modal(js \\ %JS{}, id) do
-    js
-    |> JS.hide(
-      to: "##{id}",
-      transition:
-        {"transition-all transform ease-in duration-200",
-         "opacity-100 translate-y-0 sm:scale-100",
-         "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"}
-    )
-    |> JS.hide(
-      to: "##{id}-container",
-      transition:
-        {"transition-all transform ease-in duration-200",
-         "opacity-100 translate-y-0 sm:scale-100",
-         "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"}
-    )
   end
 end

@@ -20,7 +20,8 @@ defmodule SpazioSolazzo.BookingSystem.TimeSlotTemplateTest do
                name: "Morning",
                start_time: ~T[09:00:00],
                end_time: ~T[12:00:00],
-               space_id: space.id
+               space_id: space.id,
+               day_of_week: :monday
              })
              |> Ash.create()
 
@@ -30,7 +31,8 @@ defmodule SpazioSolazzo.BookingSystem.TimeSlotTemplateTest do
                name: "Overlap",
                start_time: ~T[11:00:00],
                end_time: ~T[13:00:00],
-               space_id: space.id
+               space_id: space.id,
+               day_of_week: :monday
              })
              |> Ash.create()
 
@@ -44,7 +46,8 @@ defmodule SpazioSolazzo.BookingSystem.TimeSlotTemplateTest do
                name: "Morning",
                start_time: ~T[09:00:00],
                end_time: ~T[12:00:00],
-               space_id: space.id
+               space_id: space.id,
+               day_of_week: :monday
              })
              |> Ash.create()
 
@@ -54,7 +57,8 @@ defmodule SpazioSolazzo.BookingSystem.TimeSlotTemplateTest do
                name: "Afternoon",
                start_time: ~T[13:00:00],
                end_time: ~T[16:00:00],
-               space_id: space.id
+               space_id: space.id,
+               day_of_week: :monday
              })
              |> Ash.create()
   end

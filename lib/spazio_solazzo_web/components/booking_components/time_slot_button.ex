@@ -1,5 +1,5 @@
 defmodule SpazioSolazzoWeb.BookingComponents.TimeSlotButton do
-  use Phoenix.Component
+  use SpazioSolazzoWeb, :html
 
   attr :time_slot, :map, required: true
   attr :booked, :boolean, required: true

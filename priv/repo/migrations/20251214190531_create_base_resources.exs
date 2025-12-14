@@ -13,6 +13,7 @@ defmodule SpazioSolazzo.Repo.Migrations.CreateBaseResources do
       add :name, :text, null: false
       add :start_time, :time, null: false
       add :end_time, :time, null: false
+      add :day_of_week, :text, null: false
       add :space_id, :uuid, null: false
     end
 
@@ -40,6 +41,16 @@ defmodule SpazioSolazzo.Repo.Migrations.CreateBaseResources do
 
     create unique_index(:spaces, [:slug], name: "spaces_unique_slug_index")
 
+    create table(:email_verifications, primary_key: false) do
+      add :id, :uuid, null: false, default: fragment("gen_random_uuid()"), primary_key: true
+      add :email, :text, null: false
+      add :code, :text, null: false
+
+      add :inserted_at, :utc_datetime_usec,
+        null: false,
+        default: fragment("(now() AT TIME ZONE 'utc')")
+    end
+
     create table(:bookings, primary_key: false) do
       add :id, :uuid, null: false, default: fragment("gen_random_uuid()"), primary_key: true
       add :date, :date
@@ -47,6 +58,16 @@ defmodule SpazioSolazzo.Repo.Migrations.CreateBaseResources do
       add :customer_email, :text
       add :start_time, :time
       add :end_time, :time
+      add :state, :text, null: false, default: "reserved"
+
+      add :inserted_at, :utc_datetime_usec,
+        null: false,
+        default: fragment("(now() AT TIME ZONE 'utc')")
+
+      add :updated_at, :utc_datetime_usec,
+        null: false,
+        default: fragment("(now() AT TIME ZONE 'utc')")
+
       add :asset_id, :uuid
       add :time_slot_template_id, :uuid
     end
@@ -82,8 +103,7 @@ defmodule SpazioSolazzo.Repo.Migrations.CreateBaseResources do
             name: "assets_space_id_fkey",
             type: :uuid,
             prefix: "public"
-          ),
-          null: false
+          ), null: false
     end
 
     create unique_index(:assets, [:name, :space_id], name: "assets_unique_name_per_space_index")
@@ -113,6 +133,8 @@ defmodule SpazioSolazzo.Repo.Migrations.CreateBaseResources do
     drop table(:assets)
 
     drop table(:bookings)
+
+    drop table(:email_verifications)
 
     drop_if_exists unique_index(:spaces, [:slug], name: "spaces_unique_slug_index")
 
