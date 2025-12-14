@@ -25,7 +25,8 @@ defmodule SpazioSolazzoWeb.CoworkingLiveTest do
         name: "S1",
         start_time: ~T[09:00:00],
         end_time: ~T[10:00:00],
-        space_id: space.id
+        space_id: space.id,
+        day_of_week: :monday
       })
       |> Ash.create()
 

@@ -10,11 +10,7 @@ defmodule SpazioSolazzo.BookingSystem.Space do
   end
 
   actions do
-    defaults [:read, :update, :destroy]
-
-    create :create do
-      accept [:name, :slug, :description]
-    end
+    defaults [:read, create: :*]
   end
 
   attributes do

@@ -1,4 +1,5 @@
 import Config
+config :spazio_solazzo, Oban, testing: :manual
 config :spazio_solazzo, token_signing_secret: "RfyHb7pU2R0WQY7TqdzLabS9LPPQosSq"
 config :bcrypt_elixir, log_rounds: 1
 config :ash, policies: [show_policy_breakdowns?: true], disable_async?: true

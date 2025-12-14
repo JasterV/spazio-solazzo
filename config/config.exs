@@ -53,7 +53,14 @@ config :spark,
 config :spazio_solazzo,
   ecto_repos: [SpazioSolazzo.Repo],
   generators: [timestamp_type: :utc_datetime],
-  ash_domains: [SpazioSolazzo.BookingSystem]
+  ash_domains: [SpazioSolazzo.BookingSystem],
+  base_url: "http://localhost:4000",
+  verification_timeout: 60
+
+config :spazio_solazzo, Oban,
+  repo: SpazioSolazzo.Repo,
+  plugins: [Oban.Plugins.Pruner],
+  queues: [default: 10, verification_cleanup: 5]
 
 config :ash_phoenix, :pub_sub_module, SpazioSolazzo.PubSub
 

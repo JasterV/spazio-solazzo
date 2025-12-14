@@ -3,11 +3,22 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
     otp_app: :spazio_solazzo,
     domain: SpazioSolazzo.BookingSystem,
     data_layer: AshPostgres.DataLayer,
-    notifiers: [Ash.Notifier.PubSub]
+    notifiers: [Ash.Notifier.PubSub],
+    extensions: [AshStateMachine]
 
   postgres do
     table "bookings"
     repo SpazioSolazzo.Repo
+  end
+
+  state_machine do
+    initial_states([:reserved])
+    default_initial_state(:reserved)
+
+    transitions do
+      transition(:confirm_payment, from: :reserved, to: :completed)
+      transition(:cancel, from: [:reserved], to: :cancelled)
+    end
   end
 
   actions do
@@ -55,6 +66,16 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
         end
       end
     end
+
+    update :confirm_payment do
+      accept []
+      change transition_state(:completed)
+    end
+
+    update :cancel do
+      accept []
+      change transition_state(:cancelled)
+    end
   end
 
   pub_sub do
@@ -71,6 +92,16 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
     attribute :customer_email, :string
     attribute :start_time, :time
     attribute :end_time, :time
+
+    attribute :state, :atom do
+      allow_nil? false
+      default :reserved
+      public? true
+      constraints one_of: [:reserved, :completed, :cancelled]
+    end
+
+    create_timestamp :inserted_at
+    update_timestamp :updated_at
   end
 
   relationships do

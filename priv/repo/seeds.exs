@@ -6,6 +6,17 @@ alias SpazioSolazzo.BookingSystem
 
 IO.puts("Seeding Spazio Solazzo booking system...")
 
+# Check if database is already seeded
+case BookingSystem.Space |> Ash.read() do
+  {:ok, [_ | _] = spaces} ->
+    IO.puts("✓ Database already seeded (found #{length(spaces)} spaces)")
+    IO.puts("✓ Run 'mix ecto.reset' to reset and re-seed the database")
+    System.halt(0)
+
+  _ ->
+    :ok
+end
+
 # Create Coworking Space
 {:ok, coworking} =
   BookingSystem.Space
@@ -80,22 +91,29 @@ IO.puts("✓ Created meeting room asset")
 
 IO.puts("✓ Created music studio asset")
 
-# Create Coworking Time Slot Templates
+# Create Coworking Time Slot Templates for each weekday
 coworking_slots = [
   %{name: "Morning (9am-1pm)", start_time: ~T[09:00:00], end_time: ~T[13:00:00]},
   %{name: "Afternoon (2pm-6pm)", start_time: ~T[14:00:00], end_time: ~T[18:00:00]}
 ]
 
-for slot <- coworking_slots do
+weekdays = [:monday, :tuesday, :wednesday, :thursday, :friday]
+
+for day <- weekdays, slot <- coworking_slots do
   {:ok, _} =
     BookingSystem.TimeSlotTemplate
-    |> Ash.Changeset.for_create(:create, Map.put(slot, :space_id, coworking.id))
+    |> Ash.Changeset.for_create(
+      :create,
+      slot |> Map.put(:space_id, coworking.id) |> Map.put(:day_of_week, day)
+    )
     |> Ash.create()
 end
 
-IO.puts("✓ Created #{length(coworking_slots)} coworking time slots")
+IO.puts(
+  "✓ Created #{length(weekdays) * length(coworking_slots)} coworking time slots across weekdays"
+)
 
-# Create Meeting Room Hourly Slots (9am-6pm)
+# Create Meeting Room Hourly Slots (9am-6pm) for weekdays
 meeting_slots =
   for hour <- 9..17 do
     start_time = Time.new!(hour, 0, 0)
@@ -108,28 +126,40 @@ meeting_slots =
     }
   end
 
-for slot <- meeting_slots do
+for day <- weekdays, slot <- meeting_slots do
   {:ok, _} =
     BookingSystem.TimeSlotTemplate
-    |> Ash.Changeset.for_create(:create, Map.put(slot, :space_id, meeting.id))
+    |> Ash.Changeset.for_create(
+      :create,
+      slot |> Map.put(:space_id, meeting.id) |> Map.put(:day_of_week, day)
+    )
     |> Ash.create()
 end
 
-IO.puts("✓ Created #{length(meeting_slots)} meeting room hourly slots")
+IO.puts(
+  "✓ Created #{length(weekdays) * length(meeting_slots)} meeting room hourly slots across weekdays"
+)
 
-# Create Music Studio Evening Slots
+# Create Music Studio Evening Slots for all days of the week
 music_slots = [
   %{name: "Evening Session 1 (6pm-8pm)", start_time: ~T[18:00:00], end_time: ~T[20:00:00]},
   %{name: "Evening Session 2 (8pm-10pm)", start_time: ~T[20:00:00], end_time: ~T[22:00:00]}
 ]
 
-for slot <- music_slots do
+all_days = [:monday, :tuesday, :wednesday, :thursday, :friday, :saturday, :sunday]
+
+for day <- all_days, slot <- music_slots do
   {:ok, _} =
     BookingSystem.TimeSlotTemplate
-    |> Ash.Changeset.for_create(:create, Map.put(slot, :space_id, music.id))
+    |> Ash.Changeset.for_create(
+      :create,
+      slot |> Map.put(:space_id, music.id) |> Map.put(:day_of_week, day)
+    )
     |> Ash.create()
 end
 
-IO.puts("✓ Created #{length(music_slots)} music studio evening slots")
+IO.puts(
+  "✓ Created #{length(all_days) * length(music_slots)} music studio evening slots across all days"
+)
 
 IO.puts("\n🎉 Seeding complete!")

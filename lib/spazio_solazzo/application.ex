@@ -10,13 +10,13 @@ defmodule SpazioSolazzo.Application do
     children = [
       SpazioSolazzoWeb.Telemetry,
       SpazioSolazzo.Repo,
+      {Oban, Application.fetch_env!(:spazio_solazzo, Oban)},
       {DNSCluster, query: Application.get_env(:spazio_solazzo, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: SpazioSolazzo.PubSub},
       # Start a worker by calling: SpazioSolazzo.Worker.start_link(arg)
       # {SpazioSolazzo.Worker, arg},
       # Start to serve requests, typically the last entry
-      SpazioSolazzoWeb.Endpoint,
-      {AshAuthentication.Supervisor, [otp_app: :spazio_solazzo]}
+      SpazioSolazzoWeb.Endpoint
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

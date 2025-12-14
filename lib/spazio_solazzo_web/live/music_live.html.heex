@@ -56,6 +56,14 @@
     on_cancel={JS.push("cancel_booking")}
   />
 
+  <.live_component
+    module={SpazioSolazzoWeb.EmailVerificationLive}
+    id="email-verification"
+    show={@show_verification_modal}
+    verification_id={@verification_id}
+    on_cancel={JS.push("cancel_booking")}
+  />
+
   <SpazioSolazzoWeb.BookingComponents.BookingConfirmationModal.render
     id="success-modal"
     show={@show_success_modal}
