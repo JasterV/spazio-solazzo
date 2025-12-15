@@ -4,9 +4,9 @@ defmodule SpazioSolazzo.BookingSystem.EmailVerification do
     data_layer: AshPostgres.DataLayer,
     notifiers: [Ash.Notifier.PubSub]
 
-  alias SpazioSolazzo.BookingSystem.EmailVerification.VerificationCodeGenerator
-  alias SpazioSolazzo.BookingSystem.EmailVerification.EmailSender
+  alias SpazioSolazzo.BookingSystem.EmailVerification.Code
   alias SpazioSolazzo.BookingSystem.EmailVerification.CleanupWorker
+  alias SpazioSolazzo.BookingSystem.EmailVerification.EmailWorker
 
   postgres do
     table "email_verifications"
@@ -20,15 +20,17 @@ defmodule SpazioSolazzo.BookingSystem.EmailVerification do
       accept [:email]
 
       change fn changeset, _ctx ->
-        code = VerificationCodeGenerator.generate()
+        code = Code.generate()
         Ash.Changeset.change_attribute(changeset, :code, code)
       end
 
       change after_action(fn _changeset, verification, _ctx ->
-               EmailSender.send_verification_code(
-                 verification.email,
-                 verification.code
-               )
+               %{
+                 verification_email: verification.email,
+                 verification_code: verification.code
+               }
+               |> EmailWorker.new()
+               |> Oban.insert()
 
                %{verification_id: verification.id}
                |> CleanupWorker.new(schedule_in: {verification_timeout(), :seconds})

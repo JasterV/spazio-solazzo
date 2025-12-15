@@ -6,6 +6,8 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
     notifiers: [Ash.Notifier.PubSub],
     extensions: [AshStateMachine]
 
+  alias SpazioSolazzo.BookingSystem.Booking.EmailWorker
+
   postgres do
     table "bookings"
     repo SpazioSolazzo.Repo
@@ -72,6 +74,14 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
             )
         end
       end
+
+      change after_action(fn _changeset, booking, _ctx ->
+               %{booking: booking}
+               |> EmailWorker.new()
+               |> Oban.insert()
+
+               {:ok, booking}
+             end)
     end
 
     update :confirm_payment do
