@@ -1,7 +1,6 @@
 defmodule SpazioSolazzo.BookingSystem.EmailVerificationTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case
   use SpazioSolazzo.DataCase
-  import Swoosh.TestAssertions
 
   alias SpazioSolazzo.BookingSystem
   alias SpazioSolazzo.BookingSystem.EmailVerification.CleanupWorker
@@ -17,12 +16,15 @@ defmodule SpazioSolazzo.BookingSystem.EmailVerificationTest do
 
       assert_enqueued worker: CleanupWorker, args: %{"verification_id" => verification.id}
 
-      # Verify email was sent using Swoosh test assertions
-      assert_email_sent(fn email_sent ->
-        email_sent.to == [{"", email}] and
-          email_sent.subject == "Verify your booking at Spazio Solazzo" and
-          String.contains?(email_sent.html_body, verification.code)
-      end)
+      assert %Swoosh.Email{
+               subject: subject,
+               html_body: html_body,
+               to: sent_to
+             } = Swoosh.Adapters.Local.Storage.Memory.pop()
+
+      assert sent_to == [{"", email}]
+      assert String.contains?(html_body, verification.code)
+      assert subject == "Verify your booking at Spazio Solazzo"
     end
 
     test "generates unique codes for different verifications" do

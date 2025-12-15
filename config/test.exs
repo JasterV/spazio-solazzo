@@ -25,7 +25,7 @@ config :spazio_solazzo, SpazioSolazzoWeb.Endpoint,
   server: false
 
 # In test we don't send emails
-config :spazio_solazzo, SpazioSolazzo.Mailer, adapter: Swoosh.Adapters.Test
+config :spazio_solazzo, SpazioSolazzo.Mailer, adapter: Swoosh.Adapters.Local
 
 # Disable swoosh api client as it is only required for production adapters
 config :swoosh, :api_client, false

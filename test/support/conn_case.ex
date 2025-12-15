@@ -33,12 +33,7 @@ defmodule SpazioSolazzoWeb.ConnCase do
 
   setup tags do
     SpazioSolazzo.DataCase.setup_sandbox(tags)
-
-    # Switch mailer adapter to Local storage so we can inspect sent emails across processes
-    Application.put_env(:spazio_solazzo, SpazioSolazzo.Mailer, adapter: Swoosh.Adapters.Local)
-    # Clear any existing emails in memory
-    Swoosh.Adapters.Local.Storage.Memory.delete_all()
-
+    SpazioSolazzo.DataCase.clean_mailbox()
     {:ok, conn: Phoenix.ConnTest.build_conn()}
   end
 end

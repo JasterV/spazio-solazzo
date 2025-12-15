@@ -31,6 +31,7 @@ defmodule SpazioSolazzo.DataCase do
 
   setup tags do
     SpazioSolazzo.DataCase.setup_sandbox(tags)
+    SpazioSolazzo.DataCase.clean_mailbox()
     :ok
   end
 
@@ -40,5 +41,12 @@ defmodule SpazioSolazzo.DataCase do
   def setup_sandbox(tags) do
     pid = Ecto.Adapters.SQL.Sandbox.start_owner!(SpazioSolazzo.Repo, shared: not tags[:async])
     on_exit(fn -> Ecto.Adapters.SQL.Sandbox.stop_owner(pid) end)
+  end
+
+  @doc """
+  Clean the local Swoosh mailbox
+  """
+  def clean_mailbox() do
+    Swoosh.Adapters.Local.Storage.Memory.delete_all()
   end
 end
