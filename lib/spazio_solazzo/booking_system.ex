@@ -5,17 +5,23 @@ defmodule SpazioSolazzo.BookingSystem do
   resources do
     resource SpazioSolazzo.BookingSystem.Space do
       define :get_space_by_slug, action: :read, get_by: [:slug]
+      define :create_space, action: :create, args: [:name, :slug, :description]
     end
 
     resource SpazioSolazzo.BookingSystem.Asset do
       define :get_asset_by_space_id, action: :read, get_by: [:space_id]
       define :get_space_assets, action: :get_space_assets, args: [:space_id]
+      define :create_asset, action: :create, args: [:name, :space_id]
     end
 
     resource SpazioSolazzo.BookingSystem.TimeSlotTemplate do
       define :get_space_time_slots_by_date,
         action: :get_space_time_slots_by_date,
         args: [:space_id, :date]
+
+      define :create_time_slot_template,
+        action: :create,
+        args: [:name, :start_time, :end_time, :day_of_week, :space_id]
     end
 
     resource SpazioSolazzo.BookingSystem.Booking do
@@ -32,6 +38,9 @@ defmodule SpazioSolazzo.BookingSystem do
           :customer_name,
           :customer_email
         ]
+
+      define :confirm_booking, action: :confirm_payment, args: []
+      define :cancel_booking, action: :cancel, args: []
     end
 
     resource SpazioSolazzo.BookingSystem.EmailVerification do

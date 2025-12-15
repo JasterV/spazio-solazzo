@@ -3,47 +3,151 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
   use SpazioSolazzo.DataCase
 
   alias SpazioSolazzo.BookingSystem
+  alias SpazioSolazzo.BookingSystem.Booking
 
   setup do
-    {:ok, space} =
-      BookingSystem.Space
-      |> Ash.Changeset.for_create(:create, %{name: "Test", slug: "test2", description: "desc"})
-      |> Ash.create()
+    {:ok, space} = BookingSystem.create_space("Test", "test2", "desc")
+    {:ok, asset} = BookingSystem.create_asset("Table 1", space.id)
 
-    {:ok, asset} =
-      BookingSystem.Asset
-      |> Ash.Changeset.for_create(:create, %{name: "Table 1", space_id: space.id})
-      |> Ash.create()
+    {:ok, time_slot} =
+      BookingSystem.create_time_slot_template(
+        "Full Day",
+        ~T[09:00:00],
+        ~T[18:00:00],
+        :monday,
+        space.id
+      )
 
-    {:ok, template} =
-      BookingSystem.TimeSlotTemplate
-      |> Ash.Changeset.for_create(:create, %{
-        name: "Full Day",
-        start_time: ~T[09:00:00],
-        end_time: ~T[18:00:00],
-        space_id: space.id,
-        day_of_week: :monday
-      })
-      |> Ash.create()
-
-    %{space: space, asset: asset, template: template}
+    %{space: space, asset: asset, time_slot: time_slot}
   end
 
-  test "creates a booking with template times", %{asset: asset, template: template} do
-    params = %{
-      asset_id: asset.id,
-      time_slot_template_id: template.id,
-      date: Date.utc_today(),
-      customer_name: "John",
-      customer_email: "john@example.com"
-    }
-
+  test "it can create a booking from a time slot template", %{asset: asset, time_slot: time_slot} do
     {:ok, booking} =
-      BookingSystem.Booking
-      |> Ash.Changeset.for_create(:create, params)
-      |> Ash.create()
+      BookingSystem.create_booking(
+        time_slot.id,
+        asset.id,
+        Date.utc_today(),
+        "John",
+        "john@example.com"
+      )
 
-    assert booking.start_time == template.start_time
-    assert booking.end_time == template.end_time
+    assert booking.start_time == time_slot.start_time
+    assert booking.end_time == time_slot.end_time
+    assert booking.state == :reserved
+  end
+
+  test "it can confirm a booking was paid", %{asset: asset, time_slot: time_slot} do
+    {:ok, booking} =
+      BookingSystem.create_booking(
+        time_slot.id,
+        asset.id,
+        Date.utc_today(),
+        "John",
+        "john@example.com"
+      )
+
+    assert booking.state == :reserved
+
+    assert {:ok, booking} = BookingSystem.confirm_booking(booking)
+
+    assert booking.state == :completed
+  end
+
+  test "it can cancel a booking", %{asset: asset, time_slot: time_slot} do
+    {:ok, booking} =
+      BookingSystem.create_booking(
+        time_slot.id,
+        asset.id,
+        Date.utc_today(),
+        "John",
+        "john@example.com"
+      )
+
+    assert booking.state == :reserved
+
+    assert {:ok, booking} = BookingSystem.cancel_booking(booking)
+
+    assert booking.state == :cancelled
+  end
+
+  test "it can list asset bookings by date", %{asset: asset, space: space, time_slot: time_slot} do
+    {:ok, asset2} = BookingSystem.create_asset("Table 2", space.id)
+    {:ok, asset3} = BookingSystem.create_asset("Table 3", space.id)
+    today_date = Date.utc_today()
+
+    {:ok, time_slot2} =
+      BookingSystem.create_time_slot_template(
+        "Tuesday afternoon",
+        ~T[13:00:00],
+        ~T[18:00:00],
+        :tuesday,
+        space.id
+      )
+
+    {:ok, time_slot3} =
+      BookingSystem.create_time_slot_template(
+        "Tuesday morning",
+        ~T[09:00:00],
+        ~T[13:00:00],
+        :tuesday,
+        space.id
+      )
+
+    # Create the bookings we want to query
+    assert {:ok, _} =
+             BookingSystem.create_booking(
+               time_slot2.id,
+               asset.id,
+               today_date,
+               "John",
+               "john@example.com"
+             )
+
+    assert {:ok, _} =
+             BookingSystem.create_booking(
+               time_slot3.id,
+               asset.id,
+               today_date,
+               "John",
+               "john@example.com"
+             )
+
+    # Create bookings for asset but another date
+    assert {:ok, _} =
+             BookingSystem.create_booking(
+               time_slot2.id,
+               asset.id,
+               Date.add(today_date, 1),
+               "John",
+               "john@example.com"
+             )
+
+    # Create bookings for other assets
+    assert {:ok, _} =
+             BookingSystem.create_booking(
+               time_slot.id,
+               asset2.id,
+               today_date,
+               "John",
+               "john@example.com"
+             )
+
+    assert {:ok, _} =
+             BookingSystem.create_booking(
+               time_slot.id,
+               asset3.id,
+               today_date,
+               "John",
+               "john@example.com"
+             )
+
+    assert {:ok, bookings} = BookingSystem.list_asset_bookings_by_date(asset.id, Date.utc_today())
+
+    asset_id = asset.id
+
+    assert [
+             %Booking{date: ^today_date, asset_id: ^asset_id},
+             %Booking{date: ^today_date, asset_id: ^asset_id}
+           ] = bookings
   end
 end

@@ -5,61 +5,71 @@ defmodule SpazioSolazzo.BookingSystem.TimeSlotTemplateTest do
   alias SpazioSolazzo.BookingSystem
 
   setup do
-    {:ok, space} =
-      BookingSystem.Space
-      |> Ash.Changeset.for_create(:create, %{name: "Test", slug: "test", description: "desc"})
-      |> Ash.create()
-
+    {:ok, space} = BookingSystem.create_space("Test", "test", "description")
     %{space: space}
   end
 
   test "prevents overlapping time slot templates for same space", %{space: space} do
     assert {:ok, _} =
-             BookingSystem.TimeSlotTemplate
-             |> Ash.Changeset.for_create(:create, %{
-               name: "Morning",
-               start_time: ~T[09:00:00],
-               end_time: ~T[12:00:00],
-               space_id: space.id,
-               day_of_week: :monday
-             })
-             |> Ash.create()
+             BookingSystem.create_time_slot_template(
+               "Morning",
+               ~T[09:00:00],
+               ~T[12:00:00],
+               :monday,
+               space.id
+             )
 
     assert {:error, changeset} =
-             BookingSystem.TimeSlotTemplate
-             |> Ash.Changeset.for_create(:create, %{
-               name: "Overlap",
-               start_time: ~T[11:00:00],
-               end_time: ~T[13:00:00],
-               space_id: space.id,
-               day_of_week: :monday
-             })
-             |> Ash.create()
+             BookingSystem.create_time_slot_template(
+               "Morning",
+               ~T[11:00:00],
+               ~T[13:00:00],
+               :monday,
+               space.id
+             )
 
     assert Ash.Error.error_descriptions(changeset.errors) =~ "overlaps"
   end
 
-  test "allows non-overlapping time slot templates for same space", %{space: space} do
+  test "allows non-overlapping time slot templates for same space on the same day", %{
+    space: space
+  } do
     assert {:ok, _} =
-             BookingSystem.TimeSlotTemplate
-             |> Ash.Changeset.for_create(:create, %{
-               name: "Morning",
-               start_time: ~T[09:00:00],
-               end_time: ~T[12:00:00],
-               space_id: space.id,
-               day_of_week: :monday
-             })
-             |> Ash.create()
+             BookingSystem.create_time_slot_template(
+               "Morning",
+               ~T[09:00:00],
+               ~T[12:00:00],
+               :monday,
+               space.id
+             )
 
     assert {:ok, _} =
-             BookingSystem.TimeSlotTemplate
-             |> Ash.Changeset.for_create(:create, %{
-               name: "Afternoon",
-               start_time: ~T[13:00:00],
-               end_time: ~T[16:00:00],
-               space_id: space.id,
-               day_of_week: :monday
-             })
-             |> Ash.create()
+             BookingSystem.create_time_slot_template(
+               "Afternoon",
+               ~T[13:00:00],
+               ~T[16:00:00],
+               :monday,
+               space.id
+             )
+  end
+
+  test "allows overlapping time slot templates for same space on different days", %{space: space} do
+    assert {:ok, _} =
+             BookingSystem.create_time_slot_template(
+               "Monday morning",
+               ~T[09:00:00],
+               ~T[12:00:00],
+               :monday,
+               space.id
+             )
+
+    assert {:ok, _} =
+             BookingSystem.create_time_slot_template(
+               "Tuesday morning",
+               ~T[09:00:00],
+               ~T[12:00:00],
+               :tuesday,
+               space.id
+             )
   end
 end

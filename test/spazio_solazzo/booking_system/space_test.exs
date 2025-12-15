@@ -4,24 +4,21 @@ defmodule SpazioSolazzo.BookingSystem.SpaceTest do
 
   alias SpazioSolazzo.BookingSystem
 
-  test "prevents duplicate names and slugs" do
-    params = %{name: "Space", slug: "space", description: "test"}
-
+  test "can create a space" do
     assert {:ok, _} =
-             BookingSystem.Space
-             |> Ash.Changeset.for_create(:create, params)
-             |> Ash.create()
+             BookingSystem.create_space("Space", "space", "test description")
 
-    assert {:error, error} =
-             BookingSystem.Space
-             |> Ash.Changeset.for_create(:create, params)
-             |> Ash.create()
+    assert {:ok, space} = BookingSystem.get_space_by_slug("space")
+
+    assert space.slug == "space"
+  end
+
+  test "can't create two spaces with same name and slug" do
+    assert {:ok, _} = BookingSystem.create_space("Space", "space", "test description")
+    assert {:error, error} = BookingSystem.create_space("Space", "space", "test description")
 
     error_messages = Ash.Error.error_descriptions(error)
 
-    assert String.contains?(error_messages, "unique") or
-             String.contains?(error_messages, "unique constraint") or
-             String.contains?(error_messages, "taken") or
-             String.contains?(error_messages, "has already been")
+    assert String.contains?(error_messages, "has already been")
   end
 end
