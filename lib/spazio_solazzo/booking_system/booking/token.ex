@@ -4,14 +4,14 @@ defmodule SpazioSolazzo.BookingSystem.Booking.Token do
   """
   alias SpazioSolazzoWeb.Endpoint
 
-  def generate_customer_cancel_token(booking) do
-    payload = %{booking_id: booking.id, role: :customer, action: "cancel"}
+  def generate_customer_cancel_token(booking_id) do
+    payload = %{booking_id: booking_id, role: :customer, action: "cancel"}
     Phoenix.Token.sign(Endpoint, signing_salt(), payload)
   end
 
-  def generate_admin_tokens(booking) do
-    confirm_payload = %{booking_id: booking.id, role: :admin, action: "confirm"}
-    cancel_payload = %{booking_id: booking.id, role: :admin, action: "cancel"}
+  def generate_admin_tokens(booking_id) do
+    confirm_payload = %{booking_id: booking_id, role: :admin, action: "confirm"}
+    cancel_payload = %{booking_id: booking_id, role: :admin, action: "cancel"}
 
     %{
       confirm_token: Phoenix.Token.sign(Endpoint, signing_salt(), confirm_payload),

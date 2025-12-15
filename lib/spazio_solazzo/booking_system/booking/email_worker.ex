@@ -6,14 +6,32 @@ defmodule SpazioSolazzo.BookingSystem.Booking.EmailWorker do
   @admin_email "admin@myapp.com"
 
   @impl Oban.Worker
-  def perform(%Oban.Job{args: %{"booking" => booking}}) do
-    booking
+  def perform(%Oban.Job{
+        args: %{
+          "booking_id" => booking_id,
+          "customer_name" => customer_name,
+          "customer_email" => customer_email,
+          "date" => date,
+          "start_time" => start_time,
+          "end_time" => end_time
+        }
+      }) do
+    email_data = %{
+      booking_id: booking_id,
+      customer_name: customer_name,
+      customer_email: customer_email,
+      date: date,
+      start_time: start_time,
+      end_time: end_time,
+      admin_email: @admin_email
+    }
+
+    email_data
     |> Email.customer_confirmation()
     |> SpazioSolazzo.Mailer.deliver()
 
-    # 2. Send Admin Email
-    booking
-    |> Email.admin_notification(@admin_email)
+    email_data
+    |> Email.admin_notification()
     |> SpazioSolazzo.Mailer.deliver()
   end
 end

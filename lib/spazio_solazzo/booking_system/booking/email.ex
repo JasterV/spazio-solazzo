@@ -7,23 +7,30 @@ defmodule SpazioSolazzo.BookingSystem.Booking.Email do
   alias SpazioSolazzo.BookingSystem.Booking.Token
 
   # --- Customer Email ---
-  def customer_confirmation(booking) do
-    cancel_token = Token.generate_customer_cancel_token(booking)
+  def customer_confirmation(%{
+        booking_id: booking_id,
+        customer_name: customer_name,
+        customer_email: customer_email,
+        date: date,
+        start_time: start_time,
+        end_time: end_time
+      }) do
+    cancel_token = Token.generate_customer_cancel_token(booking_id)
     # The URL points to the controller handling the token logic
     cancel_url = url(~p"/bookings/action?token=#{cancel_token}&intent=cancel")
 
     new()
-    |> to({booking.customer_name, booking.customer_email})
+    |> to({customer_name, customer_email})
     |> from({"MyApp Bookings", "no-reply@myapp.com"})
-    |> subject("Booking Confirmed: #{format_date(booking.date)}")
+    |> subject("Booking Confirmed: #{format_date(date)}")
     |> html_body("""
       <h1>Booking Confirmed</h1>
-      <p>Hello #{booking.customer_name},</p>
+      <p>Hello #{customer_name},</p>
       <p>Your booking details are as follows:</p>
       <ul>
-        <li><strong>Date:</strong> #{format_date(booking.date)}</li>
-        <li><strong>Time:</strong> #{booking.start_time} - #{booking.end_time}</li>
-        <li><strong>Email:</strong> #{booking.customer_email}</li>
+        <li><strong>Date:</strong> #{format_date(date)}</li>
+        <li><strong>Time:</strong> #{start_time} - #{end_time}</li>
+        <li><strong>Email:</strong> #{customer_email}</li>
       </ul>
       
       <p>If you need to cancel this booking, please click the button below:</p>
@@ -35,8 +42,16 @@ defmodule SpazioSolazzo.BookingSystem.Booking.Email do
   end
 
   # --- Admin Email ---
-  def admin_notification(booking, admin_email) do
-    tokens = Token.generate_admin_tokens(booking)
+  def admin_notification(%{
+        booking_id: booking_id,
+        customer_name: customer_name,
+        customer_email: customer_email,
+        date: date,
+        start_time: start_time,
+        end_time: end_time,
+        admin_email: admin_email
+      }) do
+    tokens = Token.generate_admin_tokens(booking_id)
 
     confirm_url = url(~p"/bookings/action?token=#{tokens.confirm_token}&intent=confirm")
     cancel_url = url(~p"/bookings/action?token=#{tokens.cancel_token}&intent=cancel")
@@ -44,12 +59,12 @@ defmodule SpazioSolazzo.BookingSystem.Booking.Email do
     new()
     |> to(admin_email)
     |> from({"MyApp System", "system@myapp.com"})
-    |> subject("New Booking Action Required: #{booking.customer_name}")
+    |> subject("New Booking Action Required: #{customer_name}")
     |> html_body("""
       <h1>New Booking Received</h1>
-      <p><strong>Customer:</strong> #{booking.customer_name} (#{booking.customer_email})</p>
-      <p><strong>Date:</strong> #{format_date(booking.date)}</p>
-      <p><strong>Time:</strong> #{booking.start_time} - #{booking.end_time}</p>
+      <p><strong>Customer:</strong> #{customer_name} (#{customer_email})</p>
+      <p><strong>Date:</strong> #{format_date(date)}</p>
+      <p><strong>Time:</strong> #{start_time} - #{end_time}</p>
       
       <hr />
       

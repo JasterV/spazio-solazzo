@@ -76,7 +76,14 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
       end
 
       change after_action(fn _changeset, booking, _ctx ->
-               %{booking: booking}
+               %{
+                 booking_id: booking.id,
+                 customer_name: booking.customer_name,
+                 customer_email: booking.customer_email,
+                 date: booking.date,
+                 start_time: booking.start_time,
+                 end_time: booking.end_time
+               }
                |> EmailWorker.new()
                |> Oban.insert()
 
