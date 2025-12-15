@@ -55,7 +55,8 @@ config :spazio_solazzo,
   generators: [timestamp_type: :utc_datetime],
   ash_domains: [SpazioSolazzo.BookingSystem],
   base_url: "http://localhost:4000",
-  verification_timeout: 60
+  verification_timeout: 60,
+  booking_token_signing_salt: "43vbAIUx9+XswjhBrQ3uk2bapAYmu1WRR/h/zlFDxNd/CAfBypQXcvLv2bbR7TSf"
 
 config :spazio_solazzo, Oban,
   repo: SpazioSolazzo.Repo,

@@ -25,6 +25,8 @@ defmodule SpazioSolazzo.BookingSystem do
     end
 
     resource SpazioSolazzo.BookingSystem.Booking do
+      define :get_booking_by_id, action: :read, args: [:id], get?: true
+
       define :list_asset_bookings_by_date,
         action: :list_asset_bookings_by_date,
         args: [:asset_id, :date]
