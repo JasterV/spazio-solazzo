@@ -1,5 +1,5 @@
 defmodule SpazioSolazzo.BookingSystem.AssetTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   use SpazioSolazzo.DataCase
 
   alias SpazioSolazzo.BookingSystem

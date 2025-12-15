@@ -102,7 +102,7 @@ defmodule SpazioSolazzo.MixProject do
       ],
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
-      test: ["test"],
+      test: ["ecto.drop", "ecto.create", "ecto.migrate", "test"],
       "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
       "assets.build": ["compile", "tailwind spazio_solazzo", "esbuild spazio_solazzo"],
       "assets.deploy": [

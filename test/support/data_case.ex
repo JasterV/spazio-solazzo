@@ -20,6 +20,8 @@ defmodule SpazioSolazzo.DataCase do
     quote do
       alias SpazioSolazzo.Repo
 
+      use Oban.Testing, repo: SpazioSolazzo.Repo
+
       import Ecto
       import Ecto.Changeset
       import Ecto.Query

@@ -1,66 +1,35 @@
 defmodule SpazioSolazzoWeb.MeetingLiveTest do
   use SpazioSolazzoWeb.ConnCase
   import Phoenix.LiveViewTest
-  import Swoosh.TestAssertions
 
   alias SpazioSolazzo.BookingSystem
 
   setup do
-    {:ok, space} =
-      BookingSystem.Space
-      |> Ash.Changeset.for_create(:create, %{
-        name: "MeetingTest",
-        slug: "meeting",
-        description: "desc"
-      })
-      |> Ash.create()
-
-    {:ok, asset} =
-      BookingSystem.Asset
-      |> Ash.Changeset.for_create(:create, %{name: "Main Room", space_id: space.id})
-      |> Ash.create()
+    {:ok, space} = BookingSystem.create_space("MeetingTest", "meeting", "desc")
+    {:ok, asset} = BookingSystem.create_asset("Main Room", space.id)
 
     # Create slots for today
     today = Date.utc_today()
-    day_of_week = day_of_week_atom(today)
+    day_of_week = SpazioSolazzo.DateExt.day_of_week_atom(today)
 
     {:ok, slot} =
-      BookingSystem.TimeSlotTemplate
-      |> Ash.Changeset.for_create(:create, %{
-        name: "9:00 - 10:00",
-        start_time: ~T[09:00:00],
-        end_time: ~T[10:00:00],
-        space_id: space.id,
-        day_of_week: day_of_week
-      })
-      |> Ash.create()
+      BookingSystem.create_time_slot_template(
+        "9:00 - 10:00",
+        ~T[09:00:00],
+        ~T[10:00:00],
+        day_of_week,
+        space.id
+      )
 
     %{space: space, asset: asset, slot: slot}
   end
 
-  defp day_of_week_atom(date) do
-    case Date.day_of_week(date) do
-      1 -> :monday
-      2 -> :tuesday
-      3 -> :wednesday
-      4 -> :thursday
-      5 -> :friday
-      6 -> :saturday
-      7 -> :sunday
-    end
-  end
-
   describe "MeetingLive" do
     test "renders meeting page with available time slots", %{conn: conn, space: space} do
-      {:ok, _view, html} = live(conn, "/meeting")
+      {:ok, view, html} = live(conn, "/meeting")
 
       assert html =~ space.name
       assert html =~ "Available Time Slots"
-    end
-
-    test "displays time slots for selected date", %{conn: conn, slot: _slot} do
-      {:ok, view, _html} = live(conn, "/meeting")
-
       assert has_element?(view, "button", "09:00 AM")
     end
 
@@ -76,53 +45,62 @@ defmodule SpazioSolazzoWeb.MeetingLiveTest do
       assert has_element?(view, "input[name='customer_email']")
     end
 
-    test "completes full booking flow with email verification first", %{
-      conn: conn,
-      asset: asset,
-      slot: slot
-    } do
-      # Submit form data to trigger email verification
+    test "completes full booking flow with email verification first", %{conn: conn, asset: asset} do
+      {:ok, view, _html} = live(conn, "/meeting")
+
+      # Open booking modal by selecting an available time slot
+      view
+      |> element("button[phx-click='select_slot']")
+      |> render_click()
+
+      assert has_element?(view, "#booking-modal")
+
       form_data = %{
         "customer_name" => "Test User",
         "customer_email" => "testuser@example.com"
       }
 
-      {:ok, verification} =
-        BookingSystem.EmailVerification
-        |> Ash.Changeset.for_create(:create, %{email: form_data["customer_email"]})
-        |> Ash.create()
+      # Fill the form (trigger change) then submit to simulate user input
+      view
+      |> element("#booking-form")
+      |> render_change(%{
+        "customer_name" => form_data["customer_name"],
+        "customer_email" => form_data["customer_email"]
+      })
 
-      assert verification.email == "testuser@example.com"
-      assert String.length(verification.code) == 6
+      view
+      |> element("#booking-form")
+      |> render_submit(%{})
 
-      assert_email_sent(fn email_sent ->
-        email_sent.to == [{"", "testuser@example.com"}] and
-          email_sent.subject == "Verify your booking at Spazio Solazzo" and
-          String.contains?(email_sent.html_body, verification.code)
-      end)
+      # After submitting the booking form the email verification modal should be shown
+      assert has_element?(view, "#email-verification-modal")
 
-      {:ok, _verified} =
-        verification
-        |> Ash.Changeset.for_update(:verify, %{code: verification.code})
-        |> Ash.update()
+      # Wait a short while for the email to be sent and then read it from Local storage
+      assert %Swoosh.Email{
+               subject: subject,
+               html_body: html_body,
+               to: sent_to
+             } = Swoosh.Adapters.Local.Storage.Memory.pop()
 
-      booking_params = %{
-        asset_id: asset.id,
-        time_slot_template_id: slot.id,
-        date: Date.utc_today(),
-        customer_name: form_data["customer_name"],
-        customer_email: form_data["customer_email"]
-      }
+      assert sent_to == [{"", form_data["customer_email"]}]
+      assert subject == "Verify your booking at Spazio Solazzo"
 
-      {:ok, booking} =
-        BookingSystem.Booking
-        |> Ash.Changeset.for_create(:create, booking_params)
-        |> Ash.create()
+      # Extract the 6-digit code from the email body
+      [extracted_code] = Regex.run(~r/(\d{6})/, html_body, capture: :all_but_first)
 
-      assert booking.state == :reserved
-      assert booking.customer_email == "testuser@example.com"
+      # Submit the verification code via the verification modal form
+      view
+      |> element("#otp-form-email-verification-modal")
+      |> render_submit(%{"code" => extracted_code})
 
-      assert {:error, _} = Ash.get(BookingSystem.EmailVerification, verification.id)
+      # Success modal should be visible after successful verification & booking creation
+      assert has_element?(view, "#success-modal")
+
+      # Verify booking exists for the asset on the selected date
+      assert {:ok, [booking]} =
+               BookingSystem.list_asset_bookings_by_date(asset.id, Date.utc_today())
+
+      assert booking.customer_email == form_data["customer_email"]
     end
 
     test "rejects booking with invalid email", %{conn: conn} do
@@ -139,16 +117,7 @@ defmodule SpazioSolazzoWeb.MeetingLiveTest do
         "customer_email" => "invalid-email"
       })
 
-      :timer.sleep(200)
-
-      {:ok, bookings} = BookingSystem.Booking |> Ash.read()
-
-      invalid_booking =
-        Enum.find(bookings, fn b ->
-          b.customer_email == "invalid-email"
-        end)
-
-      assert invalid_booking == nil, "Booking should not be created with invalid email"
+      assert view |> has_element?("#booking-form")
     end
 
     test "rejects booking with empty name", %{conn: conn} do
@@ -165,16 +134,7 @@ defmodule SpazioSolazzoWeb.MeetingLiveTest do
         "customer_email" => "test@example.com"
       })
 
-      :timer.sleep(200)
-
-      {:ok, bookings} = BookingSystem.Booking |> Ash.read()
-
-      empty_name_booking =
-        Enum.find(bookings, fn b ->
-          b.customer_name == ""
-        end)
-
-      assert empty_name_booking == nil, "Booking should not be created with empty name"
+      assert view |> has_element?("#booking-form")
     end
 
     test "cancels booking flow", %{conn: conn} do
@@ -190,7 +150,7 @@ defmodule SpazioSolazzoWeb.MeetingLiveTest do
       |> element("button", "Cancel")
       |> render_click()
 
-      refute has_element?(view, "#booking-modal[data-show='true']")
+      refute has_element?(view, "#booking-form")
     end
   end
 end

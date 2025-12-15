@@ -87,7 +87,7 @@ defmodule SpazioSolazzo.BookingSystem.EmailVerification do
 
     attribute :code, :string do
       allow_nil? false
-      public? false
+      public? true
     end
 
     create_timestamp :inserted_at

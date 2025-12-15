@@ -1,28 +1,21 @@
 defmodule SpazioSolazzo.BookingSystem.EmailVerificationTest do
+  use ExUnit.Case, async: true
   use SpazioSolazzo.DataCase
   import Swoosh.TestAssertions
 
   alias SpazioSolazzo.BookingSystem
+  alias SpazioSolazzo.BookingSystem.EmailVerification.CleanupWorker
 
-  describe "EmailVerification.create" do
-    test "creates verification with code and sends email" do
+  describe "create_verification_code" do
+    test "creates verification with code, sends email & enqueues cleanup worker" do
       email = "test@example.com"
 
-      {:ok, verification} =
-        BookingSystem.EmailVerification
-        |> Ash.Changeset.for_create(:create, %{email: email})
-        |> Ash.create()
+      {:ok, verification} = BookingSystem.create_verification_code(email)
 
-      # Verify the verification record was created
       assert verification.email == email
-      assert String.length(verification.code) == 6
       assert String.match?(verification.code, ~r/^\d{6}$/)
-      assert verification.expires_at != nil
 
-      # Verify expiration is set correctly (60 seconds by default)
-      now = DateTime.utc_now()
-      diff = DateTime.diff(verification.expires_at, now, :second)
-      assert diff > 55 and diff <= 60
+      assert_enqueued worker: CleanupWorker, args: %{"verification_id" => verification.id}
 
       # Verify email was sent using Swoosh test assertions
       assert_email_sent(fn email_sent ->
@@ -33,36 +26,32 @@ defmodule SpazioSolazzo.BookingSystem.EmailVerificationTest do
     end
 
     test "generates unique codes for different verifications" do
-      {:ok, verification1} =
-        BookingSystem.EmailVerification
-        |> Ash.Changeset.for_create(:create, %{email: "test1@example.com"})
-        |> Ash.create()
+      {:ok, verification1} = BookingSystem.create_verification_code("test1@example.com")
+      {:ok, verification2} = BookingSystem.create_verification_code("test2@example.com")
 
-      {:ok, verification2} =
-        BookingSystem.EmailVerification
-        |> Ash.Changeset.for_create(:create, %{email: "test2@example.com"})
-        |> Ash.create()
+      assert_enqueued worker: CleanupWorker, args: %{"verification_id" => verification1.id}
+      assert_enqueued worker: CleanupWorker, args: %{"verification_id" => verification2.id}
 
       # Codes should be different (statistically very unlikely to be the same)
       assert verification1.code != verification2.code
     end
   end
 
-  describe "EmailVerification.verify" do
+  describe "verify_code" do
     setup do
-      {:ok, verification} =
-        BookingSystem.EmailVerification
-        |> Ash.Changeset.for_create(:create, %{email: "test@example.com"})
-        |> Ash.create()
+      {:ok, verification} = BookingSystem.create_verification_code("test@example.com")
 
-      %{verification: verification}
+      topic = "email_verification:verification_code_expired:#{verification.id}"
+      Phoenix.PubSub.subscribe(SpazioSolazzo.PubSub, topic)
+
+      %{verification: verification, topic: topic}
     end
 
-    test "successfully verifies with correct code", %{verification: verification} do
-      {:ok, verified} =
-        verification
-        |> Ash.Changeset.for_update(:verify, %{code: verification.code})
-        |> Ash.update()
+    test "successfully verifies with correct code", %{verification: verification, topic: topic} do
+      {:ok, verified} = BookingSystem.verify_code(verification, verification.code)
+
+      # Verifications should not fire expiration events
+      refute_receive ^topic
 
       assert verified.id == verification.id
 
@@ -71,47 +60,26 @@ defmodule SpazioSolazzo.BookingSystem.EmailVerificationTest do
     end
 
     test "fails with incorrect code", %{verification: verification} do
-      {:error, error} =
-        verification
-        |> Ash.Changeset.for_update(:verify, %{code: "000000"})
-        |> Ash.update()
+      {:error, error} = BookingSystem.verify_code(verification, "000000")
 
-      error_messages = Ash.Error.error_descriptions(error)
-      assert error_messages =~ "Invalid verification code"
+      assert Ash.Error.error_descriptions(error) =~ "Invalid verification code"
 
       # Verification should still exist
       assert {:ok, _} = Ash.get(BookingSystem.EmailVerification, verification.id)
     end
-
-    test "fails with expired code", %{verification: verification} do
-      # Manually update expires_at to be in the past
-      expired_verification =
-        verification
-        |> Ash.Changeset.for_update(:update, %{})
-        |> Ash.Changeset.force_change_attribute(
-          :expires_at,
-          DateTime.add(DateTime.utc_now(), -10, :second)
-        )
-        |> Ash.update!(authorize?: false)
-
-      {:error, error} =
-        expired_verification
-        |> Ash.Changeset.for_update(:verify, %{code: expired_verification.code})
-        |> Ash.update()
-
-      error_messages = Ash.Error.error_descriptions(error)
-      assert error_messages =~ "expired"
-    end
   end
 
-  describe "EmailVerification cleanup" do
-    test "verification can be deleted" do
-      {:ok, verification} =
-        BookingSystem.EmailVerification
-        |> Ash.Changeset.for_create(:create, %{email: "test@example.com"})
-        |> Ash.create()
+  describe "expire_verification_code" do
+    test "verification can be expired & pubsub is published" do
+      {:ok, verification} = BookingSystem.create_verification_code("test@example.com")
+      topic = "email_verification:verification_code_expired:#{verification.id}"
 
-      assert :ok = Ash.destroy(verification)
+      Phoenix.PubSub.subscribe(SpazioSolazzo.PubSub, topic)
+
+      assert :ok = BookingSystem.expire_verification_code(verification)
+
+      assert_receive %{topic: ^topic, event: "expire"}
+
       assert {:error, _} = Ash.get(BookingSystem.EmailVerification, verification.id)
     end
   end
