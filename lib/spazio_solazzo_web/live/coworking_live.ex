@@ -12,6 +12,7 @@ defmodule SpazioSolazzoWeb.CoworkingLive do
 
     if connected?(socket) do
       Phoenix.PubSub.subscribe(SpazioSolazzo.PubSub, "booking:created")
+      Phoenix.PubSub.subscribe(SpazioSolazzo.PubSub, "booking:cancelled")
     end
 
     {:ok,
@@ -34,35 +35,34 @@ defmodule SpazioSolazzoWeb.CoworkingLive do
   end
 
   def handle_event("change_date", %{"date" => date_string}, socket) do
-    case Date.from_iso8601(date_string) do
-      {:ok, date} ->
-        {:ok, time_slots} =
-          BookingSystem.get_space_time_slots_by_date(socket.assigns.space.id, date)
+    date = Date.from_iso8601!(date_string)
 
-        {:ok, bookings} =
-          if socket.assigns.selected_asset do
-            BookingSystem.list_asset_bookings_by_date(socket.assigns.selected_asset.id, date)
-          else
-            {:ok, []}
-          end
+    {:ok, time_slots} =
+      BookingSystem.get_space_time_slots_by_date(socket.assigns.space.id, date)
 
-        {:noreply,
-         assign(socket,
-           selected_date: date,
-           time_slots: time_slots,
-           bookings: bookings
-         )}
+    {:ok, bookings} =
+      if socket.assigns.selected_asset do
+        BookingSystem.list_active_asset_bookings_by_date(
+          socket.assigns.selected_asset.id,
+          date
+        )
+      else
+        {:ok, []}
+      end
 
-      {:error, _} ->
-        {:noreply, socket}
-    end
+    {:noreply,
+     assign(socket,
+       selected_date: date,
+       time_slots: time_slots,
+       bookings: bookings
+     )}
   end
 
   def handle_event("select_asset", %{"id" => id}, socket) do
     asset = Enum.find(socket.assigns.assets, &(&1.id == id))
 
     {:ok, bookings} =
-      BookingSystem.list_asset_bookings_by_date(asset.id, socket.assigns.selected_date)
+      BookingSystem.list_active_asset_bookings_by_date(asset.id, socket.assigns.selected_date)
 
     {:noreply, assign(socket, selected_asset: asset, bookings: bookings)}
   end
@@ -177,7 +177,15 @@ defmodule SpazioSolazzoWeb.CoworkingLive do
         %{topic: "booking:created", payload: %{data: %{asset_id: asset_id, date: date}}},
         socket = %{assigns: %{selected_asset: %{id: asset_id}, selected_date: date}}
       ) do
-    {:ok, bookings} = BookingSystem.list_asset_bookings_by_date(asset_id, date)
+    {:ok, bookings} = BookingSystem.list_active_asset_bookings_by_date(asset_id, date)
+    {:noreply, assign(socket, bookings: bookings)}
+  end
+
+  def handle_info(
+        %{topic: "booking:cancelled", payload: %{data: %{asset_id: asset_id, date: date}}},
+        socket = %{assigns: %{selected_asset: %{id: asset_id}, selected_date: date}}
+      ) do
+    {:ok, bookings} = BookingSystem.list_active_asset_bookings_by_date(asset_id, date)
     {:noreply, assign(socket, bookings: bookings)}
   end
 

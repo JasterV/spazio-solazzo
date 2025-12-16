@@ -1,9 +1,10 @@
 defmodule SpazioSolazzo.BookingSystem.EmailVerificationTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   use SpazioSolazzo.DataCase
 
   alias SpazioSolazzo.BookingSystem
   alias SpazioSolazzo.BookingSystem.EmailVerification.CleanupWorker
+  alias SpazioSolazzo.BookingSystem.EmailVerification.EmailWorker
 
   describe "create_verification_code" do
     test "creates verification with code, sends email & enqueues cleanup worker" do
@@ -15,6 +16,15 @@ defmodule SpazioSolazzo.BookingSystem.EmailVerificationTest do
       assert String.match?(verification.code, ~r/^\d{6}$/)
 
       assert_enqueued worker: CleanupWorker, args: %{"verification_id" => verification.id}
+
+      assert_enqueued worker: EmailWorker,
+                      args: %{
+                        "verification_email" => verification.email,
+                        "verification_code" => verification.code
+                      }
+
+      # Force jobs to execute
+      Oban.drain_queue(queue: :email_verification)
 
       assert %Swoosh.Email{
                subject: subject,

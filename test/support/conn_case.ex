@@ -33,7 +33,7 @@ defmodule SpazioSolazzoWeb.ConnCase do
 
   setup tags do
     SpazioSolazzo.DataCase.setup_sandbox(tags)
-    SpazioSolazzo.DataCase.clean_mailbox()
+    SpazioSolazzo.DataCase.init_mailbox()
     {:ok, conn: Phoenix.ConnTest.build_conn()}
   end
 end
