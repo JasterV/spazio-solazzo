@@ -31,7 +31,7 @@ defmodule SpazioSolazzo.DataCase do
 
   setup tags do
     SpazioSolazzo.DataCase.setup_sandbox(tags)
-    SpazioSolazzo.DataCase.clean_mailbox()
+    SpazioSolazzo.DataCase.init_mailbox()
     :ok
   end
 
@@ -44,9 +44,16 @@ defmodule SpazioSolazzo.DataCase do
   end
 
   @doc """
-  Clean the local Swoosh mailbox
+  Clean the local Swoosh mailbox. Ensure the in-memory storage process is started
+  so tests can safely call into it.
   """
-  def clean_mailbox() do
-    Swoosh.Adapters.Local.Storage.Memory.delete_all()
+  def init_mailbox() do
+    case Swoosh.Adapters.Local.Storage.Memory.start() do
+      {:ok, _pid} -> :ok
+      {:error, {:already_started, _pid}} -> :ok
+      {:error, _} -> :ok
+    end
+
+    on_exit(fn -> Swoosh.Adapters.Local.Storage.Memory.delete_all() end)
   end
 end

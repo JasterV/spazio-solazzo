@@ -75,6 +75,9 @@ defmodule SpazioSolazzoWeb.MeetingLiveTest do
       # After submitting the booking form the email verification modal should be shown
       assert has_element?(view, "#email-verification-modal")
 
+      # Force jobs to execute
+      Oban.drain_queue(queue: :default)
+
       # Wait a short while for the email to be sent and then read it from Local storage
       assert %Swoosh.Email{
                subject: subject,

@@ -5,6 +5,8 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
   alias SpazioSolazzo.BookingSystem
   alias SpazioSolazzo.BookingSystem.Booking
 
+  alias SpazioSolazzo.BookingSystem.Booking.EmailWorker
+
   setup do
     {:ok, space} = BookingSystem.create_space("Test", "test2", "desc")
     {:ok, asset} = BookingSystem.create_asset("Table 1", space.id)
@@ -34,6 +36,30 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
     assert booking.start_time == time_slot.start_time
     assert booking.end_time == time_slot.end_time
     assert booking.state == :reserved
+  end
+
+  test "it sends a confirmation email after the booking is created", %{
+    asset: asset,
+    time_slot: time_slot
+  } do
+    {:ok, booking} =
+      BookingSystem.create_booking(
+        time_slot.id,
+        asset.id,
+        Date.utc_today(),
+        "John",
+        "john@example.com"
+      )
+
+    assert_enqueued worker: EmailWorker,
+                    args: %{
+                      "booking_id" => booking.id,
+                      "customer_name" => booking.customer_name,
+                      "customer_email" => booking.customer_email,
+                      "date" => booking.date,
+                      "start_time" => booking.start_time,
+                      "end_time" => booking.end_time
+                    }
   end
 
   test "it can confirm a booking was paid", %{asset: asset, time_slot: time_slot} do
