@@ -39,7 +39,9 @@ defmodule SpazioSolazzoWeb.BookingController do
         render(conn, :success, action: action_name)
 
       {:error, _} ->
-        put_flash(conn, :info, "Action could not be completed (e.g. already processed).")
+        conn
+        |> put_flash(:info, "Action could not be completed (e.g. already processed).")
+        |> redirect(to: "/")
     end
   end
 end
