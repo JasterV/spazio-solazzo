@@ -1,9 +1,3 @@
-## Required next
-
-- Users have to validate their booking with a code sent to their email, otherwise the booking can't be confirmed
-
-- Time slots should be configurable for each day of the week, for example on sundays we might want to close or saturdays might have less available hours, as well as tuesdays for the jam room
-
 ## Ideas
 
 - Users should probably also input their phone numbers so they can be called by someone from Mojo to confirm the booking
