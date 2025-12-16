@@ -36,12 +36,18 @@ defmodule SpazioSolazzoWeb.BookingController do
   defp build_response(conn, action_result, action_name) do
     case action_result do
       {:ok, _booking} ->
-        render(conn, :success, action: action_name)
+        conn
+        |> put_flash(:info, success_message(action_name))
+        |> redirect(to: "/")
 
       {:error, _} ->
         conn
-        |> put_flash(:info, "Action could not be completed (e.g. already processed).")
+        |> put_flash(:error, "Action could not be completed (e.g. already processed).")
         |> redirect(to: "/")
     end
   end
+
+  defp success_message(:cancel), do: "The booking has been cancelled."
+  defp success_message(:confirm), do: "The booking has been confirmed."
+  defp success_message(_), do: "Action completed successfully."
 end

@@ -21,7 +21,28 @@ defmodule SpazioSolazzoWeb.BookingControllerTest do
   end
 
   describe "cancel/2" do
-    test "returns error response when booking is already cancelled", %{
+    test "successfully cancels a booking and shows success message", %{
+      conn: conn,
+      asset: asset,
+      time_slot: time_slot
+    } do
+      {:ok, booking} =
+        BookingSystem.create_booking(
+          time_slot.id,
+          asset.id,
+          Date.utc_today(),
+          "John",
+          "john@example.com"
+        )
+
+      cancel_token = Token.generate_customer_cancel_token(booking.id)
+      conn = get(conn, ~p"/bookings/cancel?token=#{cancel_token}")
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :info) == "The booking has been cancelled."
+    end
+
+    test "shows error message when booking is already cancelled", %{
       conn: conn,
       asset: asset,
       time_slot: time_slot
@@ -41,12 +62,12 @@ defmodule SpazioSolazzoWeb.BookingControllerTest do
       # Generate a cancel token for the already-cancelled booking
       cancel_token = Token.generate_customer_cancel_token(booking.id)
 
-      # Try to cancel again - this should return a response, not crash
+      # Try to cancel again
       conn = get(conn, ~p"/bookings/cancel?token=#{cancel_token}")
 
-      # The controller should handle the error gracefully and send a response
-      assert conn.state == :sent
-      assert conn.status in [200, 302]
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) ==
+               "Action could not be completed (e.g. already processed)."
     end
   end
 end
