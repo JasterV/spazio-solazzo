@@ -2,22 +2,24 @@ defmodule SpazioSolazzoWeb.BookingController do
   use SpazioSolazzoWeb, :controller
 
   alias SpazioSolazzo.BookingSystem
+  alias SpazioSolazzo.BookingSystem.Booking
   alias SpazioSolazzo.BookingSystem.Booking.Token
 
   def handle_action(conn, %{"token" => token, "intent" => intent}) do
     case Token.verify(token) do
-      {:ok, %{booking_id: booking_id, role: :admin, scope: _}} when intent == "cancel" ->
-        booking = BookingSystem.get_booking_by_id!(booking_id)
+      {:ok, %{booking_id: booking_id, role: :admin, action: _}} when intent == "cancel" ->
+        booking = Ash.get!(Booking, booking_id)
         action_result = BookingSystem.cancel_booking(booking)
         build_response(conn, action_result, :cancel)
 
-      {:ok, %{booking_id: booking_id, role: :admin, scope: _}} when intent == "confirm" ->
-        booking = BookingSystem.get_booking_by_id!(booking_id)
+      {:ok, %{booking_id: booking_id, role: :admin, action: _}} when intent == "confirm" ->
+        booking = Ash.get!(Booking, booking_id)
         action_result = BookingSystem.confirm_booking(booking)
         build_response(conn, action_result, :confirm)
 
-      {:ok, %{booking_id: booking_id, role: :customer, scope: :cancel}} when intent == "cancel" ->
-        booking = BookingSystem.get_booking_by_id!(booking_id)
+      {:ok, %{booking_id: booking_id, role: :customer, action: :cancel}}
+      when intent == "cancel" ->
+        booking = Ash.get!(Booking, booking_id)
         action_result = BookingSystem.cancel_booking(booking)
         build_response(conn, action_result, :cancel)
 

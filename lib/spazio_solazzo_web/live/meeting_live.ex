@@ -9,10 +9,11 @@ defmodule SpazioSolazzoWeb.MeetingLive do
     {:ok, space} = BookingSystem.get_space_by_slug("meeting")
     {:ok, asset} = BookingSystem.get_asset_by_space_id(space.id)
     {:ok, time_slots} = BookingSystem.get_space_time_slots_by_date(space.id, selected_date)
-    {:ok, bookings} = BookingSystem.list_asset_bookings_by_date(asset.id, selected_date)
+    {:ok, bookings} = BookingSystem.list_active_asset_bookings_by_date(asset.id, selected_date)
 
     if connected?(socket) do
       Phoenix.PubSub.subscribe(SpazioSolazzo.PubSub, "booking:created")
+      Phoenix.PubSub.subscribe(SpazioSolazzo.PubSub, "booking:cancelled")
     end
 
     {:ok,
@@ -43,7 +44,8 @@ defmodule SpazioSolazzoWeb.MeetingLive do
         {:ok, time_slots} =
           BookingSystem.get_space_time_slots_by_date(socket.assigns.space.id, date)
 
-        {:ok, bookings} = BookingSystem.list_asset_bookings_by_date(socket.assigns.asset.id, date)
+        {:ok, bookings} =
+          BookingSystem.list_active_asset_bookings_by_date(socket.assigns.asset.id, date)
 
         {:noreply,
          assign(socket,
@@ -166,7 +168,15 @@ defmodule SpazioSolazzoWeb.MeetingLive do
         %{topic: "booking:created", payload: %{data: %{asset_id: asset_id, date: date}}},
         socket = %{assigns: %{asset: %{id: asset_id}, selected_date: date}}
       ) do
-    {:ok, bookings} = BookingSystem.list_asset_bookings_by_date(asset_id, date)
+    {:ok, bookings} = BookingSystem.list_active_asset_bookings_by_date(asset_id, date)
+    {:noreply, assign(socket, bookings: bookings)}
+  end
+
+  def handle_info(
+        %{topic: "booking:cancelled", payload: %{data: %{asset_id: asset_id, date: date}}},
+        socket = %{assigns: %{asset: %{id: asset_id}, selected_date: date}}
+      ) do
+    {:ok, bookings} = BookingSystem.list_active_asset_bookings_by_date(asset_id, date)
     {:noreply, assign(socket, bookings: bookings)}
   end
 

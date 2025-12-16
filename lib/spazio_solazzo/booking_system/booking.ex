@@ -18,7 +18,7 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
     default_initial_state(:reserved)
 
     transitions do
-      transition(:confirm_payment, from: :reserved, to: :completed)
+      transition(:confirm_booking, from: :reserved, to: :completed)
       transition(:cancel, from: [:reserved], to: :cancelled)
     end
   end
@@ -26,11 +26,14 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
   actions do
     defaults [:read]
 
-    read :list_asset_bookings_by_date do
+    read :list_active_asset_bookings_by_date do
       argument :asset_id, :uuid, allow_nil?: false
       argument :date, :date, allow_nil?: false
 
-      filter expr(asset_id == ^arg(:asset_id) and date == ^arg(:date))
+      filter expr(
+               asset_id == ^arg(:asset_id) and date == ^arg(:date) and
+                 state in [:reserved, :completed]
+             )
     end
 
     create :create do
@@ -91,7 +94,7 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
              end)
     end
 
-    update :confirm_payment do
+    update :confirm_booking do
       accept []
       change transition_state(:completed)
     end
@@ -107,6 +110,7 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
     prefix "booking"
 
     publish :create, ["created"]
+    publish :cancel, ["cancelled"]
   end
 
   attributes do

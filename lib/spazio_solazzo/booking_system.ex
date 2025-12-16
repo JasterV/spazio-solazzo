@@ -25,10 +25,8 @@ defmodule SpazioSolazzo.BookingSystem do
     end
 
     resource SpazioSolazzo.BookingSystem.Booking do
-      define :get_booking_by_id, action: :read, args: [:id], get?: true
-
-      define :list_asset_bookings_by_date,
-        action: :list_asset_bookings_by_date,
+      define :list_active_asset_bookings_by_date,
+        action: :list_active_asset_bookings_by_date,
         args: [:asset_id, :date]
 
       define :create_booking,
@@ -41,7 +39,7 @@ defmodule SpazioSolazzo.BookingSystem do
           :customer_email
         ]
 
-      define :confirm_booking, action: :confirm_payment, args: []
+      define :confirm_booking, action: :confirm_booking, args: []
       define :cancel_booking, action: :cancel, args: []
     end
 
