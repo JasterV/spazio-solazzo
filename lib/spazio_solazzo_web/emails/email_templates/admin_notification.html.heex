@@ -1,0 +1,21 @@
+<h1 class="text-orange">🔔 New Booking Received</h1>
+
+<p><strong>Customer:</strong> {@customer_name} ({@customer_email})</p>
+
+<.details_list>
+  <.detail_item label="Date">{@date}</.detail_item>
+  <.detail_item label="Time">{@start_time} - {@end_time}</.detail_item>
+</.details_list>
+
+<hr class="divider" />
+
+<h3 style="color: #5C6BC0; text-align: center;">Admin Actions</h3>
+<p class="text-center">Please confirm arrival or cancel the booking.</p>
+
+<.email_button href={@confirm_url} variant={:primary}>
+  Confirm Arrival & Payment
+</.email_button>
+
+<.email_button href={@cancel_url} variant={:danger}>
+  Cancel Booking
+</.email_button>

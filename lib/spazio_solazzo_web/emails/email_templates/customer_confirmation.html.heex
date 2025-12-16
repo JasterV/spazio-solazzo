@@ -1,0 +1,19 @@
+<h1 class="text-orange">🎉 Booking Confirmed!</h1>
+
+<p>Hello <strong><%= @customer_name %></strong>,</p>
+<p>Thank you for choosing Spazio Solazzo! Your booking has been successfully confirmed.</p>
+
+<.details_list>
+  <.detail_item label="Date">{@date}</.detail_item>
+  <.detail_item label="Time">{@start_time} - {@end_time}</.detail_item>
+  <.detail_item label="Email">{@customer_email}</.detail_item>
+</.details_list>
+
+<p class="text-center">
+  If you need to manage or cancel this booking, please use the link below:
+</p>
+
+<.email_button href={@cancel_url} variant={:danger}>
+  Cancel Booking
+</.email_button>
+

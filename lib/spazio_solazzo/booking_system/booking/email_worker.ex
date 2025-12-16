@@ -26,11 +26,11 @@ defmodule SpazioSolazzo.BookingSystem.Booking.EmailWorker do
 
     email_data
     |> Email.customer_confirmation()
-    |> SpazioSolazzo.Mailer.deliver()
+    |> SpazioSolazzo.Mailer.deliver!()
 
     email_data
     |> Email.admin_notification()
-    |> SpazioSolazzo.Mailer.deliver()
+    |> SpazioSolazzo.Mailer.deliver!()
   end
 
   defp admin_email do
