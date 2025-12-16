@@ -21,7 +21,7 @@ defmodule SpazioSolazzoWeb.BookingControllerTest do
   end
 
   describe "cancel/2" do
-    test "successfully cancels a booking and shows success message", %{
+    test "first cancel shows success message, not error message", %{
       conn: conn,
       asset: asset,
       time_slot: time_slot
@@ -35,11 +35,23 @@ defmodule SpazioSolazzoWeb.BookingControllerTest do
           "john@example.com"
         )
 
+      # Verify initial state
+      assert booking.state == :reserved
+
       cancel_token = Token.generate_customer_cancel_token(booking.id)
       conn = get(conn, ~p"/bookings/cancel?token=#{cancel_token}")
 
       assert redirected_to(conn) == "/"
+
+      # Should show success message
       assert Phoenix.Flash.get(conn.assigns.flash, :info) == "The booking has been cancelled."
+
+      # Should NOT show error message
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == nil
+
+      # Verify booking is now cancelled in database
+      cancelled_booking = Ash.get!(SpazioSolazzo.BookingSystem.Booking, booking.id)
+      assert cancelled_booking.state == :cancelled
     end
 
     test "shows error message when booking is already cancelled", %{
