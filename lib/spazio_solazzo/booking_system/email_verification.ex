@@ -20,14 +20,20 @@ defmodule SpazioSolazzo.BookingSystem.EmailVerification do
       accept [:email]
 
       change fn changeset, _ctx ->
-        code = Code.generate()
-        Ash.Changeset.change_attribute(changeset, :code, code)
+        raw_code = Code.generate()
+        hashed_code = Bcrypt.hash_pwd_salt(raw_code)
+
+        changeset
+        |> Ash.Changeset.change_attribute(:code_hash, hashed_code)
+        # We force the raw code into the context so it's available
+        # in the 'verification' struct passed to the after_action hook below.
+        |> Ash.Changeset.put_context(:raw_code, raw_code)
       end
 
-      change after_action(fn _changeset, verification, _ctx ->
+      change after_action(fn changeset, verification, _ctx ->
                %{
                  verification_email: verification.email,
-                 verification_code: verification.code
+                 verification_code: changeset.context.raw_code
                }
                |> EmailWorker.new()
                |> Oban.insert!()
@@ -42,13 +48,18 @@ defmodule SpazioSolazzo.BookingSystem.EmailVerification do
 
     update :verify do
       accept []
-      argument :code, :string, allow_nil?: false
+
+      argument :code, :string do
+        allow_nil? false
+        sensitive? true
+      end
+
       require_atomic? false
 
       change fn %{data: verification} = changeset, _ctx ->
-        code = Ash.Changeset.get_argument(changeset, :code)
+        input_code = Ash.Changeset.get_argument(changeset, :code)
 
-        if verification.code == code do
+        if Bcrypt.verify_pass(input_code, verification.code_hash) do
           changeset
         else
           Ash.Changeset.add_error(changeset,
@@ -87,9 +98,10 @@ defmodule SpazioSolazzo.BookingSystem.EmailVerification do
       public? true
     end
 
-    attribute :code, :string do
+    attribute :code_hash, :string do
       allow_nil? false
-      public? true
+      sensitive? true
+      public? false
     end
 
     create_timestamp :inserted_at
