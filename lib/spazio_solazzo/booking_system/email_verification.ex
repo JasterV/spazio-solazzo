@@ -96,6 +96,6 @@ defmodule SpazioSolazzo.BookingSystem.EmailVerification do
   end
 
   defp verification_timeout do
-    Application.get_env(:spazio_solazzo, :verification_timeout, 60)
+    Application.get_env(:spazio_solazzo, :verification_timeout)
   end
 end

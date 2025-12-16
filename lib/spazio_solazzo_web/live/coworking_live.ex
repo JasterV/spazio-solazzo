@@ -35,31 +35,27 @@ defmodule SpazioSolazzoWeb.CoworkingLive do
   end
 
   def handle_event("change_date", %{"date" => date_string}, socket) do
-    case Date.from_iso8601(date_string) do
-      {:ok, date} ->
-        {:ok, time_slots} =
-          BookingSystem.get_space_time_slots_by_date(socket.assigns.space.id, date)
+    date = Date.from_iso8601!(date_string)
 
-        {:ok, bookings} =
-          if socket.assigns.selected_asset do
-            BookingSystem.list_active_asset_bookings_by_date(
-              socket.assigns.selected_asset.id,
-              date
-            )
-          else
-            {:ok, []}
-          end
+    {:ok, time_slots} =
+      BookingSystem.get_space_time_slots_by_date(socket.assigns.space.id, date)
 
-        {:noreply,
-         assign(socket,
-           selected_date: date,
-           time_slots: time_slots,
-           bookings: bookings
-         )}
+    {:ok, bookings} =
+      if socket.assigns.selected_asset do
+        BookingSystem.list_active_asset_bookings_by_date(
+          socket.assigns.selected_asset.id,
+          date
+        )
+      else
+        {:ok, []}
+      end
 
-      {:error, _} ->
-        {:noreply, socket}
-    end
+    {:noreply,
+     assign(socket,
+       selected_date: date,
+       time_slots: time_slots,
+       bookings: bookings
+     )}
   end
 
   def handle_event("select_asset", %{"id" => id}, socket) do
