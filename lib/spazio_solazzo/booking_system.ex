@@ -36,7 +36,9 @@ defmodule SpazioSolazzo.BookingSystem do
           :asset_id,
           :date,
           :customer_name,
-          :customer_email
+          :customer_email,
+          :customer_phone,
+          :customer_comment
         ]
 
       define :confirm_booking, action: :confirm_booking, args: []

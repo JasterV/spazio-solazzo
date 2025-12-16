@@ -1,11 +1,29 @@
 <h1 class="text-orange">🔔 New Booking Received</h1>
 
-<p><strong>Customer:</strong> {@customer_name} ({@customer_email})</p>
+<div style="margin-bottom: 20px;">
+  <p><strong>Customer:</strong> {@customer_name}</p>
+  <p><strong>Email:</strong> <a href={"mailto:#{@customer_email}"}>{@customer_email}</a></p>
+  <p><strong>Phone:</strong> <a href={"tel:#{@customer_phone}"}>{@customer_phone}</a></p>
+</div>
 
 <.details_list>
   <.detail_item label="Date">{@date}</.detail_item>
   <.detail_item label="Time">{@start_time} - {@end_time}</.detail_item>
 </.details_list>
+
+<div style="margin-top: 25px; margin-bottom: 25px;">
+  <h3 style="color: #2d3748; font-size: 16px; margin-bottom: 8px;">Customer Comment:</h3>
+
+  <%= if @customer_comment && String.trim(@customer_comment) != "" do %>
+    <div style="background-color: #fffaf0; border-left: 4px solid #ed8936; padding: 15px; color: #2d3748; font-size: 16px; font-weight: 500;">
+      “{@customer_comment}”
+    </div>
+  <% else %>
+    <div style="background-color: #f7fafc; padding: 12px; border-radius: 4px; color: #718096; font-style: italic; border: 1px dashed #cbd5e0;">
+      No additional comments provided.
+    </div>
+  <% end %>
+</div>
 
 <hr class="divider" />
 
@@ -13,7 +31,7 @@
 <p class="text-center">Please confirm arrival or cancel the booking.</p>
 
 <.email_button href={@confirm_url} variant={:primary}>
-  Confirm Arrival & Payment
+  Confirm Arrival
 </.email_button>
 
 <.email_button href={@cancel_url} variant={:danger}>

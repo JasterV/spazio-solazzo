@@ -15,6 +15,8 @@ defmodule SpazioSolazzo.BookingSystem.Booking.Email do
         booking_id: booking_id,
         customer_name: customer_name,
         customer_email: customer_email,
+        customer_phone: customer_phone,
+        customer_comment: customer_comment,
         date: date,
         start_time: start_time,
         end_time: end_time
@@ -25,10 +27,13 @@ defmodule SpazioSolazzo.BookingSystem.Booking.Email do
     assigns = %{
       customer_name: customer_name,
       customer_email: customer_email,
+      customer_phone: customer_phone,
+      customer_comment: customer_comment,
       date: date,
       start_time: start_time,
       end_time: end_time,
       cancel_url: cancel_url,
+      front_office_phone_number: front_office_phone_number(),
       subject: "Booking Confirmed: #{date}"
     }
 
@@ -44,6 +49,8 @@ defmodule SpazioSolazzo.BookingSystem.Booking.Email do
         booking_id: booking_id,
         customer_name: customer_name,
         customer_email: customer_email,
+        customer_phone: customer_phone,
+        customer_comment: customer_comment,
         date: date,
         start_time: start_time,
         end_time: end_time,
@@ -57,6 +64,8 @@ defmodule SpazioSolazzo.BookingSystem.Booking.Email do
     assigns = %{
       customer_name: customer_name,
       customer_email: customer_email,
+      customer_phone: customer_phone,
+      customer_comment: customer_comment,
       date: date,
       start_time: start_time,
       end_time: end_time,
@@ -74,5 +83,9 @@ defmodule SpazioSolazzo.BookingSystem.Booking.Email do
 
   defp spazio_solazzo_email do
     Application.get_env(:spazio_solazzo, :spazio_solazzo_email)
+  end
+
+  defp front_office_phone_number do
+    Application.get_env(:spazio_solazzo, :front_office_phone_number)
   end
 end

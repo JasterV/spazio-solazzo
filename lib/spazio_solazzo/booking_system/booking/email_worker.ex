@@ -9,6 +9,8 @@ defmodule SpazioSolazzo.BookingSystem.Booking.EmailWorker do
           "booking_id" => booking_id,
           "customer_name" => customer_name,
           "customer_email" => customer_email,
+          "customer_phone" => customer_phone,
+          "customer_comment" => customer_comment,
           "date" => date,
           "start_time" => start_time,
           "end_time" => end_time
@@ -18,6 +20,8 @@ defmodule SpazioSolazzo.BookingSystem.Booking.EmailWorker do
       booking_id: booking_id,
       customer_name: customer_name,
       customer_email: customer_email,
+      customer_phone: customer_phone,
+      customer_comment: customer_comment,
       date: date,
       start_time: start_time,
       end_time: end_time,

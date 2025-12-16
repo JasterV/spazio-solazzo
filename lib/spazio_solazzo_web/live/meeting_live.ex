@@ -82,7 +82,9 @@ defmodule SpazioSolazzoWeb.MeetingLive do
   def handle_info({:booking_form_validated, form_data}, socket) do
     booking_params = %{
       customer_name: form_data["customer_name"],
-      customer_email: form_data["customer_email"]
+      customer_email: form_data["customer_email"],
+      customer_phone: form_data["customer_phone"],
+      customer_comment: form_data["customer_comment"]
     }
 
     case BookingSystem.create_verification_code(booking_params.customer_email) do
@@ -120,7 +122,9 @@ defmodule SpazioSolazzoWeb.MeetingLive do
         socket.assigns.asset.id,
         socket.assigns.selected_date,
         socket.assigns.pending_booking_data.customer_name,
-        socket.assigns.pending_booking_data.customer_email
+        socket.assigns.pending_booking_data.customer_email,
+        socket.assigns.pending_booking_data.customer_phone,
+        socket.assigns.pending_booking_data.customer_comment
       )
 
     case result do

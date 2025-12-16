@@ -1,8 +1,18 @@
 defmodule SpazioSolazzoWeb.BookingComponents.BookingFormComponent do
   use SpazioSolazzoWeb, :live_component
 
+  @default_phone_prefix "+39"
+
   def update(assigns, socket) do
-    form = assigns[:form] || to_form(%{"customer_name" => "", "customer_email" => ""})
+    initial_data = %{
+      "customer_name" => "",
+      "customer_email" => "",
+      "phone_prefix" => @default_phone_prefix,
+      "phone_number" => "",
+      "customer_comment" => ""
+    }
+
+    form = assigns[:form] || to_form(initial_data)
 
     {:ok,
      socket
@@ -10,17 +20,25 @@ defmodule SpazioSolazzoWeb.BookingComponents.BookingFormComponent do
      |> assign(:form, form)}
   end
 
-  def handle_event("validate_form", %{"customer_name" => name, "customer_email" => email}, socket) do
-    form_data = %{"customer_name" => name, "customer_email" => email}
-    {:noreply, assign(socket, form: to_form(form_data))}
+  def handle_event("validate_form", params, socket) do
+    {:noreply, assign(socket, form: to_form(params))}
   end
 
   def handle_event("submit_booking", _params, socket) do
-    form_data = socket.assigns.form.source
+    raw_data = socket.assigns.form.source
 
-    case validate_booking_form(form_data) do
+    case validate_booking_form(raw_data) do
       :ok ->
-        send(self(), {:booking_form_validated, form_data})
+        # Join prefix and number for the final booking data
+        final_phone =
+          "#{String.trim(raw_data["phone_prefix"])} #{String.trim(raw_data["phone_number"])}"
+
+        booking_data =
+          raw_data
+          |> Map.put("customer_phone", final_phone)
+          |> Map.drop(["phone_prefix", "phone_number"])
+
+        send(self(), {:booking_form_validated, booking_data})
         {:noreply, socket}
 
       {:error, message} ->
@@ -28,13 +46,26 @@ defmodule SpazioSolazzoWeb.BookingComponents.BookingFormComponent do
     end
   end
 
-  defp validate_booking_form(%{"customer_name" => name, "customer_email" => email}) do
+  defp validate_booking_form(data) do
+    phone_prefix = String.trim(data["phone_prefix"] || "")
+    phone_number = String.trim(data["phone_number"] || "")
+    email = String.trim(data["customer_email"] || "")
+    name = String.trim(data["customer_name"] || "")
+
     cond do
       String.trim(name) == "" ->
         {:error, "Name cannot be empty"}
 
       not valid_email?(email) ->
         {:error, "Please enter a valid email address"}
+
+      # Validate Prefix: Must start with + and have 1-4 digits
+      not String.match?(phone_prefix, ~r/^\+\d{1,4}$/) ->
+        {:error, "Invalid country code (e.g. +39)"}
+
+      # Validate Number: 6 to 15 digits
+      not String.match?(phone_number, ~r/^\d{6,15}$/) ->
+        {:error, "Invalid phone number format"}
 
       true ->
         :ok
@@ -76,12 +107,50 @@ defmodule SpazioSolazzoWeb.BookingComponents.BookingFormComponent do
                 placeholder="John Doe"
                 required
               />
+
               <.input
                 field={@form[:customer_email]}
                 type="email"
                 label="Email"
                 placeholder="john@example.com"
                 required
+              />
+
+              <div class="fieldset mb-2">
+                <label>
+                  <span class="label mb-1">Phone Number</span>
+                  <div class="mt-1 flex gap-2 items-center">
+                    <div class="w-[3ch] min-w-[55px] flex-shrink-0">
+                      <.input
+                        field={@form[:phone_prefix]}
+                        type="text"
+                        placeholder="+39"
+                        required
+                        maxlength="5"
+                        class="w-full input"
+                        id="phone_prefix"
+                      />
+                    </div>
+                    <div class="flex-1">
+                      <.input
+                        field={@form[:phone_number]}
+                        type="tel"
+                        placeholder="333 1234567"
+                        required
+                        class="input"
+                        id="phone_number"
+                      />
+                    </div>
+                  </div>
+                </label>
+              </div>
+
+              <.input
+                field={@form[:customer_comment]}
+                type="textarea"
+                label="Additional Comments (Optional)"
+                placeholder="Any special requests or notes..."
+                rows="3"
               />
             </div>
 

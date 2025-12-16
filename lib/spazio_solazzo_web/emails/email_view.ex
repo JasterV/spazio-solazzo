@@ -3,6 +3,19 @@ defmodule SpazioSolazzoWeb.EmailView do
 
   embed_templates "email_templates/*"
 
+  def render(template, assigns) when is_binary(template) do
+    template
+    |> Path.rootname()
+    |> String.to_atom()
+    |> then(fn name ->
+      if function_exported?(__MODULE__, name, 1) do
+        apply(__MODULE__, name, [assigns])
+      else
+        raise "template #{template} not implemented in #{__MODULE__}"
+      end
+    end)
+  end
+
   @doc """
   Renders the main container for the email.
   """
@@ -57,18 +70,5 @@ defmodule SpazioSolazzoWeb.EmailView do
     ~H"""
     <li><strong>{@label}:</strong> {render_slot(@inner_block)}</li>
     """
-  end
-
-  def render(template, assigns) when is_binary(template) do
-    template
-    |> Path.rootname()
-    |> String.to_atom()
-    |> then(fn name ->
-      if function_exported?(__MODULE__, name, 1) do
-        apply(__MODULE__, name, [assigns])
-      else
-        raise "template #{template} not implemented in #{__MODULE__}"
-      end
-    end)
   end
 end

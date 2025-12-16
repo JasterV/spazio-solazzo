@@ -42,6 +42,8 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
       argument :date, :date, allow_nil?: false
       argument :customer_name, :string, allow_nil?: false
       argument :customer_email, :string, allow_nil?: false
+      argument :customer_phone, :string, allow_nil?: false
+      argument :customer_comment, :string, allow_nil?: true
 
       change manage_relationship(:time_slot_template_id, :time_slot_template,
                type: :append_and_remove
@@ -69,6 +71,14 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
               :customer_email,
               Ash.Changeset.get_argument(changeset, :customer_email)
             )
+            |> Ash.Changeset.force_change_attribute(
+              :customer_phone,
+              Ash.Changeset.get_argument(changeset, :customer_phone)
+            )
+            |> Ash.Changeset.force_change_attribute(
+              :customer_comment,
+              Ash.Changeset.get_argument(changeset, :customer_comment)
+            )
 
           {:error, _} ->
             Ash.Changeset.add_error(changeset,
@@ -83,6 +93,8 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
                  booking_id: booking.id,
                  customer_name: booking.customer_name,
                  customer_email: booking.customer_email,
+                 customer_phone: booking.customer_phone,
+                 customer_comment: booking.customer_comment,
                  date: Calendar.strftime(booking.date, "%A, %B %d"),
                  start_time: booking.start_time,
                  end_time: booking.end_time
@@ -115,11 +127,13 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
 
   attributes do
     uuid_primary_key :id
-    attribute :date, :date
-    attribute :customer_name, :string
-    attribute :customer_email, :string
-    attribute :start_time, :time
-    attribute :end_time, :time
+    attribute :date, :date, allow_nil?: false
+    attribute :customer_name, :string, allow_nil?: false
+    attribute :customer_email, :string, allow_nil?: false
+    attribute :start_time, :time, allow_nil?: false
+    attribute :end_time, :time, allow_nil?: false
+    attribute :customer_phone, :string, allow_nil?: false
+    attribute :customer_comment, :string, allow_nil?: true
 
     attribute :state, :atom do
       allow_nil? false

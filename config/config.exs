@@ -58,7 +58,8 @@ config :spazio_solazzo,
   admin_email: "admin@myapp.com",
   spazio_solazzo_email: "noreply@spaziosolazzo.com",
   verification_timeout: 60,
-  booking_token_signing_salt: "43vbAIUx9+XswjhBrQ3uk2bapAYmu1WRR/h/zlFDxNd/CAfBypQXcvLv2bbR7TSf"
+  booking_token_signing_salt: "43vbAIUx9+XswjhBrQ3uk2bapAYmu1WRR/h/zlFDxNd/CAfBypQXcvLv2bbR7TSf",
+  front_office_phone_number: "+39 36485928"
 
 config :spazio_solazzo, Oban,
   repo: SpazioSolazzo.Repo,
