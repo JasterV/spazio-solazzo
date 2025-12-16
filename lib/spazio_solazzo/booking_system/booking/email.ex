@@ -22,13 +22,13 @@ defmodule SpazioSolazzo.BookingSystem.Booking.Email do
     new()
     |> to({customer_name, customer_email})
     |> from({"MyApp Bookings", "no-reply@myapp.com"})
-    |> subject("Booking Confirmed: #{format_date(date)}")
+    |> subject("Booking Confirmed: #{date}")
     |> html_body("""
       <h1>Booking Confirmed</h1>
       <p>Hello #{customer_name},</p>
       <p>Your booking details are as follows:</p>
       <ul>
-        <li><strong>Date:</strong> #{format_date(date)}</li>
+        <li><strong>Date:</strong> #{date}</li>
         <li><strong>Time:</strong> #{start_time} - #{end_time}</li>
         <li><strong>Email:</strong> #{customer_email}</li>
       </ul>
@@ -63,7 +63,7 @@ defmodule SpazioSolazzo.BookingSystem.Booking.Email do
     |> html_body("""
       <h1>New Booking Received</h1>
       <p><strong>Customer:</strong> #{customer_name} (#{customer_email})</p>
-      <p><strong>Date:</strong> #{format_date(date)}</p>
+      <p><strong>Date:</strong> #{date}</p>
       <p><strong>Time:</strong> #{start_time} - #{end_time}</p>
       
       <hr />
@@ -86,12 +86,6 @@ defmodule SpazioSolazzo.BookingSystem.Booking.Email do
   end
 
   # --- Helpers ---
-
-  defp format_date(date) do
-    # You can use Calendar.strftime or Timex here
-    Calendar.strftime(date, "%A, %B %d, %Y")
-  end
-
   defp button_style(:red) do
     "background-color: #e53e3e; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;"
   end

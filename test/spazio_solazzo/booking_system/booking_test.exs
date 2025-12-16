@@ -51,12 +51,14 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
         "john@example.com"
       )
 
+    formatted_date = Calendar.strftime(booking.date, "%A, %B %d")
+
     assert_enqueued worker: EmailWorker,
                     args: %{
                       "booking_id" => booking.id,
                       "customer_name" => booking.customer_name,
                       "customer_email" => booking.customer_email,
-                      "date" => booking.date,
+                      "date" => formatted_date,
                       "start_time" => booking.start_time,
                       "end_time" => booking.end_time
                     }

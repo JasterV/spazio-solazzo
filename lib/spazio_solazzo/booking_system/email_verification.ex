@@ -30,11 +30,11 @@ defmodule SpazioSolazzo.BookingSystem.EmailVerification do
                  verification_code: verification.code
                }
                |> EmailWorker.new()
-               |> Oban.insert()
+               |> Oban.insert!()
 
                %{verification_id: verification.id}
                |> CleanupWorker.new(schedule_in: {verification_timeout(), :seconds})
-               |> Oban.insert()
+               |> Oban.insert!()
 
                {:ok, verification}
              end)

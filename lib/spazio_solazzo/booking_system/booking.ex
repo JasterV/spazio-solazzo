@@ -80,12 +80,12 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
                  booking_id: booking.id,
                  customer_name: booking.customer_name,
                  customer_email: booking.customer_email,
-                 date: booking.date,
+                 date: Calendar.strftime(booking.date, "%A, %B %d"),
                  start_time: booking.start_time,
                  end_time: booking.end_time
                }
                |> EmailWorker.new()
-               |> Oban.insert()
+               |> Oban.insert!()
 
                {:ok, booking}
              end)
