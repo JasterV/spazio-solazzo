@@ -44,7 +44,7 @@ defmodule SpazioSolazzo.DataCase do
   end
 
   @doc """
-  Clean the local Swoosh mailbox. Ensure the in-memory storage process is started
+  Initialize the local Swoosh mailbox. Ensure the in-memory storage process is started
   so tests can safely call into it.
   """
   def init_mailbox() do

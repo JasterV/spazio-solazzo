@@ -21,7 +21,8 @@ defmodule SpazioSolazzoWeb.Router do
     live "/coworking", CoworkingLive
     live "/meeting", MeetingLive
     live "/music", MusicLive
-    get "/bookings/action", BookingController, :handle_action
+    get "/bookings/confirm", BookingController, :confirm
+    get "/bookings/cancel", BookingController, :cancel
   end
 
   # Other scopes may use custom stacks.

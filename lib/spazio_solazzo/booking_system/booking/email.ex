@@ -17,7 +17,7 @@ defmodule SpazioSolazzo.BookingSystem.Booking.Email do
       }) do
     cancel_token = Token.generate_customer_cancel_token(booking_id)
     # The URL points to the controller handling the token logic
-    cancel_url = url(~p"/bookings/action?token=#{cancel_token}&intent=cancel")
+    cancel_url = url(~p"/bookings/cancel?token=#{cancel_token}")
 
     new()
     |> to({customer_name, customer_email})
@@ -53,8 +53,8 @@ defmodule SpazioSolazzo.BookingSystem.Booking.Email do
       }) do
     tokens = Token.generate_admin_tokens(booking_id)
 
-    confirm_url = url(~p"/bookings/action?token=#{tokens.confirm_token}&intent=confirm")
-    cancel_url = url(~p"/bookings/action?token=#{tokens.cancel_token}&intent=cancel")
+    confirm_url = url(~p"/bookings/confirm?token=#{tokens.confirm_token}")
+    cancel_url = url(~p"/bookings/cancel?token=#{tokens.cancel_token}")
 
     new()
     |> to(admin_email)
