@@ -169,7 +169,8 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
                "john@example.com"
              )
 
-    assert {:ok, bookings} = BookingSystem.list_asset_bookings_by_date(asset.id, Date.utc_today())
+    assert {:ok, bookings} =
+             BookingSystem.list_active_asset_bookings_by_date(asset.id, Date.utc_today())
 
     asset_id = asset.id
 

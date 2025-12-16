@@ -55,6 +55,7 @@ config :spazio_solazzo,
   generators: [timestamp_type: :utc_datetime],
   ash_domains: [SpazioSolazzo.BookingSystem],
   base_url: "http://localhost:4000",
+  admin_email: "admin@myapp.com",
   verification_timeout: 60,
   booking_token_signing_salt: "43vbAIUx9+XswjhBrQ3uk2bapAYmu1WRR/h/zlFDxNd/CAfBypQXcvLv2bbR7TSf"
 

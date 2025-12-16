@@ -16,8 +16,12 @@ defmodule SpazioSolazzo.BookingSystem.EmailVerification.Email do
     <p>Thank you for booking with Spazio Solazzo!</p>
     <p>Your verification code is:</p>
     <h2 style="font-size: 32px; letter-spacing: 8px; font-family: monospace;">#{code}</h2>
-    <p>This code will expire in 60 seconds.</p>
+    <p>This code will expire in #{verification_timeout()} seconds.</p>
     <p>If you didn't make this booking, you can safely ignore this email.</p>
     """)
+  end
+
+  defp verification_timeout do
+    Application.get_env(:spazio_solazzo, :verification_timeout, 60)
   end
 end

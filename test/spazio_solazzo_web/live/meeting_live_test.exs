@@ -76,7 +76,7 @@ defmodule SpazioSolazzoWeb.MeetingLiveTest do
       assert has_element?(view, "#email-verification-modal")
 
       # Force jobs to execute
-      Oban.drain_queue(queue: :default)
+      Oban.drain_queue(queue: :email_verification)
 
       # Wait a short while for the email to be sent and then read it from Local storage
       assert %Swoosh.Email{
@@ -101,7 +101,7 @@ defmodule SpazioSolazzoWeb.MeetingLiveTest do
 
       # Verify booking exists for the asset on the selected date
       assert {:ok, [booking]} =
-               BookingSystem.list_asset_bookings_by_date(asset.id, Date.utc_today())
+               BookingSystem.list_active_asset_bookings_by_date(asset.id, Date.utc_today())
 
       assert booking.customer_email == form_data["customer_email"]
     end

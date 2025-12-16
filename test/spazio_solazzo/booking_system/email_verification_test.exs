@@ -24,7 +24,7 @@ defmodule SpazioSolazzo.BookingSystem.EmailVerificationTest do
                       }
 
       # Force jobs to execute
-      Oban.drain_queue(queue: :default)
+      Oban.drain_queue(queue: :email_verification)
 
       assert %Swoosh.Email{
                subject: subject,

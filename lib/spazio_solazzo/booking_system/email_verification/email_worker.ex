@@ -1,5 +1,5 @@
 defmodule SpazioSolazzo.BookingSystem.EmailVerification.EmailWorker do
-  use Oban.Worker, queue: :default, max_attempts: 1
+  use Oban.Worker, queue: :email_verification, max_attempts: 1
 
   alias SpazioSolazzo.BookingSystem.EmailVerification.Email
 
