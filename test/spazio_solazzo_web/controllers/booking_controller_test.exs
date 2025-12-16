@@ -78,6 +78,7 @@ defmodule SpazioSolazzoWeb.BookingControllerTest do
       conn = get(conn, ~p"/bookings/cancel?token=#{cancel_token}")
 
       assert redirected_to(conn) == "/"
+
       assert Phoenix.Flash.get(conn.assigns.flash, :error) ==
                "Action could not be completed (e.g. already processed)."
     end

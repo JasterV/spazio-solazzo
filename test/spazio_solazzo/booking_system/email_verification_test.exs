@@ -13,15 +13,11 @@ defmodule SpazioSolazzo.BookingSystem.EmailVerificationTest do
       {:ok, verification} = BookingSystem.create_verification_code(email)
 
       assert verification.email == email
-      assert String.match?(verification.code, ~r/^\d{6}$/)
+      assert is_binary(verification.code_hash)
+      assert String.starts_with?(verification.code_hash, "$2")
 
       assert_enqueued worker: CleanupWorker, args: %{"verification_id" => verification.id}
-
-      assert_enqueued worker: EmailWorker,
-                      args: %{
-                        "verification_email" => verification.email,
-                        "verification_code" => verification.code
-                      }
+      assert_enqueued worker: EmailWorker
 
       # Force jobs to execute
       Oban.drain_queue(queue: :email_verification)
@@ -33,7 +29,11 @@ defmodule SpazioSolazzo.BookingSystem.EmailVerificationTest do
              } = Swoosh.Adapters.Local.Storage.Memory.pop()
 
       assert sent_to == [{"", email}]
-      assert String.contains?(html_body, verification.code)
+
+      [_, code] = Regex.run(~r/(\d{6})/, html_body)
+
+      assert Bcrypt.verify_pass(code, verification.code_hash)
+      refute verification.code_hash == code
       assert subject == "Verify your booking at Spazio Solazzo"
     end
 
@@ -44,8 +44,18 @@ defmodule SpazioSolazzo.BookingSystem.EmailVerificationTest do
       assert_enqueued worker: CleanupWorker, args: %{"verification_id" => verification1.id}
       assert_enqueued worker: CleanupWorker, args: %{"verification_id" => verification2.id}
 
-      # Codes should be different (statistically very unlikely to be the same)
-      assert verification1.code != verification2.code
+      # Force jobs to execute and capture sent codes
+      Oban.drain_queue(queue: :email_verification)
+
+      assert %Swoosh.Email{html_body: html_body2} = Swoosh.Adapters.Local.Storage.Memory.pop()
+      assert %Swoosh.Email{html_body: html_body1} = Swoosh.Adapters.Local.Storage.Memory.pop()
+
+      [_, code1] = Regex.run(~r/(\d{6})/, html_body1)
+      [_, code2] = Regex.run(~r/(\d{6})/, html_body2)
+
+      assert code1 != code2
+      assert Bcrypt.verify_pass(code1, verification1.code_hash)
+      assert Bcrypt.verify_pass(code2, verification2.code_hash)
     end
   end
 
@@ -53,14 +63,25 @@ defmodule SpazioSolazzo.BookingSystem.EmailVerificationTest do
     setup do
       {:ok, verification} = BookingSystem.create_verification_code("test@example.com")
 
+      # Drain the email job and extract the raw code so tests can use it
+      Oban.drain_queue(queue: :email_verification)
+
+      assert %Swoosh.Email{html_body: html_body} = Swoosh.Adapters.Local.Storage.Memory.pop()
+
+      [_, code] = Regex.run(~r/(\d{6})/, html_body)
+
       topic = "email_verification:verification_code_expired:#{verification.id}"
       Phoenix.PubSub.subscribe(SpazioSolazzo.PubSub, topic)
 
-      %{verification: verification, topic: topic}
+      %{verification: verification, topic: topic, code: code}
     end
 
-    test "successfully verifies with correct code", %{verification: verification, topic: topic} do
-      {:ok, verified} = BookingSystem.verify_code(verification, verification.code)
+    test "successfully verifies with correct code", %{
+      verification: verification,
+      topic: topic,
+      code: code
+    } do
+      {:ok, verified} = BookingSystem.verify_code(verification, code)
 
       # Verifications should not fire expiration events
       refute_receive ^topic
