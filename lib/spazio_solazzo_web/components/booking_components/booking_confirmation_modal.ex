@@ -1,4 +1,8 @@
 defmodule SpazioSolazzoWeb.BookingComponents.BookingConfirmationModal do
+  @moduledoc """
+  Displays a success modal when a booking is completed.
+  """
+
   use SpazioSolazzoWeb, :html
 
   attr :id, :string, required: true

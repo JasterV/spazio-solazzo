@@ -1,4 +1,8 @@
 defmodule SpazioSolazzo.BookingSystem do
+  @moduledoc """
+  Manages bookings, spaces, assets, time slots, and email verification for the booking system.
+  """
+
   use Ash.Domain,
     otp_app: :spazio_solazzo
 

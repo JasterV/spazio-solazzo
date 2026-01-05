@@ -26,7 +26,7 @@ defmodule SpazioSolazzo.BookingSystem.EmailVerificationTest do
                subject: subject,
                html_body: html_body,
                to: sent_to
-             } = Swoosh.Adapters.Local.Storage.Memory.pop()
+             } = pop_email()
 
       assert sent_to == [{"", email}]
 
@@ -47,8 +47,8 @@ defmodule SpazioSolazzo.BookingSystem.EmailVerificationTest do
       # Force jobs to execute and capture sent codes
       Oban.drain_queue(queue: :email_verification)
 
-      assert %Swoosh.Email{html_body: html_body2} = Swoosh.Adapters.Local.Storage.Memory.pop()
-      assert %Swoosh.Email{html_body: html_body1} = Swoosh.Adapters.Local.Storage.Memory.pop()
+      assert %Swoosh.Email{html_body: html_body2} = pop_email()
+      assert %Swoosh.Email{html_body: html_body1} = pop_email()
 
       [_, code1] = Regex.run(~r/code-text">(\d{6})</, html_body1)
       [_, code2] = Regex.run(~r/code-text">(\d{6})</, html_body2)
@@ -66,7 +66,7 @@ defmodule SpazioSolazzo.BookingSystem.EmailVerificationTest do
       # Drain the email job and extract the raw code so tests can use it
       Oban.drain_queue(queue: :email_verification)
 
-      assert %Swoosh.Email{html_body: html_body} = Swoosh.Adapters.Local.Storage.Memory.pop()
+      assert %Swoosh.Email{html_body: html_body} = pop_email()
 
       [_, code] = Regex.run(~r/code-text">(\d{6})</, html_body)
 

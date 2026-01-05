@@ -1,4 +1,8 @@
 defmodule SpazioSolazzo.BookingSystem.Booking.EmailWorker do
+  @moduledoc """
+  Sends booking confirmation emails to customers and notification emails to administrators.
+  """
+
   use Oban.Worker, queue: :booking_email, max_attempts: 1
 
   alias SpazioSolazzo.BookingSystem.Booking.Email

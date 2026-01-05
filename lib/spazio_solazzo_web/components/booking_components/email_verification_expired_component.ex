@@ -1,4 +1,8 @@
 defmodule SpazioSolazzoWeb.BookingComponents.EmailVerificationExpiredComponent do
+  @moduledoc """
+  Displays a modal notifying users that their verification code has expired.
+  """
+
   use SpazioSolazzoWeb, :html
 
   attr :id, :string, required: true

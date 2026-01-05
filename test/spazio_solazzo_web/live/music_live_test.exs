@@ -90,7 +90,7 @@ defmodule SpazioSolazzoWeb.MusicLiveTest do
 
       # Read the sent email from Local storage
       assert %Swoosh.Email{subject: subject, html_body: html_body, to: sent_to} =
-               Swoosh.Adapters.Local.Storage.Memory.pop()
+               pop_email()
 
       assert sent_to == [{"", form_data["customer_email"]}]
       assert subject == "Verify your booking at Spazio Solazzo"

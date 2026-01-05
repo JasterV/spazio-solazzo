@@ -1,4 +1,8 @@
 defmodule SpazioSolazzo.BookingSystem.Booking do
+  @moduledoc """
+  Represents a customer booking with state management for reservation lifecycle.
+  """
+
   use Ash.Resource,
     otp_app: :spazio_solazzo,
     domain: SpazioSolazzo.BookingSystem,

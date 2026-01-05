@@ -1,4 +1,8 @@
 defmodule SpazioSolazzoWeb.BookingComponents.TimeSlotButton do
+  @moduledoc """
+  Renders time slot buttons in different sizes showing availability status.
+  """
+
   use SpazioSolazzoWeb, :html
 
   attr :time_slot, :map, required: true

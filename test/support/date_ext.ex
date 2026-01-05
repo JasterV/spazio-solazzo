@@ -1,4 +1,8 @@
 defmodule SpazioSolazzo.DateExt do
+  @moduledoc """
+  Provides date utility functions for converting between formats.
+  """
+
   def day_of_week_atom(date) do
     case Date.day_of_week(date) do
       1 -> :monday

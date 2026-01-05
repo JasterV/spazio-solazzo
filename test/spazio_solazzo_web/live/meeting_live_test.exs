@@ -92,7 +92,7 @@ defmodule SpazioSolazzoWeb.MeetingLiveTest do
                subject: subject,
                html_body: html_body,
                to: sent_to
-             } = Swoosh.Adapters.Local.Storage.Memory.pop()
+             } = pop_email()
 
       assert sent_to == [{"", form_data["customer_email"]}]
       assert subject == "Verify your booking at Spazio Solazzo"

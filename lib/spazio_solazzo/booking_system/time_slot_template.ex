@@ -1,4 +1,8 @@
 defmodule SpazioSolazzo.BookingSystem.TimeSlotTemplate do
+  @moduledoc """
+  Defines recurring time slots for bookings based on day of the week.
+  """
+
   use Ash.Resource,
     otp_app: :spazio_solazzo,
     domain: SpazioSolazzo.BookingSystem,

@@ -148,7 +148,7 @@ defmodule SpazioSolazzoWeb.MeetingLive do
 
   def handle_info(
         %{topic: "email_verification:verification_code_expired:" <> id},
-        socket = %{assigns: %{email_verification_id: id}}
+        %{assigns: %{email_verification_id: id}} = socket
       ) do
     Phoenix.PubSub.unsubscribe(
       SpazioSolazzo.PubSub,
@@ -166,7 +166,7 @@ defmodule SpazioSolazzoWeb.MeetingLive do
 
   def handle_info(
         %{topic: "booking:created", payload: %{data: %{asset_id: asset_id, date: date}}},
-        socket = %{assigns: %{asset: %{id: asset_id}, selected_date: date}}
+        %{assigns: %{asset: %{id: asset_id}, selected_date: date}} = socket
       ) do
     {:ok, bookings} = BookingSystem.list_active_asset_bookings_by_date(asset_id, date)
     {:noreply, assign(socket, bookings: bookings)}
@@ -174,7 +174,7 @@ defmodule SpazioSolazzoWeb.MeetingLive do
 
   def handle_info(
         %{topic: "booking:cancelled", payload: %{data: %{asset_id: asset_id, date: date}}},
-        socket = %{assigns: %{asset: %{id: asset_id}, selected_date: date}}
+        %{assigns: %{asset: %{id: asset_id}, selected_date: date}} = socket
       ) do
     {:ok, bookings} = BookingSystem.list_active_asset_bookings_by_date(asset_id, date)
     {:noreply, assign(socket, bookings: bookings)}

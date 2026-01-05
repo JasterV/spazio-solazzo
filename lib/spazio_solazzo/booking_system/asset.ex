@@ -1,4 +1,8 @@
 defmodule SpazioSolazzo.BookingSystem.Asset do
+  @moduledoc """
+  Represents bookable assets within a space, such as rooms or equipment.
+  """
+
   use Ash.Resource,
     otp_app: :spazio_solazzo,
     domain: SpazioSolazzo.BookingSystem,

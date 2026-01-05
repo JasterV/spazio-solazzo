@@ -1,4 +1,8 @@
 defmodule SpazioSolazzoWeb.BookingComponents.BookingFormComponent do
+  @moduledoc """
+  A live component that collects customer information for completing a booking.
+  """
+
   use SpazioSolazzoWeb, :live_component
 
   @default_phone_prefix "+39"
@@ -47,28 +51,48 @@ defmodule SpazioSolazzoWeb.BookingComponents.BookingFormComponent do
   end
 
   defp validate_booking_form(data) do
-    phone_prefix = String.trim(data["phone_prefix"] || "")
-    phone_number = String.trim(data["phone_number"] || "")
-    email = String.trim(data["customer_email"] || "")
-    name = String.trim(data["customer_name"] || "")
+    with :ok <- validate_name(data["customer_name"]),
+         :ok <- validate_email(data["customer_email"]),
+         :ok <- validate_phone_prefix(data["phone_prefix"]) do
+      validate_phone_number(data["phone_number"])
+    end
+  end
 
-    cond do
-      String.trim(name) == "" ->
-        {:error, "Name cannot be empty"}
+  defp validate_name(name) do
+    if String.trim(name || "") == "" do
+      {:error, "Name cannot be empty"}
+    else
+      :ok
+    end
+  end
 
-      not valid_email?(email) ->
-        {:error, "Please enter a valid email address"}
+  defp validate_email(email) do
+    trimmed_email = String.trim(email || "")
 
-      # Validate Prefix: Must start with + and have 1-4 digits
-      not String.match?(phone_prefix, ~r/^\+\d{1,4}$/) ->
-        {:error, "Invalid country code (e.g. +39)"}
+    if valid_email?(trimmed_email) do
+      :ok
+    else
+      {:error, "Please enter a valid email address"}
+    end
+  end
 
-      # Validate Number: 6 to 15 digits
-      not String.match?(phone_number, ~r/^\d{6,15}$/) ->
-        {:error, "Invalid phone number format"}
+  defp validate_phone_prefix(prefix) do
+    trimmed_prefix = String.trim(prefix || "")
 
-      true ->
-        :ok
+    if String.match?(trimmed_prefix, ~r/^\+\d{1,4}$/) do
+      :ok
+    else
+      {:error, "Invalid country code (e.g. +39)"}
+    end
+  end
+
+  defp validate_phone_number(number) do
+    trimmed_number = String.trim(number || "")
+
+    if String.match?(trimmed_number, ~r/^\d{6,15}$/) do
+      :ok
+    else
+      {:error, "Invalid phone number format"}
     end
   end
 

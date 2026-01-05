@@ -28,6 +28,9 @@ defmodule SpazioSolazzoWeb.ConnCase do
       import Plug.Conn
       import Phoenix.ConnTest
       import SpazioSolazzoWeb.ConnCase
+
+      # Import DataCase helpers for email testing
+      import SpazioSolazzo.DataCase, only: [pop_email: 0, pop_email: 2]
     end
   end
 

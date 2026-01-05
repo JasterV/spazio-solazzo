@@ -1,4 +1,8 @@
 defmodule SpazioSolazzo.BookingSystem.EmailVerification do
+  @moduledoc """
+  Handles email verification with temporary codes for user identity confirmation.
+  """
+
   use Ash.Resource,
     domain: SpazioSolazzo.BookingSystem,
     data_layer: AshPostgres.DataLayer,

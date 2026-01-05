@@ -57,4 +57,25 @@ defmodule SpazioSolazzo.DataCase do
     Swoosh.Adapters.Local.Storage.Memory.delete_all()
     on_exit(fn -> Swoosh.Adapters.Local.Storage.Memory.delete_all() end)
   end
+
+  @doc """
+  Safely pop an email from the Swoosh mailbox with retry logic.
+
+  This is necessary because `Oban.drain_queue/1` doesn't guarantee that
+  jobs have finished executing by the time it returns. This helper will
+  retry a few times with small delays to handle the race condition.
+  """
+  def pop_email(retry_count \\ 10, delay_ms \\ 10) do
+    case Swoosh.Adapters.Local.Storage.Memory.all() do
+      [] when retry_count > 0 ->
+        Process.sleep(delay_ms)
+        pop_email(retry_count - 1, delay_ms)
+
+      [] ->
+        raise "No emails found in mailbox after retries"
+
+      _emails ->
+        Swoosh.Adapters.Local.Storage.Memory.pop()
+    end
+  end
 end

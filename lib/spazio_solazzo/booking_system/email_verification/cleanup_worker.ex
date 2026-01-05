@@ -1,4 +1,8 @@
 defmodule SpazioSolazzo.BookingSystem.EmailVerification.CleanupWorker do
+  @moduledoc """
+  Expires verification codes after a timeout period to maintain system security.
+  """
+
   use Oban.Worker, queue: :email_verification, max_attempts: 1
 
   alias SpazioSolazzo.BookingSystem

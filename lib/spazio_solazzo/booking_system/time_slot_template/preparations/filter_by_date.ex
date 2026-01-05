@@ -1,5 +1,8 @@
 defmodule SpazioSolazzo.BookingSystem.TimeSlotTemplate.Preparations.FilterByDate do
-  # This makes it a valid Ash preparation
+  @moduledoc """
+  Filters time slot templates by matching the day of the week from a given date.
+  """
+
   use Ash.Resource.Preparation
 
   @impl true

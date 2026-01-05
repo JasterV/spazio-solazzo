@@ -1,4 +1,8 @@
 defmodule SpazioSolazzo.BookingSystem.EmailVerification.EmailWorker do
+  @moduledoc """
+  Sends verification code emails to users for email address confirmation.
+  """
+
   use Oban.Worker, queue: :email_verification, max_attempts: 1
 
   alias SpazioSolazzo.BookingSystem.EmailVerification.Email
