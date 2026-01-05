@@ -54,12 +54,7 @@ config :spazio_solazzo,
   ecto_repos: [SpazioSolazzo.Repo],
   generators: [timestamp_type: :utc_datetime],
   ash_domains: [SpazioSolazzo.BookingSystem],
-  base_url: "http://localhost:4000",
-  admin_email: "admin@myapp.com",
-  spazio_solazzo_email: "noreply@spaziosolazzo.com",
-  verification_timeout: 60,
-  booking_token_signing_salt: "43vbAIUx9+XswjhBrQ3uk2bapAYmu1WRR/h/zlFDxNd/CAfBypQXcvLv2bbR7TSf",
-  front_office_phone_number: "+39 36485928"
+  base_url: "http://localhost:4000"
 
 config :spazio_solazzo, Oban,
   repo: SpazioSolazzo.Repo,

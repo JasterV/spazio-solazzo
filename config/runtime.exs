@@ -71,7 +71,20 @@ if config_env() == :prod do
   config :spazio_solazzo,
     token_signing_secret:
       System.get_env("TOKEN_SIGNING_SECRET") ||
-        raise("Missing environment variable `TOKEN_SIGNING_SECRET`!")
+        raise("Missing environment variable `TOKEN_SIGNING_SECRET`!"),
+    booking_token_signing_secret:
+      System.get_env("TOKEN_SIGNING_SECRET") ||
+        raise("Missing environment variable `TOKEN_SIGNING_SECRET`!"),
+    admin_email:
+      System.get_env("ADMIN_EMAIL") ||
+        raise("Missing environment variable `ADMIN_EMAIL`!"),
+    spazio_solazzo_email:
+      System.get_env("SPAZIO_SOLAZZO_EMAIL") ||
+        raise("Missing environment variable `SPAZIO_SOLAZZO_EMAIL`!"),
+    verification_timeout: 60,
+    front_office_phone_number:
+      System.get_env("FRONT_OFFICE_PHONE_NUMBER") ||
+        raise("Missing environment variable `FRONT_OFFICE_PHONE_NUMBER`!")
 
   # ## SSL Support
   #

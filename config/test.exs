@@ -1,8 +1,16 @@
 import Config
 config :spazio_solazzo, Oban, testing: :manual
-config :spazio_solazzo, token_signing_secret: "RfyHb7pU2R0WQY7TqdzLabS9LPPQosSq"
 config :bcrypt_elixir, log_rounds: 1
 config :ash, policies: [show_policy_breakdowns?: true], disable_async?: true
+
+config :spazio_solazzo,
+  token_signing_secret: "RfyHb7pU2R0WQY7TqdzLabS9LPPQosSq",
+  admin_email: "admin@myapp.com",
+  spazio_solazzo_email: "noreply@spaziosolazzo.com",
+  verification_timeout: 60,
+  booking_token_signing_secret:
+    "43vbAIUx9+XswjhBrQ3uk2bapAYmu1WRR/h/zlFDxNd/CAfBypQXcvLv2bbR7TSf",
+  front_office_phone_number: "+39 36485928"
 
 # Configure your database
 #

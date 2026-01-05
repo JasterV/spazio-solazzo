@@ -25,6 +25,6 @@ defmodule SpazioSolazzo.BookingSystem.Booking.Token do
   end
 
   defp signing_salt() do
-    Application.get_env(:spazio_solazzo, :booking_token_signing_salt)
+    Application.get_env(:spazio_solazzo, :booking_token_signing_secret)
   end
 end

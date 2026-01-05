@@ -68,8 +68,16 @@ config :spazio_solazzo, SpazioSolazzoWeb.Endpoint,
     ]
   ]
 
-# Enable dev routes for dashboard and mailbox
-config :spazio_solazzo, dev_routes: true, token_signing_secret: "kDoqYDWaus/U7vpVjnD/7UURoCROMaV2"
+config :spazio_solazzo,
+  # Enable dev routes for dashboard and mailbox
+  dev_routes: true,
+  token_signing_secret: "kDoqYDWaus/U7vpVjnD/7UURoCROMaV2",
+  admin_email: "admin@myapp.com",
+  spazio_solazzo_email: "noreply@spaziosolazzo.com",
+  verification_timeout: 60,
+  booking_token_signing_secret:
+    "43vbAIUx9+XswjhBrQ3uk2bapAYmu1WRR/h/zlFDxNd/CAfBypQXcvLv2bbR7TSf",
+  front_office_phone_number: "+39 36485928"
 
 # Do not include metadata nor timestamps in development logs
 config :logger, :default_formatter, format: "[$level] $message\n"
