@@ -35,6 +35,8 @@ defmodule SpazioSolazzo.BookingSystem.Booking.EmailWorker do
     email_data
     |> Email.admin_notification()
     |> SpazioSolazzo.Mailer.deliver!()
+
+    :ok
   end
 
   defp admin_email do

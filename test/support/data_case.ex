@@ -54,6 +54,7 @@ defmodule SpazioSolazzo.DataCase do
       {:error, _} -> :ok
     end
 
+    Swoosh.Adapters.Local.Storage.Memory.delete_all()
     on_exit(fn -> Swoosh.Adapters.Local.Storage.Memory.delete_all() end)
   end
 end

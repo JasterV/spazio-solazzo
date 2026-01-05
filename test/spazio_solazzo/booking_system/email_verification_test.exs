@@ -30,7 +30,7 @@ defmodule SpazioSolazzo.BookingSystem.EmailVerificationTest do
 
       assert sent_to == [{"", email}]
 
-      [_, code] = Regex.run(~r/(\d{6})/, html_body)
+      [_, code] = Regex.run(~r/code-text">(\d{6})</, html_body)
 
       assert Bcrypt.verify_pass(code, verification.code_hash)
       refute verification.code_hash == code
@@ -50,8 +50,8 @@ defmodule SpazioSolazzo.BookingSystem.EmailVerificationTest do
       assert %Swoosh.Email{html_body: html_body2} = Swoosh.Adapters.Local.Storage.Memory.pop()
       assert %Swoosh.Email{html_body: html_body1} = Swoosh.Adapters.Local.Storage.Memory.pop()
 
-      [_, code1] = Regex.run(~r/(\d{6})/, html_body1)
-      [_, code2] = Regex.run(~r/(\d{6})/, html_body2)
+      [_, code1] = Regex.run(~r/code-text">(\d{6})</, html_body1)
+      [_, code2] = Regex.run(~r/code-text">(\d{6})</, html_body2)
 
       assert code1 != code2
       assert Bcrypt.verify_pass(code1, verification1.code_hash)
@@ -68,7 +68,7 @@ defmodule SpazioSolazzo.BookingSystem.EmailVerificationTest do
 
       assert %Swoosh.Email{html_body: html_body} = Swoosh.Adapters.Local.Storage.Memory.pop()
 
-      [_, code] = Regex.run(~r/(\d{6})/, html_body)
+      [_, code] = Regex.run(~r/code-text">(\d{6})</, html_body)
 
       topic = "email_verification:verification_code_expired:#{verification.id}"
       Phoenix.PubSub.subscribe(SpazioSolazzo.PubSub, topic)

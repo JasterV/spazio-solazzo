@@ -30,7 +30,9 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
         asset.id,
         Date.utc_today(),
         "John",
-        "john@example.com"
+        "john@example.com",
+        "+393627384027",
+        "test"
       )
 
     assert booking.start_time == time_slot.start_time
@@ -48,7 +50,9 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
         asset.id,
         Date.utc_today(),
         "John",
-        "john@example.com"
+        "john@example.com",
+        "+393627384027",
+        "test"
       )
 
     formatted_date = Calendar.strftime(booking.date, "%A, %B %d")
@@ -71,7 +75,9 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
         asset.id,
         Date.utc_today(),
         "John",
-        "john@example.com"
+        "john@example.com",
+        "+393627384027",
+        "test"
       )
 
     assert booking.state == :reserved
@@ -88,7 +94,9 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
         asset.id,
         Date.utc_today(),
         "John",
-        "john@example.com"
+        "john@example.com",
+        "+393627384027",
+        "test"
       )
 
     assert booking.state == :reserved
@@ -128,7 +136,9 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
                asset.id,
                today_date,
                "John",
-               "john@example.com"
+               "john@example.com",
+               "+393627384027",
+               "test"
              )
 
     assert {:ok, _} =
@@ -137,7 +147,9 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
                asset.id,
                today_date,
                "John",
-               "john@example.com"
+               "john@example.com",
+               "+393627384027",
+               "test"
              )
 
     # Create bookings for asset but another date
@@ -147,7 +159,9 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
                asset.id,
                Date.add(today_date, 1),
                "John",
-               "john@example.com"
+               "john@example.com",
+               "+393627384027",
+               "test"
              )
 
     # Create bookings for other assets
@@ -157,7 +171,9 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
                asset2.id,
                today_date,
                "John",
-               "john@example.com"
+               "john@example.com",
+               "+393627384027",
+               "test"
              )
 
     assert {:ok, _} =
@@ -166,7 +182,9 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
                asset3.id,
                today_date,
                "John",
-               "john@example.com"
+               "john@example.com",
+               "+393627384027",
+               "test"
              )
 
     assert {:ok, bookings} =

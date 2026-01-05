@@ -32,7 +32,9 @@ defmodule SpazioSolazzoWeb.BookingControllerTest do
           asset.id,
           Date.utc_today(),
           "John",
-          "john@example.com"
+          "john@example.com",
+          "+393627384027",
+          "test"
         )
 
       # Verify initial state
@@ -65,7 +67,9 @@ defmodule SpazioSolazzoWeb.BookingControllerTest do
           asset.id,
           Date.utc_today(),
           "John",
-          "john@example.com"
+          "john@example.com",
+          "+393627384027",
+          "test"
         )
 
       # Cancel the booking first time

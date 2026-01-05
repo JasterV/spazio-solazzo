@@ -43,6 +43,9 @@ defmodule SpazioSolazzoWeb.MeetingLiveTest do
       assert has_element?(view, "#booking-modal")
       assert has_element?(view, "input[name='customer_name']")
       assert has_element?(view, "input[name='customer_email']")
+      assert has_element?(view, "input[name='phone_number']")
+      assert has_element?(view, "input[name='phone_prefix']")
+      assert has_element?(view, "textarea[name='customer_comment']")
     end
 
     test "completes full booking flow with email verification first", %{conn: conn, asset: asset} do
@@ -57,7 +60,10 @@ defmodule SpazioSolazzoWeb.MeetingLiveTest do
 
       form_data = %{
         "customer_name" => "Test User",
-        "customer_email" => "testuser@example.com"
+        "customer_email" => "testuser@example.com",
+        "phone_prefix" => "+39",
+        "phone_number" => "35273464176",
+        "customer_comment" => "test comment"
       }
 
       # Fill the form (trigger change) then submit to simulate user input
@@ -65,7 +71,10 @@ defmodule SpazioSolazzoWeb.MeetingLiveTest do
       |> element("#booking-form")
       |> render_change(%{
         "customer_name" => form_data["customer_name"],
-        "customer_email" => form_data["customer_email"]
+        "customer_email" => form_data["customer_email"],
+        "phone_prefix" => form_data["phone_prefix"],
+        "phone_number" => form_data["phone_number"],
+        "customer_comment" => form_data["customer_comment"]
       })
 
       view
@@ -89,7 +98,7 @@ defmodule SpazioSolazzoWeb.MeetingLiveTest do
       assert subject == "Verify your booking at Spazio Solazzo"
 
       # Extract the 6-digit code from the email body
-      [extracted_code] = Regex.run(~r/(\d{6})/, html_body, capture: :all_but_first)
+      [_, extracted_code] = Regex.run(~r/code-text">(\d{6})</, html_body)
 
       # Submit the verification code via the verification modal form
       view
@@ -117,7 +126,10 @@ defmodule SpazioSolazzoWeb.MeetingLiveTest do
       |> element("#booking-form")
       |> render_submit(%{
         "customer_name" => "Test User",
-        "customer_email" => "invalid-email"
+        "customer_email" => "invalid-email",
+        "phone_prefix" => "+39",
+        "phone_number" => "35273464176",
+        "customer_comment" => "test comment"
       })
 
       assert view |> has_element?("#booking-form")
@@ -134,7 +146,10 @@ defmodule SpazioSolazzoWeb.MeetingLiveTest do
       |> element("#booking-form")
       |> render_submit(%{
         "customer_name" => "",
-        "customer_email" => "test@example.com"
+        "customer_email" => "test@example.com",
+        "phone_prefix" => "+39",
+        "phone_number" => "35273464176",
+        "customer_comment" => "test comment"
       })
 
       assert view |> has_element?("#booking-form")

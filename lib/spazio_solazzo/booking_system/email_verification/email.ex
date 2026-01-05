@@ -13,7 +13,7 @@ defmodule SpazioSolazzo.BookingSystem.EmailVerification.Email do
     assigns = %{
       code: code,
       timeout: verification_timeout(),
-      subject: "Verify Your Booking"
+      subject: "Verify your booking at Spazio Solazzo"
     }
 
     new()

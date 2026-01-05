@@ -13,5 +13,7 @@ defmodule SpazioSolazzo.BookingSystem.EmailVerification.EmailWorker do
     verification_email
     |> Email.verification_email(verification_code)
     |> SpazioSolazzo.Mailer.deliver!()
+
+    :ok
   end
 end
