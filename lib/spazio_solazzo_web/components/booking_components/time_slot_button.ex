@@ -16,20 +16,23 @@ defmodule SpazioSolazzoWeb.BookingComponents.TimeSlotButton do
       class={
         [
           # Base Compact Classes
-          "p-4 border-2 transition-all text-center rounded-lg",
+          "p-4 border-2 transition-all text-center rounded-2xl",
           # State Classes
           if(@booked,
             do:
               "border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 cursor-not-allowed opacity-75",
             else:
-              "border-gray-200 dark:border-gray-600 hover:border-indigo-600 dark:hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 cursor-pointer"
+              "border-teal-400 dark:border-teal-600 hover:border-teal-600 dark:hover:border-teal-500 hover:bg-teal-50 dark:hover:bg-teal-900/30 cursor-pointer"
           )
         ]
       }
       {@rest}
     >
       <p class={["font-semibold", text_color(@booked, :primary)]}>
-        {Calendar.strftime(@time_slot.start_time, "%I:%M %p")}
+        {Calendar.strftime(@time_slot.start_time, "%I:%M %p")} - {Calendar.strftime(
+          @time_slot.end_time,
+          "%I:%M %p"
+        )}
       </p>
       <p class={["text-xs mt-1", text_color(@booked, :secondary)]}>
         {if @booked, do: "Booked", else: "Available"}
@@ -49,12 +52,12 @@ defmodule SpazioSolazzoWeb.BookingComponents.TimeSlotButton do
     <button
       disabled={@booked}
       class={[
-        "w-full p-4 border transition-all text-left rounded-lg",
+        "w-full p-4 border transition-all text-left rounded-2xl",
         if(@booked,
           do:
             "bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 cursor-not-allowed opacity-75",
           else:
-            "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-indigo-600 dark:hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 cursor-pointer"
+            "bg-white dark:bg-gray-800 border-teal-400 dark:border-teal-600 hover:border-teal-600 dark:hover:border-teal-500 hover:bg-teal-50 dark:hover:bg-teal-900/30 cursor-pointer"
         )
       ]}
       {@rest}
@@ -75,12 +78,12 @@ defmodule SpazioSolazzoWeb.BookingComponents.TimeSlotButton do
     <button
       disabled={@booked}
       class={[
-        "w-full p-6 border-2 transition-all text-left rounded-lg",
+        "w-full p-6 border-2 transition-all text-left rounded-2xl",
         if(@booked,
           do:
             "border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 cursor-not-allowed opacity-75",
           else:
-            "border-gray-200 dark:border-gray-600 hover:border-purple-600 dark:hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-900/30 cursor-pointer"
+            "border-teal-400 dark:border-teal-600 hover:border-teal-600 dark:hover:border-teal-500 hover:bg-teal-50 dark:hover:bg-teal-900/30 cursor-pointer"
         )
       ]}
       {@rest}
@@ -127,7 +130,7 @@ defmodule SpazioSolazzoWeb.BookingComponents.TimeSlotButton do
         <div class={[
           @variant == :large && "px-3 py-1",
           @variant == :xlarge && "px-4 py-2",
-          "bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 text-sm font-semibold rounded-full"
+          "bg-teal-100 dark:bg-teal-900 text-teal-700 dark:text-teal-300 text-sm font-semibold rounded-full"
         ]}>
           Available
         </div>

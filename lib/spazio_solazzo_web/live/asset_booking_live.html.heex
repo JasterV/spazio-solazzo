@@ -1,0 +1,89 @@
+<Layouts.app flash={@flash}>
+  <div class="relative min-h-screen py-12 bg-white dark:bg-gray-900">
+    <div class="absolute top-4 left-4 z-10">
+      <.link
+        navigate="/"
+        class="inline-flex items-center justify-center w-12 h-12 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-full text-teal-700 dark:text-teal-400 hover:bg-white dark:hover:bg-gray-800 transition-all shadow-lg hover:shadow-xl"
+      >
+        <.icon name="hero-arrow-left" class="w-5 h-5" />
+      </.link>
+    </div>
+
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+      <div class="mb-8 text-center">
+        <h1 class="text-5xl font-bold text-gray-900 dark:text-white">{@space.name}</h1>
+        <p class="text-lg text-gray-600 dark:text-gray-300 mt-3">
+          {@asset.name} - Book by the hour
+        </p>
+      </div>
+
+      <div class="bg-white dark:bg-gray-800 rounded-3xl p-8 shadow-[0_10px_40px_-15px_rgba(20,184,166,0.3)] dark:shadow-gray-900/50">
+        <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-6">
+          Available Time Slots
+        </h2>
+
+        <div class="mb-6">
+          <.form for={%{}} phx-change="change_date">
+            <.input
+              label="Select Date"
+              type="date"
+              id="date-picker"
+              name="date"
+              value={Date.to_string(@selected_date)}
+              min={Date.to_string(Date.utc_today())}
+            />
+          </.form>
+        </div>
+
+        <p class="text-lg text-gray-600 dark:text-gray-300 mb-8">
+          Showing slots for {Calendar.strftime(@selected_date, "%B %d, %Y")}
+        </p>
+
+        <div class="flex justify-center">
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-3xl w-full">
+            <%= for time_slot <- @time_slots do %>
+              <% booked = slot_booked?(time_slot.id, @bookings) %>
+              <SpazioSolazzoWeb.BookingComponents.TimeSlotButton.compact
+                phx-click={unless booked, do: "select_slot"}
+                phx-value-time_slot_id={time_slot.id}
+                time_slot={time_slot}
+                booked={booked}
+              />
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <.live_component
+    module={SpazioSolazzoWeb.BookingComponents.BookingFormComponent}
+    id="booking-modal"
+    show={@show_booking_modal}
+    selected_time_slot={@selected_time_slot}
+    asset={@asset}
+    selected_date={@selected_date}
+    on_cancel={JS.push("cancel_booking")}
+  />
+
+  <.live_component
+    module={SpazioSolazzoWeb.BookingComponents.EmailVerificationComponent}
+    id="email-verification-modal"
+    show={@show_verification_modal}
+    verification_id={@email_verification_id}
+    verification_email={@pending_booking_data && @pending_booking_data.customer_email}
+    on_cancel={JS.push("cancel_booking")}
+  />
+
+  <SpazioSolazzoWeb.BookingComponents.EmailVerificationExpiredComponent.render
+    id="email-verification-expired-modal"
+    show={@show_verification_expired_modal}
+    on_close={JS.push("cancel_booking")}
+  />
+
+  <SpazioSolazzoWeb.BookingComponents.BookingConfirmationModal.render
+    id="success-modal"
+    show={@show_success_modal}
+    on_close={JS.push("close_success_modal")}
+  />
+</Layouts.app>

@@ -13,6 +13,7 @@ defmodule SpazioSolazzo.BookingSystem do
     end
 
     resource SpazioSolazzo.BookingSystem.Asset do
+      define :get_asset_by_id, action: :read, get_by: [:id]
       define :get_asset_by_space_id, action: :read, get_by: [:space_id]
       define :get_space_assets, action: :get_space_assets, args: [:space_id]
       define :create_asset, action: :create, args: [:name, :space_id]

@@ -27,18 +27,18 @@
   default: false;
   prefersdark: true;
   color-scheme: "dark";
-  --color-base-100: oklch(30.33% 0.016 252.42);
-  --color-base-200: oklch(25.26% 0.014 253.1);
-  --color-base-300: oklch(20.15% 0.012 254.09);
-  --color-base-content: oklch(97.807% 0.029 256.847);
-  --color-primary: oklch(58% 0.233 277.117);
-  --color-primary-content: oklch(96% 0.018 272.314);
-  --color-secondary: oklch(58% 0.233 277.117);
-  --color-secondary-content: oklch(96% 0.018 272.314);
-  --color-accent: oklch(60% 0.25 292.717);
-  --color-accent-content: oklch(96% 0.016 293.756);
-  --color-neutral: oklch(37% 0.044 257.287);
-  --color-neutral-content: oklch(98% 0.003 247.858);
+  --color-base-100: oklch(25% 0.015 200);
+  --color-base-200: oklch(20% 0.012 200);
+  --color-base-300: oklch(15% 0.01 200);
+  --color-base-content: oklch(95% 0.01 200);
+  --color-primary: oklch(58% 0.15 180);
+  --color-primary-content: oklch(98% 0.01 180);
+  --color-secondary: oklch(58% 0.15 180);
+  --color-secondary-content: oklch(98% 0.01 180);
+  --color-accent: oklch(60% 0.12 175);
+  --color-accent-content: oklch(98% 0.01 175);
+  --color-neutral: oklch(30% 0.02 200);
+  --color-neutral-content: oklch(98% 0.01 200);
   --color-info: oklch(58% 0.158 241.966);
   --color-info-content: oklch(97% 0.013 236.62);
   --color-success: oklch(60% 0.118 184.704);
@@ -47,9 +47,9 @@
   --color-warning-content: oklch(98% 0.022 95.277);
   --color-error: oklch(58% 0.253 17.585);
   --color-error-content: oklch(96% 0.015 12.422);
-  --radius-selector: 0.25rem;
-  --radius-field: 0.25rem;
-  --radius-box: 0.5rem;
+  --radius-selector: 1rem;
+  --radius-field: 1rem;
+  --radius-box: 1.5rem;
   --size-selector: 0.21875rem;
   --size-field: 0.21875rem;
   --border: 1.5px;
@@ -62,29 +62,29 @@
   default: true;
   prefersdark: false;
   color-scheme: "light";
-  --color-base-100: oklch(98% 0 0);
-  --color-base-200: oklch(96% 0.001 286.375);
-  --color-base-300: oklch(92% 0.004 286.32);
-  --color-base-content: oklch(21% 0.006 285.885);
-  --color-primary: oklch(70% 0.213 47.604);
-  --color-primary-content: oklch(98% 0.016 73.684);
-  --color-secondary: oklch(55% 0.027 264.364);
-  --color-secondary-content: oklch(98% 0.002 247.839);
-  --color-accent: oklch(0% 0 0);
-  --color-accent-content: oklch(100% 0 0);
-  --color-neutral: oklch(44% 0.017 285.786);
-  --color-neutral-content: oklch(98% 0 0);
-  --color-info: oklch(62% 0.214 259.815);
-  --color-info-content: oklch(97% 0.014 254.604);
-  --color-success: oklch(70% 0.14 182.503);
-  --color-success-content: oklch(98% 0.014 180.72);
-  --color-warning: oklch(66% 0.179 58.318);
-  --color-warning-content: oklch(98% 0.022 95.277);
-  --color-error: oklch(58% 0.253 17.585);
-  --color-error-content: oklch(96% 0.015 12.422);
-  --radius-selector: 0.25rem;
-  --radius-field: 0.25rem;
-  --radius-box: 0.5rem;
+  --color-base-100: oklch(99% 0.005 200);
+  --color-base-200: oklch(97% 0.01 200);
+  --color-base-300: oklch(93% 0.015 200);
+  --color-base-content: oklch(30% 0.02 200);
+  --color-primary: oklch(58% 0.15 180);
+  --color-primary-content: oklch(98% 0.01 180);
+  --color-secondary: oklch(58% 0.15 180);
+  --color-secondary-content: oklch(98% 0.01 180);
+  --color-accent: oklch(62% 0.12 175);
+  --color-accent-content: oklch(98% 0.01 175);
+  --color-neutral: oklch(50% 0.02 200);
+  --color-neutral-content: oklch(98% 0.01 200);
+  --color-info: oklch(62% 0.18 210);
+  --color-info-content: oklch(97% 0.01 210);
+  --color-success: oklch(70% 0.14 140);
+  --color-success-content: oklch(98% 0.01 140);
+  --color-warning: oklch(78% 0.18 45);
+  --color-warning-content: oklch(20% 0.02 45);
+  --color-error: oklch(58% 0.20 20);
+  --color-error-content: oklch(96% 0.01 20);
+  --radius-selector: 1rem;
+  --radius-field: 1rem;
+  --radius-box: 1.5rem;
   --size-selector: 0.21875rem;
   --size-field: 0.21875rem;
   --border: 1.5px;
@@ -104,3 +104,45 @@
 [data-phx-session], [data-phx-teleported-src] { display: contents }
 
 /* This file is for your main application CSS */
+
+/* Mediterranean "Sun & Earth" Custom Theme */
+@theme {
+  /* The Sun - Primary Actions & Highlights */
+  --color-sun: #F59E0B;
+  --color-sun-dark: #D97706;
+  --color-amber-glow: #FBBF24;
+
+  /* The Earth - Secondary & Accents */
+  --color-terracotta: #B45309;
+  --color-sage: #4D7C0F;
+  --color-clay: #A8A29E;
+
+  /* Backgrounds - Warm Whites */
+  --color-paper: #FAF9F6;
+  --color-sand: #FFFBEB;
+
+  /* Sea Accent - Contrast */
+  --color-teal: #0D9488;
+
+  /* Extended Palette */
+  --color-burnt-orange: #EA580C;
+  --color-warm-gray: #78716C;
+
+  /* Typography */
+  --font-sans: 'Montserrat', sans-serif;
+}
+
+/* Global Typography & Styles */
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-sand);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-sans);
+  font-weight: 600;
+}
+
+.prose {
+  font-family: var(--font-sans);
+}

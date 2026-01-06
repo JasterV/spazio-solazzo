@@ -21,6 +21,7 @@ defmodule SpazioSolazzoWeb.Router do
     live "/coworking", CoworkingLive
     live "/meeting", MeetingLive
     live "/music", MusicLive
+    live "/book/asset/:asset_id", AssetBookingLive
     get "/bookings/confirm", BookingController, :confirm
     get "/bookings/cancel", BookingController, :cancel
   end

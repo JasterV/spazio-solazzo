@@ -1,108 +1,86 @@
 <Layouts.app flash={@flash}>
-  <div class="min-h-screen py-12">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="mb-8">
-        <.link
-          navigate="/"
-          class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium"
-        >
-          ← Back to Home
-        </.link>
-        <h1 class="text-4xl font-bold text-gray-900 dark:text-white mt-4">{@space.name}</h1>
-        <p class="text-gray-600 dark:text-gray-300 mt-2">Select a table and time slot to book</p>
+  <div class="relative min-h-screen bg-gradient-to-br from-teal-500 to-emerald-600">
+    <div class="absolute top-4 left-4 z-10">
+      <.link
+        navigate="/"
+        class="inline-flex items-center justify-center w-12 h-12 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-full text-teal-700 dark:text-teal-400 hover:bg-white dark:hover:bg-gray-800 transition-all shadow-lg hover:shadow-xl"
+      >
+        <.icon name="hero-arrow-left" class="w-5 h-5" />
+      </.link>
+    </div>
 
-        <div class="mt-6">
-          <.form for={%{}} phx-change="change_date">
-            <.input
-              label="Select Date"
-              type="date"
-              id="date-picker"
-              name="date"
-              value={Date.to_string(@selected_date)}
-              min={Date.to_string(Date.utc_today())}
-            />
-          </.form>
-        </div>
+    <div class="relative min-h-[60vh] flex items-center justify-center text-white px-4">
+      <div class="absolute inset-0 bg-black/20" />
+      <div class="relative text-center z-10 max-w-4xl mx-auto">
+        <h1 class="text-6xl md:text-7xl font-bold drop-shadow-2xl mb-6">{@space.name}</h1>
+        <p class="text-xl md:text-2xl mb-2 drop-shadow-lg font-medium">Flexible Workspace</p>
+        <p class="text-lg md:text-xl drop-shadow-lg opacity-90 max-w-2xl mx-auto">
+          {@space.description}
+        </p>
       </div>
+    </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div>
-          <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Available Tables</h2>
-          <div class="grid grid-cols-2 gap-4">
+    <div class="relative bg-white dark:bg-gray-900 py-12">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
+          <div class="text-center">
+            <.icon
+              name="hero-wifi"
+              class="w-10 h-10 mx-auto mb-3 text-teal-600 dark:text-teal-400"
+            />
+            <p class="text-sm font-medium text-gray-900 dark:text-white">High-speed WiFi</p>
+          </div>
+          <div class="text-center">
+            <.icon
+              name="hero-computer-desktop"
+              class="w-10 h-10 mx-auto mb-3 text-teal-600 dark:text-teal-400"
+            />
+            <p class="text-sm font-medium text-gray-900 dark:text-white">Ergonomic furniture</p>
+          </div>
+          <div class="text-center">
+            <.icon
+              name="hero-beaker"
+              class="w-10 h-10 mx-auto mb-3 text-teal-600 dark:text-teal-400"
+            />
+            <p class="text-sm font-medium text-gray-900 dark:text-white">Coffee & tea</p>
+          </div>
+          <div class="text-center">
+            <.icon
+              name="hero-sun"
+              class="w-10 h-10 mx-auto mb-3 text-teal-600 dark:text-teal-400"
+            />
+            <p class="text-sm font-medium text-gray-900 dark:text-white">Natural lighting</p>
+          </div>
+        </div>
+
+        <div class="mb-6">
+          <h2 class="text-3xl font-bold text-gray-900 dark:text-white text-center mb-8">
+            Select Your Desk
+          </h2>
+
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             <%= for asset <- @assets do %>
-              <button
-                phx-click="select_asset"
-                phx-value-id={asset.id}
-                class={[
-                  "p-6 rounded-lg border-2 transition-all",
-                  if(@selected_asset && @selected_asset.id == asset.id,
-                    do:
-                      "border-indigo-600 dark:border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30",
-                    else:
-                      "border-gray-200 dark:border-gray-700 hover:border-indigo-300 dark:hover:border-indigo-600 bg-white dark:bg-gray-800"
-                  )
-                ]}
+              <.link
+                navigate={~p"/book/asset/#{asset.id}"}
+                class="group relative p-6 rounded-2xl border-2 border-gray-200 dark:border-gray-700 hover:border-teal-500 dark:hover:border-teal-500 bg-white dark:bg-gray-800 hover:bg-teal-50 dark:hover:bg-teal-900/20 transition-all duration-200 hover:shadow-xl hover:scale-105"
               >
-                <p class="font-semibold text-gray-900 dark:text-white">{asset.name}</p>
-              </button>
+                <div class="text-center">
+                  <.icon
+                    name="hero-computer-desktop"
+                    class="w-10 h-10 mx-auto mb-2 text-gray-400 dark:text-gray-500 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors"
+                  />
+                  <p class="font-semibold text-gray-900 dark:text-white">
+                    {asset.name}
+                  </p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 group-hover:text-teal-600 dark:group-hover:text-teal-400">
+                    Book Now
+                  </p>
+                </div>
+              </.link>
             <% end %>
           </div>
         </div>
-
-        <%= if @selected_asset do %>
-          <div>
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Time Slots</h2>
-            <div class="space-y-3">
-              <%= for time_slot <- @time_slots do %>
-                <% booked = slot_booked?(time_slot.id, @bookings) %>
-                <SpazioSolazzoWeb.BookingComponents.TimeSlotButton.large
-                  phx-click={unless booked, do: "select_slot"}
-                  phx-value-time_slot_id={time_slot.id}
-                  time_slot={time_slot}
-                  booked={booked}
-                />
-              <% end %>
-            </div>
-          </div>
-        <% else %>
-          <div class="flex items-center justify-center">
-            <p class="text-gray-500 dark:text-gray-400 text-center">
-              Select a table to view available time slots
-            </p>
-          </div>
-        <% end %>
       </div>
     </div>
   </div>
-
-  <.live_component
-    module={SpazioSolazzoWeb.BookingComponents.BookingFormComponent}
-    id="booking-modal"
-    show={@show_booking_modal}
-    selected_time_slot={@selected_time_slot}
-    asset={@selected_asset}
-    selected_date={@selected_date}
-    on_cancel={JS.push("cancel_booking")}
-  />
-
-  <.live_component
-    module={SpazioSolazzoWeb.BookingComponents.EmailVerificationComponent}
-    id="email-verification-modal"
-    show={@show_verification_modal}
-    verification_id={@email_verification_id}
-    verification_email={@pending_booking_data && @pending_booking_data.customer_email}
-    on_cancel={JS.push("cancel_booking")}
-  />
-
-  <SpazioSolazzoWeb.BookingComponents.EmailVerificationExpiredComponent.render
-    id="email-verification-expired-modal"
-    show={@show_verification_expired_modal}
-    on_close={JS.push("cancel_booking")}
-  />
-
-  <SpazioSolazzoWeb.BookingComponents.BookingConfirmationModal.render
-    id="success-modal"
-    show={@show_success_modal}
-    on_close={JS.push("close_success_modal")}
-  />
 </Layouts.app>

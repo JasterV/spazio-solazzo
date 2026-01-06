@@ -55,14 +55,14 @@ defmodule SpazioSolazzoWeb.BookingComponents.EmailVerificationComponent do
 
         <div>
           <div class="mt-6">
-            <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg mb-4">
-              <p class="text-sm text-blue-800">
+            <div class="p-4 bg-teal-50 dark:bg-teal-900/30 border border-teal-200 dark:border-teal-700 rounded-2xl mb-4">
+              <p class="text-sm text-teal-900 dark:text-teal-100">
                 A 6-digit verification code has been sent to your email. Please enter it below.
               </p>
             </div>
 
             <%= if @error do %>
-              <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded text-red-800 text-sm">
+              <div class="mb-4 p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 rounded-2xl text-red-800 dark:text-red-200 text-sm">
                 {@error}
               </div>
             <% end %>
@@ -90,14 +90,14 @@ defmodule SpazioSolazzoWeb.BookingComponents.EmailVerificationComponent do
               <div class="mt-6 flex items-center gap-3">
                 <button
                   type="submit"
-                  class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  class="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 px-4 rounded-2xl transition-colors shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Verify
                 </button>
                 <button
                   type="button"
                   phx-click={@on_cancel}
-                  class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg transition-colors"
+                  class="flex-1 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-semibold py-3 px-4 rounded-2xl transition-colors"
                 >
                   Cancel
                 </button>

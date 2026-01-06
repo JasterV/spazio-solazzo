@@ -1,58 +1,30 @@
 <Layouts.app flash={@flash}>
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <div class="text-center mb-16">
+  <div class="min-h-screen flex flex-col">
+    <div class="text-center py-12 px-4 flex-none">
       <h1 class="text-5xl font-bold text-gray-900 dark:text-white mb-4">Spazio Solazzo</h1>
       <p class="text-xl text-gray-600 dark:text-gray-300">Book your perfect workspace</p>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-      <%= for space <- @spaces do %>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 flex-1">
+      <%= for {space, index} <- Enum.with_index(@spaces) do %>
         <.link
           navigate={"/#{space.slug}"}
           class={[
-            "group relative overflow-hidden rounded-2xl bg-white dark:bg-gray-800 p-8",
-            "shadow-lg hover:shadow-2xl dark:shadow-gray-900/50 transition-all duration-300",
-            "transform hover:-translate-y-2 border border-transparent dark:border-gray-700"
+            "group relative overflow-hidden hover:opacity-95 transition-opacity",
+            index == 2 && "md:col-span-2 lg:col-span-1"
           ]}
         >
-          <div class="relative z-10">
-            <div class="mb-6">
-              <div class="w-16 h-16 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center group-hover:bg-indigo-200 dark:group-hover:bg-indigo-800 transition-colors">
-                <svg
-                  class="w-8 h-8 text-indigo-600 dark:text-indigo-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                  />
-                </svg>
-              </div>
-            </div>
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-3">{space.name}</h2>
-            <p class="text-gray-600 dark:text-gray-300 mb-6">{space.description}</p>
-            <div class="flex items-center text-indigo-600 dark:text-indigo-400 font-semibold group-hover:text-indigo-700 dark:group-hover:text-indigo-300">
-              <span>Book now</span>
-              <svg
-                class="w-5 h-5 ml-2 transform group-hover:translate-x-1 transition-transform"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M13 7l5 5m0 0l-5 5m5-5H6"
-                />
-              </svg>
-            </div>
-          </div>
-          <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/0 to-purple-500/0 group-hover:from-indigo-500/5 group-hover:to-purple-500/5 dark:group-hover:from-indigo-400/10 dark:group-hover:to-purple-400/10 transition-all duration-300">
+          <div class="absolute inset-0 bg-gradient-to-br from-teal-500 to-emerald-600" />
+          <div class="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors" />
+
+          <div class="relative h-full flex flex-col items-center justify-center text-white p-8 text-center">
+            <h2 class="text-4xl font-bold mb-4 drop-shadow-lg">{space.name}</h2>
+            <p class="text-lg mb-6 opacity-90 max-w-md drop-shadow">{space.description}</p>
+
+            <button class="inline-flex items-center justify-center px-6 py-3 bg-white text-teal-900 font-semibold rounded-2xl shadow-xl hover:bg-teal-50 hover:shadow-2xl transform group-hover:scale-105 transition-all">
+              <span>Explore</span>
+              <.icon name="hero-arrow-right" class="w-5 h-5 ml-2" />
+            </button>
           </div>
         </.link>
       <% end %>

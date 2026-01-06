@@ -114,7 +114,13 @@ defmodule SpazioSolazzo.MixProject do
         "esbuild spazio_solazzo --minify",
         "phx.digest"
       ],
-      precommit: ["compile --warnings-as-errors", "deps.unlock --unused", "format", "test"]
+      precommit: [
+        "compile --warnings-as-errors",
+        "deps.unlock --unused",
+        "format",
+        "test",
+        "credo"
+      ]
     ]
   end
 end

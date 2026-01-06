@@ -309,7 +309,7 @@ defmodule SpazioSolazzoWeb.CoreComponents do
     ~H"""
     <div class="fieldset mb-2">
       <label>
-        <span :if={@label} class="label mb-1">{@label}</span>
+        <span :if={@label} class="label mb-1 text-gray-900 dark:text-gray-100">{@label}</span>
         <input
           type={@type}
           name={@name}
@@ -508,7 +508,7 @@ defmodule SpazioSolazzoWeb.CoreComponents do
     >
       <div
         id={"#{@id}-bg"}
-        class="fixed inset-0 bg-zinc-50/90 transition-opacity"
+        class="fixed inset-0 bg-zinc-50/90 dark:bg-gray-900/90 transition-opacity"
         aria-hidden="true"
       />
       <div
@@ -526,13 +526,13 @@ defmodule SpazioSolazzoWeb.CoreComponents do
               phx-window-keydown={JS.exec("data-cancel", to: "##{@id}")}
               phx-key="escape"
               phx-click-away={JS.exec("data-cancel", to: "##{@id}")}
-              class="hidden relative rounded-2xl bg-white p-8 shadow-2xl transition"
+              class="hidden relative rounded-2xl bg-white dark:bg-gray-800 p-8 shadow-2xl transition"
             >
               <div class="absolute top-6 right-6">
                 <button
                   phx-click={JS.exec("data-cancel", to: "##{@id}")}
                   type="button"
-                  class="-m-3 flex-none p-3 opacity-40 hover:opacity-60"
+                  class="-m-3 flex-none p-3 opacity-40 hover:opacity-60 text-gray-600 dark:text-gray-400"
                   aria-label="close"
                 >
                   <.icon name="hero-x-mark-solid" class="size-5" />
@@ -540,13 +540,13 @@ defmodule SpazioSolazzoWeb.CoreComponents do
               </div>
               <div id={"#{@id}-content"}>
                 <header :if={@title != []}>
-                  <h1 id={"#{@id}-title"} class="text-2xl font-bold text-zinc-900">
+                  <h1 id={"#{@id}-title"} class="text-2xl font-bold text-zinc-900 dark:text-white">
                     {render_slot(@title)}
                   </h1>
                   <p
                     :if={@subtitle != []}
                     id={"#{@id}-description"}
-                    class="mt-2 text-sm leading-6 text-zinc-600"
+                    class="mt-2 text-sm leading-6 text-zinc-600 dark:text-gray-300"
                   >
                     {render_slot(@subtitle)}
                   </p>

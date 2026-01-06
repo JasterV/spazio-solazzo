@@ -142,7 +142,7 @@ defmodule SpazioSolazzoWeb.BookingComponents.BookingFormComponent do
 
               <div class="fieldset mb-2">
                 <label>
-                  <span class="label mb-1">Phone Number</span>
+                  <span class="label mb-1 text-gray-900 dark:text-gray-100">Phone Number</span>
                   <div class="mt-1 flex gap-2 items-center">
                     <div class="w-[3ch] min-w-[55px] flex-shrink-0">
                       <.input
@@ -181,14 +181,14 @@ defmodule SpazioSolazzoWeb.BookingComponents.BookingFormComponent do
             <div class="mt-6 flex items-center gap-3">
               <button
                 type="submit"
-                class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+                class="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 px-4 rounded-2xl transition-colors shadow-lg hover:shadow-xl"
               >
                 Book Now
               </button>
               <button
                 type="button"
                 phx-click={@on_cancel}
-                class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg transition-colors"
+                class="flex-1 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-semibold py-3 px-4 rounded-2xl transition-colors"
               >
                 Cancel
               </button>

@@ -14,8 +14,8 @@ defmodule SpazioSolazzoWeb.BookingComponents.EmailVerificationExpiredComponent d
     <div>
       <.modal :if={@show} id={@id} show on_cancel={@on_close}>
         <div>
-          <div class="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <div class="flex items-center gap-2 text-red-800">
+          <div class="mt-6 p-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 rounded-2xl">
+            <div class="flex items-center gap-2 text-red-800 dark:text-red-200">
               <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                 <path
                   fill-rule="evenodd"
@@ -25,7 +25,7 @@ defmodule SpazioSolazzoWeb.BookingComponents.EmailVerificationExpiredComponent d
               </svg>
               <p class="font-semibold">Verification Code Expired</p>
             </div>
-            <p class="mt-2 text-sm text-red-700">
+            <p class="mt-2 text-sm text-red-700 dark:text-red-300">
               Your verification code has expired. Please start over.
             </p>
           </div>
@@ -33,7 +33,7 @@ defmodule SpazioSolazzoWeb.BookingComponents.EmailVerificationExpiredComponent d
             <button
               type="button"
               phx-click={@on_close}
-              class="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg transition-colors"
+              class="w-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-semibold py-3 px-4 rounded-2xl transition-colors"
             >
               Close
             </button>

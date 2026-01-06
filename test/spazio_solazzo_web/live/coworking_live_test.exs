@@ -5,50 +5,33 @@ defmodule SpazioSolazzoWeb.CoworkingLiveTest do
   alias SpazioSolazzo.BookingSystem
 
   setup do
-    {:ok, space} =
-      BookingSystem.Space
-      |> Ash.Changeset.for_create(:create, %{
-        name: "CoworkingTest",
-        slug: "coworking",
-        description: "desc"
-      })
-      |> Ash.create()
+    {:ok, space} = BookingSystem.create_space("CoworkingTest", "coworking", "desc")
+    {:ok, asset1} = BookingSystem.create_asset("Table 1", space.id)
+    {:ok, asset2} = BookingSystem.create_asset("Table 2", space.id)
 
-    {:ok, asset} =
-      BookingSystem.Asset
-      |> Ash.Changeset.for_create(:create, %{name: "T1", space_id: space.id})
-      |> Ash.create()
-
-    {:ok, slot} =
-      BookingSystem.TimeSlotTemplate
-      |> Ash.Changeset.for_create(:create, %{
-        name: "S1",
-        start_time: ~T[09:00:00],
-        end_time: ~T[10:00:00],
-        space_id: space.id,
-        day_of_week: :monday
-      })
-      |> Ash.create()
-
-    %{space: space, asset: asset, slot: slot}
+    %{space: space, assets: [asset1, asset2]}
   end
 
-  test "selecting asset loads time slots and shows booked state", %{
-    conn: conn,
-    asset: asset
-  } do
-    {:ok, _view, _html} = live(conn, "/")
+  describe "CoworkingLive landing page" do
+    test "renders coworking landing page with space information", %{conn: conn, space: space} do
+      {:ok, _view, html} = live(conn, "/coworking")
 
-    # navigate to the cowo space route
-    assert {:ok, _view, _html} = live(conn, "/coworking")
+      assert html =~ space.name
+      assert html =~ "Select Your Desk"
+      assert html =~ "High-speed WiFi"
+    end
 
-    {:ok, coworking_view, _} = live(conn, "/coworking")
+    test "displays all available assets as selectable cards", %{
+      conn: conn,
+      assets: [asset1, asset2]
+    } do
+      {:ok, view, html} = live(conn, "/coworking")
 
-    # select asset
-    coworking_view |> element("button[phx-value-id=\"#{asset.id}\"]") |> render_click()
+      assert html =~ asset1.name
+      assert html =~ asset2.name
 
-    # time slot button should be present
-    html = render(coworking_view)
-    assert String.contains?(html, "button") or String.contains?(html, "time-slot")
+      assert has_element?(view, "a[href='/book/asset/#{asset1.id}']")
+      assert has_element?(view, "a[href='/book/asset/#{asset2.id}']")
+    end
   end
 end

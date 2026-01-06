@@ -46,11 +46,13 @@ defmodule SpazioSolazzoWeb.Layouts do
       </div>
     </header>
 
-    <main class="bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 min-h-screen">
+    <main class="bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex-1 relative">
       {render_slot(@inner_block)}
     </main>
 
     <.flash_group flash={@flash} />
+
+    <.footer />
     """
   end
 
@@ -121,6 +123,63 @@ defmodule SpazioSolazzoWeb.Layouts do
         <.icon name="hero-moon-micro" class="size-4 opacity-75 hover:opacity-100" />
       </button>
     </div>
+    """
+  end
+
+  defp footer(assigns) do
+    current_year = Date.utc_today().year
+
+    assigns = assign(assigns, :current_year, current_year)
+
+    ~H"""
+    <footer class="bg-gray-100 dark:bg-gray-800 mt-auto">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div class="space-y-4">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Community</h3>
+            <ul class="space-y-2">
+              <li>
+                <a
+                  href="https://caravanseraipalermo.it/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 transition-colors"
+                >
+                  Caravanserai Palermo
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://mojocohouse.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 transition-colors"
+                >
+                  Mojo Cohouse
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://jaster.xyz"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 transition-colors"
+                >
+                  Author's Blog
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <div class="space-y-4">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">About</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-300">
+              © {@current_year} Victor Martinez & Spazio Solazzo. All rights reserved.
+            </p>
+          </div>
+        </div>
+      </div>
+    </footer>
     """
   end
 end

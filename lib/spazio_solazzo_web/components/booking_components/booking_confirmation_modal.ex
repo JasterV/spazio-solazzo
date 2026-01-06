@@ -23,12 +23,12 @@ defmodule SpazioSolazzoWeb.BookingComponents.BookingConfirmationModal do
         <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
           <div
             id={"#{@id}-container"}
-            class="relative transform overflow-hidden rounded-lg bg-white dark:bg-gray-800 px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-sm sm:p-6"
+            class="relative transform overflow-hidden rounded-3xl bg-white dark:bg-gray-800 px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-sm sm:p-6"
           >
             <div>
-              <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
+              <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-teal-100 dark:bg-teal-900/30">
                 <svg
-                  class="h-6 w-6 text-green-600 dark:text-green-400"
+                  class="h-6 w-6 text-teal-600 dark:text-teal-400"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -56,7 +56,7 @@ defmodule SpazioSolazzoWeb.BookingComponents.BookingConfirmationModal do
               <button
                 phx-click={@on_close}
                 type="button"
-                class="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                class="inline-flex w-full justify-center rounded-2xl bg-teal-600 px-3 py-3 text-sm font-semibold text-white shadow-lg hover:bg-teal-700 hover:shadow-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-600 transition-all"
               >
                 Got it!
               </button>
