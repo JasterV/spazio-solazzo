@@ -13,7 +13,6 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
 
     {:ok, time_slot} =
       BookingSystem.create_time_slot_template(
-        "Full Day",
         ~T[09:00:00],
         ~T[18:00:00],
         :monday,
@@ -112,22 +111,10 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
     today_date = Date.utc_today()
 
     {:ok, time_slot2} =
-      BookingSystem.create_time_slot_template(
-        "Tuesday afternoon",
-        ~T[13:00:00],
-        ~T[18:00:00],
-        :tuesday,
-        space.id
-      )
+      BookingSystem.create_time_slot_template(~T[13:00:00], ~T[18:00:00], :tuesday, space.id)
 
     {:ok, time_slot3} =
-      BookingSystem.create_time_slot_template(
-        "Tuesday morning",
-        ~T[09:00:00],
-        ~T[13:00:00],
-        :tuesday,
-        space.id
-      )
+      BookingSystem.create_time_slot_template(~T[09:00:00], ~T[13:00:00], :tuesday, space.id)
 
     # Create the bookings we want to query
     assert {:ok, _} =

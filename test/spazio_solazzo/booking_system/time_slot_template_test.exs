@@ -12,7 +12,6 @@ defmodule SpazioSolazzo.BookingSystem.TimeSlotTemplateTest do
   test "prevents overlapping time slot templates for same space", %{space: space} do
     assert {:ok, _} =
              BookingSystem.create_time_slot_template(
-               "Morning",
                ~T[09:00:00],
                ~T[12:00:00],
                :monday,
@@ -21,7 +20,6 @@ defmodule SpazioSolazzo.BookingSystem.TimeSlotTemplateTest do
 
     assert {:error, changeset} =
              BookingSystem.create_time_slot_template(
-               "Morning",
                ~T[11:00:00],
                ~T[13:00:00],
                :monday,
@@ -36,7 +34,6 @@ defmodule SpazioSolazzo.BookingSystem.TimeSlotTemplateTest do
   } do
     assert {:ok, _} =
              BookingSystem.create_time_slot_template(
-               "Morning",
                ~T[09:00:00],
                ~T[12:00:00],
                :monday,
@@ -45,7 +42,6 @@ defmodule SpazioSolazzo.BookingSystem.TimeSlotTemplateTest do
 
     assert {:ok, _} =
              BookingSystem.create_time_slot_template(
-               "Afternoon",
                ~T[13:00:00],
                ~T[16:00:00],
                :monday,
@@ -56,7 +52,6 @@ defmodule SpazioSolazzo.BookingSystem.TimeSlotTemplateTest do
   test "allows overlapping time slot templates for same space on different days", %{space: space} do
     assert {:ok, _} =
              BookingSystem.create_time_slot_template(
-               "Monday morning",
                ~T[09:00:00],
                ~T[12:00:00],
                :monday,
@@ -65,7 +60,6 @@ defmodule SpazioSolazzo.BookingSystem.TimeSlotTemplateTest do
 
     assert {:ok, _} =
              BookingSystem.create_time_slot_template(
-               "Tuesday morning",
                ~T[09:00:00],
                ~T[12:00:00],
                :tuesday,

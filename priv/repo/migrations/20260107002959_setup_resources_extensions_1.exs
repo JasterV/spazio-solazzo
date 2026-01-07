@@ -1,4 +1,4 @@
-defmodule SpazioSolazzo.Repo.Migrations.CreateBaseResourcesExtensions1 do
+defmodule SpazioSolazzo.Repo.Migrations.SetupResourcesExtensions1 do
   @moduledoc """
   Installs any extensions that are mentioned in the repo's `installed_extensions/0` callback
 

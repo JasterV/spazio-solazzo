@@ -1,4 +1,4 @@
-defmodule SpazioSolazzo.Repo.Migrations.CreateBaseResources do
+defmodule SpazioSolazzo.Repo.Migrations.SetupResources do
   @moduledoc """
   Updates resources based on their most recent snapshots.
 
@@ -10,7 +10,6 @@ defmodule SpazioSolazzo.Repo.Migrations.CreateBaseResources do
   def up do
     create table(:time_slot_templates, primary_key: false) do
       add :id, :uuid, null: false, default: fragment("gen_random_uuid()"), primary_key: true
-      add :name, :text, null: false
       add :start_time, :time, null: false
       add :end_time, :time, null: false
       add :day_of_week, :text, null: false
@@ -44,7 +43,7 @@ defmodule SpazioSolazzo.Repo.Migrations.CreateBaseResources do
     create table(:email_verifications, primary_key: false) do
       add :id, :uuid, null: false, default: fragment("gen_random_uuid()"), primary_key: true
       add :email, :text, null: false
-      add :code, :text, null: false
+      add :code_hash, :text, null: false
 
       add :inserted_at, :utc_datetime_usec,
         null: false,
@@ -53,11 +52,13 @@ defmodule SpazioSolazzo.Repo.Migrations.CreateBaseResources do
 
     create table(:bookings, primary_key: false) do
       add :id, :uuid, null: false, default: fragment("gen_random_uuid()"), primary_key: true
-      add :date, :date
-      add :customer_name, :text
-      add :customer_email, :text
-      add :start_time, :time
-      add :end_time, :time
+      add :date, :date, null: false
+      add :customer_name, :text, null: false
+      add :customer_email, :text, null: false
+      add :start_time, :time, null: false
+      add :end_time, :time, null: false
+      add :customer_phone, :text, null: false
+      add :customer_comment, :text
       add :state, :text, null: false, default: "reserved"
 
       add :inserted_at, :utc_datetime_usec,

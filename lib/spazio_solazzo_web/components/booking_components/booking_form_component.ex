@@ -5,6 +5,8 @@ defmodule SpazioSolazzoWeb.BookingComponents.BookingFormComponent do
 
   use SpazioSolazzoWeb, :live_component
 
+  alias SpazioSolazzo.CalendarExt
+
   @default_phone_prefix "+39"
 
   def update(assigns, socket) do
@@ -108,9 +110,8 @@ defmodule SpazioSolazzoWeb.BookingComponents.BookingFormComponent do
         <:title>Complete Your Booking</:title>
         <:subtitle>
           <%= if @selected_time_slot do %>
-            {@asset.name} - {@selected_time_slot.name} on {Calendar.strftime(
-              @selected_date,
-              "%B %d, %Y"
+            {@asset.name} | {CalendarExt.format_time_range(@selected_time_slot)} on {CalendarExt.format_date(
+              @selected_date
             )}
           <% end %>
         </:subtitle>

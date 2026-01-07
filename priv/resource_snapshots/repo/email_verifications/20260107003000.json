@@ -21,7 +21,7 @@
       "references": null,
       "scale": null,
       "size": null,
-      "source": "name",
+      "source": "email",
       "type": "text"
     },
     {
@@ -33,20 +33,20 @@
       "references": null,
       "scale": null,
       "size": null,
-      "source": "description",
+      "source": "code_hash",
       "type": "text"
     },
     {
       "allow_nil?": false,
-      "default": "nil",
+      "default": "fragment(\"(now() AT TIME ZONE 'utc')\")",
       "generated?": false,
       "precision": null,
       "primary_key?": false,
       "references": null,
       "scale": null,
       "size": null,
-      "source": "slug",
-      "type": "text"
+      "source": "inserted_at",
+      "type": "utc_datetime_usec"
     }
   ],
   "base_filter": null,
@@ -54,37 +54,8 @@
   "custom_indexes": [],
   "custom_statements": [],
   "has_create_action": true,
-  "hash": "29965B10015A4BDE39A648F85CE4FDB39DDFC21E0CB18903C7F9677E11B11D21",
-  "identities": [
-    {
-      "all_tenants?": false,
-      "base_filter": null,
-      "index_name": "spaces_unique_name_index",
-      "keys": [
-        {
-          "type": "atom",
-          "value": "name"
-        }
-      ],
-      "name": "unique_name",
-      "nils_distinct?": true,
-      "where": null
-    },
-    {
-      "all_tenants?": false,
-      "base_filter": null,
-      "index_name": "spaces_unique_slug_index",
-      "keys": [
-        {
-          "type": "atom",
-          "value": "slug"
-        }
-      ],
-      "name": "unique_slug",
-      "nils_distinct?": true,
-      "where": null
-    }
-  ],
+  "hash": "1B5D7AA3901C3AA8C091D063DCB48396C624AE93FBAA0C8046D88CCE2F76CD27",
+  "identities": [],
   "multitenancy": {
     "attribute": null,
     "global": null,
@@ -92,5 +63,5 @@
   },
   "repo": "Elixir.SpazioSolazzo.Repo",
   "schema": null,
-  "table": "spaces"
+  "table": "email_verifications"
 }

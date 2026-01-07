@@ -26,7 +26,7 @@ defmodule SpazioSolazzo.BookingSystem do
 
       define :create_time_slot_template,
         action: :create,
-        args: [:name, :start_time, :end_time, :day_of_week, :space_id]
+        args: [:start_time, :end_time, :day_of_week, :space_id]
     end
 
     resource SpazioSolazzo.BookingSystem.Booking do

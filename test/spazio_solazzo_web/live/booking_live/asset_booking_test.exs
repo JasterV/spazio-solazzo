@@ -13,7 +13,6 @@ defmodule SpazioSolazzoWeb.BookingLive.AssetBookingTest do
 
     {:ok, slot} =
       BookingSystem.create_time_slot_template(
-        "9:00 - 10:00",
         ~T[09:00:00],
         ~T[10:00:00],
         day_of_week,
@@ -214,7 +213,6 @@ defmodule SpazioSolazzoWeb.BookingLive.AssetBookingTest do
 
       {:ok, _slot} =
         BookingSystem.create_time_slot_template(
-          "14:00 - 15:00",
           ~T[14:00:00],
           ~T[15:00:00],
           tomorrow_day_of_week,

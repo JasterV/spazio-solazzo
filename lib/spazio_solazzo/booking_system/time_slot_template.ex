@@ -19,7 +19,7 @@ defmodule SpazioSolazzo.BookingSystem.TimeSlotTemplate do
     defaults [:read, :destroy]
 
     create :create do
-      accept [:name, :start_time, :end_time, :space_id, :day_of_week]
+      accept [:start_time, :end_time, :space_id, :day_of_week]
       change {Changes.PreventCreationOverlap, []}
     end
 
@@ -39,7 +39,6 @@ defmodule SpazioSolazzo.BookingSystem.TimeSlotTemplate do
 
   attributes do
     uuid_primary_key :id
-    attribute :name, :string, allow_nil?: false, public?: true
     attribute :start_time, :time, allow_nil?: false, public?: true
     attribute :end_time, :time, allow_nil?: false, public?: true
 

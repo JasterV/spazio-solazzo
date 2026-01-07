@@ -5,6 +5,8 @@ defmodule SpazioSolazzoWeb.BookingComponents.TimeSlotButton do
 
   use SpazioSolazzoWeb, :html
 
+  alias SpazioSolazzo.CalendarExt
+
   attr :time_slot, :map, required: true
   attr :booked, :boolean, required: true
   attr :rest, :global
@@ -29,113 +31,12 @@ defmodule SpazioSolazzoWeb.BookingComponents.TimeSlotButton do
       {@rest}
     >
       <p class={["font-semibold", text_color(@booked, :primary)]}>
-        {Calendar.strftime(@time_slot.start_time, "%I:%M %p")} - {Calendar.strftime(
-          @time_slot.end_time,
-          "%I:%M %p"
-        )}
+        {CalendarExt.format_time_range(@time_slot)}
       </p>
       <p class={["text-xs mt-1", text_color(@booked, :secondary)]}>
         {if @booked, do: "Booked", else: "Available"}
       </p>
     </button>
-    """
-  end
-
-  attr :time_slot, :map, required: true
-  attr :booked, :boolean, required: true
-  attr :rest, :global
-
-  def large(assigns) do
-    assigns = assign(assigns, :variant, :large)
-
-    ~H"""
-    <button
-      disabled={@booked}
-      class={[
-        "w-full p-4 border transition-all text-left rounded-2xl",
-        if(@booked,
-          do:
-            "bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 cursor-not-allowed opacity-75",
-          else:
-            "bg-white dark:bg-gray-800 border-teal-400 dark:border-teal-600 hover:border-teal-600 dark:hover:border-teal-500 hover:bg-teal-50 dark:hover:bg-teal-900/30 cursor-pointer"
-        )
-      ]}
-      {@rest}
-    >
-      {large_content(assigns)}
-    </button>
-    """
-  end
-
-  attr :time_slot, :map, required: true
-  attr :booked, :boolean, required: true
-  attr :rest, :global
-
-  def xlarge(assigns) do
-    assigns = assign(assigns, :variant, :xlarge)
-
-    ~H"""
-    <button
-      disabled={@booked}
-      class={[
-        "w-full p-6 border-2 transition-all text-left rounded-2xl",
-        if(@booked,
-          do:
-            "border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 cursor-not-allowed opacity-75",
-          else:
-            "border-teal-400 dark:border-teal-600 hover:border-teal-600 dark:hover:border-teal-500 hover:bg-teal-50 dark:hover:bg-teal-900/30 cursor-pointer"
-        )
-      ]}
-      {@rest}
-    >
-      {large_content(assigns)}
-    </button>
-    """
-  end
-
-  defp large_content(assigns) do
-    ~H"""
-    <div class="flex justify-between items-center">
-      <div>
-        <p class={[
-          @variant == :xlarge && "font-bold text-lg",
-          @variant == :large && "font-semibold",
-          text_color(@booked, :primary)
-        ]}>
-          {@time_slot.name}
-        </p>
-        <p class={[
-          @variant == :xlarge && "mt-1",
-          @variant == :large && "text-sm",
-          "text-gray-600 dark:text-gray-300"
-        ]}>
-          {Calendar.strftime(@time_slot.start_time, "%I:%M %p")} - {Calendar.strftime(
-            @time_slot.end_time,
-            "%I:%M %p"
-          )}
-        </p>
-      </div>
-
-      <%= if @booked do %>
-        <div class={[
-          @variant == :large && "px-3 py-1",
-          @variant == :xlarge && "px-4 py-2",
-          "bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 text-sm font-semibold rounded-full"
-        ]}>
-          Booked
-        </div>
-      <% end %>
-
-      <%= if !@booked do %>
-        <div class={[
-          @variant == :large && "px-3 py-1",
-          @variant == :xlarge && "px-4 py-2",
-          "bg-teal-100 dark:bg-teal-900 text-teal-700 dark:text-teal-300 text-sm font-semibold rounded-full"
-        ]}>
-          Available
-        </div>
-      <% end %>
-    </div>
     """
   end
 

@@ -10,7 +10,6 @@ defmodule SpazioSolazzoWeb.BookingControllerTest do
 
     {:ok, time_slot} =
       BookingSystem.create_time_slot_template(
-        "Full Day",
         ~T[09:00:00],
         ~T[18:00:00],
         :monday,
