@@ -143,7 +143,7 @@ defmodule SpazioSolazzoWeb.Layouts do
             <h2 class="text-base font-bold">Spazio Solazzo</h2>
           </div>
           <p class="text-sm text-slate-500 dark:text-slate-400">
-            A community-driven space dedicated to work, creativity, and connection. Payments accepted in person.
+            A community-driven space dedicated to work, creativity, and connection.
           </p>
         </div>
 
