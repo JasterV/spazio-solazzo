@@ -116,7 +116,6 @@ defmodule SpazioSolazzoWeb.BookingComponents do
 
   attr :time_slot, :map, required: true
   attr :booked, :boolean, required: true
-  attr :rest, :global
 
   @doc """
   Renders time slot buttons in different sizes showing availability status.
@@ -124,40 +123,35 @@ defmodule SpazioSolazzoWeb.BookingComponents do
   def time_slot(assigns) do
     ~H"""
     <button
+      phx-click={unless @booked, do: "select_slot"}
+      phx-value-time_slot_id={@time_slot.id}
       disabled={@booked}
-      class={
-        [
-          # Base Compact Classes
-          "p-4 border-2 transition-all text-center rounded-2xl",
-          # State Classes
-          if(@booked,
-            do:
-              "border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 cursor-not-allowed opacity-75",
-            else:
-              "border-teal-400 dark:border-teal-600 hover:border-teal-600 dark:hover:border-teal-500 hover:bg-teal-50 dark:hover:bg-teal-900/30 cursor-pointer"
-          )
-        ]
-      }
-      {@rest}
+      class={[
+        "group w-full flex items-center justify-between p-4 rounded-xl border-2 transition-all duration-200",
+        if(@booked,
+          do:
+            "border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-700 cursor-not-allowed opacity-75",
+          else:
+            "border-sky-500/40 hover:border-sky-500 bg-transparent hover:bg-sky-500/5 dark:hover:bg-sky-500/10 cursor-pointer"
+        )
+      ]}
     >
-      <p class={["font-semibold", text_color(@booked, :primary)]}>
+      <span class={[
+        "text-lg font-bold transition-colors",
+        if(@booked,
+          do: "text-slate-500 dark:text-slate-400",
+          else: "text-slate-900 dark:text-white group-hover:text-sky-500"
+        )
+      ]}>
         {CalendarExt.format_time_range(@time_slot)}
-      </p>
-      <p class={["text-xs mt-1", text_color(@booked, :secondary)]}>
+      </span>
+      <span class={[
+        "text-xs font-medium",
+        if(@booked, do: "text-slate-500", else: "text-sky-500")
+      ]}>
         {if @booked, do: "Booked", else: "Available"}
-      </p>
+      </span>
     </button>
     """
-  end
-
-  defp text_color(booked, type) do
-    if booked do
-      "text-gray-500 dark:text-gray-400"
-    else
-      case type do
-        :primary -> "text-gray-900 dark:text-white"
-        :secondary -> "text-gray-600 dark:text-gray-300"
-      end
-    end
   end
 end

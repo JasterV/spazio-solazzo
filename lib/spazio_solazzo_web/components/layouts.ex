@@ -37,14 +37,17 @@ defmodule SpazioSolazzoWeb.Layouts do
     ~H"""
     <header class="sticky top-0 z-50 w-full border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md px-6 py-4">
       <div class="mx-auto flex h-10 max-w-[1200px] items-center justify-between">
-        <div class="flex items-center gap-4 text-slate-900 dark:text-slate-100">
+        <.link
+          navigate="/"
+          class="flex items-center gap-4 text-slate-900 dark:text-slate-100 hover:opacity-80 transition-opacity"
+        >
           <div class="flex items-center justify-center size-8 bg-sky-500 rounded-lg text-white shadow-lg shadow-sky-500/20">
             <.icon name="hero-squares-2x2" class="size-5" />
           </div>
           <h2 class="text-lg font-bold leading-tight tracking-tight text-slate-800 dark:text-slate-100">
             Spazio Solazzo
           </h2>
-        </div>
+        </.link>
 
         <div class="flex items-center gap-4">
           <.theme_toggle />

@@ -184,6 +184,21 @@ defmodule SpazioSolazzoWeb.AssetBookingLive do
     {:noreply, assign(socket, bookings: bookings)}
   end
 
+  def handle_info({:date_selected, date}, socket) do
+    {:ok, time_slots} =
+      BookingSystem.get_space_time_slots_by_date(socket.assigns.space.id, date)
+
+    {:ok, bookings} =
+      BookingSystem.list_active_asset_bookings_by_date(socket.assigns.asset.id, date)
+
+    {:noreply,
+     assign(socket,
+       selected_date: date,
+       time_slots: time_slots,
+       bookings: bookings
+     )}
+  end
+
   def handle_info(_msg, socket) do
     {:noreply, socket}
   end

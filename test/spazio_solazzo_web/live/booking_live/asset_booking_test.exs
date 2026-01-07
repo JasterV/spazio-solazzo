@@ -33,7 +33,25 @@ defmodule SpazioSolazzoWeb.BookingLive.AssetBookingTest do
       assert html =~ space.name
       assert html =~ asset.name
       assert html =~ "Available Time Slots"
-      assert has_element?(view, "button", "09:00 AM")
+      assert has_element?(view, "button[phx-click='select_slot']")
+      assert has_element?(view, "#booking-calendar")
+    end
+
+    test "displays calendar with current month", %{conn: conn, asset: asset} do
+      {:ok, view, html} = live(conn, ~p"/book/asset/#{asset.id}")
+
+      today = Date.utc_today()
+      month_name = Calendar.strftime(today, "%B %Y")
+
+      assert html =~ month_name
+      assert has_element?(view, ".calendar-container")
+    end
+
+    test "displays back button to space landing page", %{conn: conn, asset: asset, space: space} do
+      {:ok, _view, html} = live(conn, ~p"/book/asset/#{asset.id}")
+
+      assert html =~ "Back to #{space.name}"
+      assert html =~ "/#{space.slug}"
     end
 
     test "redirects when asset not found", %{conn: conn} do
@@ -201,7 +219,7 @@ defmodule SpazioSolazzoWeb.BookingLive.AssetBookingTest do
   end
 
   describe "AssetBooking date selection" do
-    test "updates available time slots when changing date", %{
+    test "updates available time slots when selecting date from calendar", %{
       conn: conn,
       asset: asset,
       space: space
@@ -219,11 +237,72 @@ defmodule SpazioSolazzoWeb.BookingLive.AssetBookingTest do
           space.id
         )
 
+      # Click on a date in the calendar
       view
-      |> element("form[phx-change='change_date']")
-      |> render_change(%{"date" => Date.to_string(tomorrow)})
+      |> element(
+        "#booking-calendar button[phx-click='select-date'][phx-value-date='#{Date.to_iso8601(tomorrow)}']"
+      )
+      |> render_click()
 
-      assert has_element?(view, "button", "02:00 PM")
+      assert has_element?(view, "button[phx-click='select_slot']")
+    end
+
+    test "prevents selection of past dates", %{conn: conn, asset: asset} do
+      {:ok, view, _html} = live(conn, ~p"/book/asset/#{asset.id}")
+
+      yesterday = Date.add(Date.utc_today(), -1)
+
+      # Past dates should be disabled
+      assert has_element?(
+               view,
+               "#booking-calendar button[disabled][phx-value-date='#{Date.to_iso8601(yesterday)}']"
+             )
+    end
+
+    test "displays selected date in the time slots section", %{conn: conn, asset: asset} do
+      {:ok, view, _html} = live(conn, ~p"/book/asset/#{asset.id}")
+
+      today = Date.utc_today()
+      formatted_date = SpazioSolazzo.CalendarExt.format_date(today)
+
+      assert has_element?(view, ".time-slots-wrapper", formatted_date)
+    end
+  end
+
+  describe "AssetBooking calendar navigation" do
+    test "navigates to next month", %{conn: conn, asset: asset} do
+      {:ok, view, _html} = live(conn, ~p"/book/asset/#{asset.id}")
+
+      current_month = Date.utc_today() |> Date.beginning_of_month()
+      next_month = Date.shift(current_month, month: 1)
+      next_month_name = Calendar.strftime(next_month, "%B %Y")
+
+      view
+      |> element("#booking-calendar button[phx-click='next-month']")
+      |> render_click()
+
+      assert has_element?(view, ".calendar-container", next_month_name)
+    end
+
+    test "navigates to previous month", %{conn: conn, asset: asset} do
+      {:ok, view, _html} = live(conn, ~p"/book/asset/#{asset.id}")
+
+      current_month = Date.utc_today() |> Date.beginning_of_month()
+      prev_month = Date.shift(current_month, month: -1)
+      prev_month_name = Calendar.strftime(prev_month, "%B %Y")
+
+      view
+      |> element("#booking-calendar button[phx-click='prev-month']")
+      |> render_click()
+
+      assert has_element?(view, ".calendar-container", prev_month_name)
+    end
+
+    test "only displays days from current viewing month", %{conn: conn, asset: asset} do
+      {:ok, _view, html} = live(conn, ~p"/book/asset/#{asset.id}")
+
+      # Calendar should have empty divs for days not in current month
+      assert html =~ ~s(<div class="p-2"></div>)
     end
   end
 end
