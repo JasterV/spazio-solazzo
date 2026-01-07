@@ -16,7 +16,8 @@ defmodule SpazioSolazzo.Application do
       # Start a worker by calling: SpazioSolazzo.Worker.start_link(arg)
       # {SpazioSolazzo.Worker, arg},
       # Start to serve requests, typically the last entry
-      SpazioSolazzoWeb.Endpoint
+      SpazioSolazzoWeb.Endpoint,
+      {AshAuthentication.Supervisor, [otp_app: :spazio_solazzo]}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

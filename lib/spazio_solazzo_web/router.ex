@@ -1,6 +1,10 @@
 defmodule SpazioSolazzoWeb.Router do
   use SpazioSolazzoWeb, :router
 
+  use AshAuthentication.Phoenix.Router
+
+  import AshAuthentication.Plug.Helpers
+
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
@@ -8,10 +12,13 @@ defmodule SpazioSolazzoWeb.Router do
     plug :put_root_layout, html: {SpazioSolazzoWeb.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug :load_from_session
   end
 
   pipeline :api do
     plug :accepts, ["json"]
+    plug :load_from_bearer
+    plug :set_actor, :user
   end
 
   scope "/", SpazioSolazzoWeb do
@@ -21,9 +28,35 @@ defmodule SpazioSolazzoWeb.Router do
     live "/coworking", CoworkingLive
     live "/meeting", MeetingLive
     live "/music", MusicLive
-    live "/book/asset/:asset_id", AssetBookingLive
     get "/bookings/confirm", BookingController, :confirm
     get "/bookings/cancel", BookingController, :cancel
+    auth_routes AuthController, SpazioSolazzo.Accounts.User, path: "/auth"
+    sign_out_route AuthController
+
+    ash_authentication_live_session :authenticated_routes,
+      on_mount: [
+        {SpazioSolazzoWeb.LiveUserAuth, :live_user_required}
+      ] do
+      live "/book/asset/:asset_id", AssetBookingLive
+    end
+
+    # Remove these if you'd like to use your own authentication views
+    sign_in_route register_path: "/register",
+                  reset_path: "/reset",
+                  auth_routes_prefix: "/auth",
+                  on_mount: [{SpazioSolazzoWeb.LiveUserAuth, :live_no_user}],
+                  overrides: [
+                    SpazioSolazzoWeb.AuthOverrides,
+                    Elixir.AshAuthentication.Phoenix.Overrides.DaisyUI
+                  ]
+
+    magic_sign_in_route(SpazioSolazzo.Accounts.User, :magic_link,
+      auth_routes_prefix: "/auth",
+      overrides: [
+        SpazioSolazzoWeb.AuthOverrides,
+        Elixir.AshAuthentication.Phoenix.Overrides.DaisyUI
+      ]
+    )
   end
 
   # Other scopes may use custom stacks.
