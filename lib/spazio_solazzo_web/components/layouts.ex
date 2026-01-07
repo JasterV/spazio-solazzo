@@ -35,18 +35,24 @@ defmodule SpazioSolazzoWeb.Layouts do
 
   def app(assigns) do
     ~H"""
-    <header class="navbar px-4 sm:px-6 lg:px-8 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
-      <div class="flex-1">
-        <a href="/" class="flex-1 flex w-fit items-center gap-2">
-          <span class="text-xl font-bold text-gray-900 dark:text-white">Spazio Solazzo</span>
-        </a>
-      </div>
-      <div class="flex-none">
-        <.theme_toggle />
+    <header class="sticky top-0 z-50 w-full border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md px-6 py-4">
+      <div class="mx-auto flex h-10 max-w-[1200px] items-center justify-between">
+        <div class="flex items-center gap-4 text-slate-900 dark:text-slate-100">
+          <div class="flex items-center justify-center size-8 bg-sky-500 rounded-lg text-white shadow-lg shadow-sky-500/20">
+            <.icon name="hero-squares-2x2" class="size-5" />
+          </div>
+          <h2 class="text-lg font-bold leading-tight tracking-tight text-slate-800 dark:text-slate-100">
+            Spazio Solazzo
+          </h2>
+        </div>
+
+        <div class="flex items-center gap-4">
+          <.theme_toggle />
+        </div>
       </div>
     </header>
 
-    <main class="bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex-1 relative">
+    <main class="bg-slate-50 dark:bg-slate-900 flex-1 relative transition-colors duration-300">
       {render_slot(@inner_block)}
     </main>
 
@@ -106,23 +112,18 @@ defmodule SpazioSolazzoWeb.Layouts do
   """
   def theme_toggle(assigns) do
     ~H"""
-    <div class="card relative flex flex-row items-center border-2 border-base-300 bg-base-300 rounded-full">
-      <div class="absolute w-1/2 h-full rounded-full border-1 border-base-200 bg-base-100 brightness-200 [[data-theme=light]_&]:left-0 [[data-theme=dark]_&]:left-1/2 transition-[left]" />
-
-      <button
-        class="flex p-2 cursor-pointer w-1/2"
-        phx-click={JS.dispatch("phx:set-theme", detail: %{theme: "light"})}
-      >
-        <.icon name="hero-sun-micro" class="size-4 opacity-75 hover:opacity-100" />
-      </button>
-
-      <button
-        class="flex p-2 cursor-pointer w-1/2"
-        phx-click={JS.dispatch("phx:set-theme", detail: %{theme: "dark"})}
-      >
-        <.icon name="hero-moon-micro" class="size-4 opacity-75 hover:opacity-100" />
-      </button>
-    </div>
+    <button
+      class="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 transition-colors"
+      phx-click={
+        JS.dispatch("phx:set-theme",
+          detail: %{theme: "toggle"}
+        )
+      }
+      title="Toggle Dark Mode"
+    >
+      <.icon name="hero-sun" class="size-5 [[data-theme=dark]_&]:hidden" />
+      <.icon name="hero-moon" class="size-5 hidden [[data-theme=dark]_&]:block" />
+    </button>
     """
   end
 
@@ -132,18 +133,64 @@ defmodule SpazioSolazzoWeb.Layouts do
     assigns = assign(assigns, :current_year, current_year)
 
     ~H"""
-    <footer class="bg-gray-100 dark:bg-gray-800 mt-auto">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div class="space-y-4">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Community</h3>
-            <ul class="space-y-2">
+    <footer class="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-12 px-6 transition-colors duration-300">
+      <div class="mx-auto max-w-[1200px] flex flex-col md:flex-row justify-between gap-8">
+        <div class="flex flex-col gap-4 max-w-sm">
+          <div class="flex items-center gap-3 text-slate-900 dark:text-slate-100">
+            <div class="flex items-center justify-center size-6 bg-sky-500 rounded text-white">
+              <.icon name="hero-squares-2x2" class="size-4" />
+            </div>
+            <h2 class="text-base font-bold">Spazio Solazzo</h2>
+          </div>
+          <p class="text-sm text-slate-500 dark:text-slate-400">
+            A community-driven space dedicated to work, creativity, and connection. Payments accepted in person.
+          </p>
+        </div>
+
+        <div class="flex gap-16 flex-wrap">
+          <div>
+            <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider mb-4">
+              Spaces
+            </h3>
+            <ul class="flex flex-col gap-3">
+              <li>
+                <a
+                  href="/coworking"
+                  class="text-sm text-slate-500 dark:text-slate-400 hover:text-sky-500 transition-colors"
+                >
+                  Coworking
+                </a>
+              </li>
+              <li>
+                <a
+                  href="/meeting"
+                  class="text-sm text-slate-500 dark:text-slate-400 hover:text-sky-500 transition-colors"
+                >
+                  Meeting Room
+                </a>
+              </li>
+              <li>
+                <a
+                  href="/music"
+                  class="text-sm text-slate-500 dark:text-slate-400 hover:text-sky-500 transition-colors"
+                >
+                  Music Room
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider mb-4">
+              Community
+            </h3>
+            <ul class="flex flex-col gap-3">
               <li>
                 <a
                   href="https://caravanseraipalermo.it/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 transition-colors"
+                  class="text-sm text-slate-500 dark:text-slate-400 hover:text-sky-500 transition-colors"
                 >
                   Caravanserai Palermo
                 </a>
@@ -153,7 +200,7 @@ defmodule SpazioSolazzoWeb.Layouts do
                   href="https://mojocohouse.com/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 transition-colors"
+                  class="text-sm text-slate-500 dark:text-slate-400 hover:text-sky-500 transition-colors"
                 >
                   Mojo Cohouse
                 </a>
@@ -163,21 +210,20 @@ defmodule SpazioSolazzoWeb.Layouts do
                   href="https://jaster.xyz"
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 transition-colors"
+                  class="text-sm text-slate-500 dark:text-slate-400 hover:text-sky-500 transition-colors"
                 >
                   Author's Blog
                 </a>
               </li>
             </ul>
           </div>
-
-          <div class="space-y-4">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">About</h3>
-            <p class="text-sm text-gray-600 dark:text-gray-300">
-              © {@current_year} Victor Martinez & Spazio Solazzo. All rights reserved.
-            </p>
-          </div>
         </div>
+      </div>
+
+      <div class="mx-auto max-w-[1200px] mt-12 pt-8 border-t border-slate-100 dark:border-slate-800 text-center md:text-left">
+        <p class="text-xs text-slate-500">
+          © {@current_year} Spazio Solazzo. All rights reserved.
+        </p>
       </div>
     </footer>
     """

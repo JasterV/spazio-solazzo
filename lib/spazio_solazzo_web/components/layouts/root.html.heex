@@ -12,7 +12,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&family=Montserrat:wght@300;400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
     <link phx-track-static rel="stylesheet" href={~p"/assets/css/app.css"} />
@@ -26,14 +26,17 @@
         };
 
         if (!document.documentElement.hasAttribute("data-theme")) {
-          setTheme(localStorage.getItem("phx:theme") || "system");
+          setTheme(localStorage.getItem("phx:theme") || "light");
         }
 
-        <!-- The storage event handler fires when another window updates the storage -->
         window.addEventListener("storage", (e) => e.key === "phx:theme" && setTheme(e.newValue || "light"));
 
         window.addEventListener("phx:set-theme", (e) => {
-          const theme = e.detail?.theme || e.target?.dataset?.phxTheme;
+          let theme = e.detail?.theme || e.target?.dataset?.phxTheme;
+          if (theme === "toggle") {
+            const currentTheme = localStorage.getItem("phx:theme") || "light";
+            theme = currentTheme === "light" ? "dark" : "light";
+          }
           if (theme) setTheme(theme);
         });
       })();

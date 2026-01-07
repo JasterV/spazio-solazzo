@@ -105,44 +105,73 @@
 
 /* This file is for your main application CSS */
 
-/* Mediterranean "Sun & Earth" Custom Theme */
+/* New Design Color Palette - Mediterranean Blue Theme */
 @theme {
-  /* The Sun - Primary Actions & Highlights */
-  --color-sun: #F59E0B;
-  --color-sun-dark: #D97706;
-  --color-amber-glow: #FBBF24;
+  /* Primary - Mediterranean Blue */
+  --color-primary: #0ea5e9;
+  --color-primary-hover: #0284c7;
 
-  /* The Earth - Secondary & Accents */
-  --color-terracotta: #B45309;
-  --color-sage: #4D7C0F;
-  --color-clay: #A8A29E;
+  /* Accent - Sicilian Lemon/Sun */
+  --color-accent: #facc15;
 
-  /* Backgrounds - Warm Whites */
-  --color-paper: #FAF9F6;
-  --color-sand: #FFFBEB;
+  /* Light Mode Colors */
+  --color-background-light: #f8fafc;
+  --color-card-light: #ffffff;
+  --color-text-primary-light: #0f172a;
+  --color-text-secondary-light: #334155;
+  --color-border-light: #e2e8f0;
 
-  /* Sea Accent - Contrast */
-  --color-teal: #0D9488;
+  /* Dark Mode Colors */
+  --color-background-dark: #0f172a;
+  --color-card-dark: #1e293b;
+  --color-text-primary-dark: #f1f5f9;
+  --color-text-secondary-dark: #94a3b8;
+  --color-border-dark: #334155;
 
-  /* Extended Palette */
-  --color-burnt-orange: #EA580C;
-  --color-warm-gray: #78716C;
+  /* Slate Scale for consistency */
+  --color-slate-50: #f8fafc;
+  --color-slate-100: #f1f5f9;
+  --color-slate-200: #e2e8f0;
+  --color-slate-300: #cbd5e1;
+  --color-slate-400: #94a3b8;
+  --color-slate-500: #64748b;
+  --color-slate-600: #475569;
+  --color-slate-700: #334155;
+  --color-slate-800: #1e293b;
+  --color-slate-900: #0f172a;
+
+  /* Sky Scale for primary variations */
+  --color-sky-100: #e0f2fe;
+  --color-sky-400: #38bdf8;
+  --color-sky-500: #0ea5e9;
+  --color-sky-600: #0284c7;
+
+  /* Yellow Scale for accent */
+  --color-yellow-100: #fef9c3;
+  --color-yellow-300: #fde047;
+  --color-yellow-400: #facc15;
+  --color-yellow-600: #ca8a04;
+  --color-yellow-700: #a16207;
+  --color-yellow-900: #713f12;
 
   /* Typography */
-  --font-sans: 'Montserrat', sans-serif;
+  --font-display: 'Inter', 'Montserrat', sans-serif;
 }
 
 /* Global Typography & Styles */
+html {
+  scroll-behavior: smooth;
+}
+
 body {
-  font-family: var(--font-sans);
-  background-color: var(--color-sand);
+  font-family: var(--font-display);
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-sans);
-  font-weight: 600;
+  font-family: var(--font-display);
+  font-weight: 700;
 }
 
 .prose {
-  font-family: var(--font-sans);
+  font-family: var(--font-display);
 }
