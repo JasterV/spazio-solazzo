@@ -1,4 +1,4 @@
-defmodule SpazioSolazzoWeb.BookingComponents.EmailVerificationComponent do
+defmodule SpazioSolazzoWeb.EmailVerificationLiveComponent do
   @moduledoc """
   Standalone LiveComponent for email verification with OTP.
   Completely decoupled from bookings - only knows about EmailVerification.

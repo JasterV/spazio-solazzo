@@ -1,0 +1,62 @@
+<Layouts.app flash={@flash}>
+  <.page_header
+    booking_path={~p"/book/asset/#{@asset.id}"}
+    price="€25"
+    price_unit="hour"
+    capacity="Up to 5 People"
+    images={@images}
+  >
+    <:title>{@space.name}</:title>
+    <:description>
+      A relaxed, creative space for jamming, practice sessions, or just unwinding with instruments. A casual vibe, not a soundproof studio, perfect for connecting through music.
+    </:description>
+  </.page_header>
+
+  <.features_section
+    title="Jam, Practice, Create"
+    description="The Music Room is equipped with essentials for a good session. It's not a pro studio, but it has soul and everything you need to start playing."
+  >
+    <:feature
+      icon="hero-musical-note"
+      title="House Instruments"
+      description="Includes a digital piano, acoustic guitar, and a basic drum kit ready for your use."
+      color="sky"
+    />
+    <:feature
+      icon="hero-speaker-wave"
+      title="PA System"
+      description="Two active speakers and a simple 4-channel mixer to plug in vocals or keyboards."
+      color="orange"
+    />
+    <:feature
+      icon="hero-home"
+      title="Relaxed Vibe"
+      description="Comfortable seating, warm lighting, and rugs creates a cozy atmosphere for creative flow."
+      color="yellow"
+    />
+    <:feature
+      icon="hero-microphone"
+      title="Basic Mics"
+      description="Two Shure SM58 microphones with stands available for vocals or acoustic instruments."
+      color="emerald"
+    />
+    <:feature
+      icon="hero-speaker-x-mark"
+      title="Not Soundproof"
+      description="Please note this is a community space. Some sound bleed occurs; keep volumes reasonable."
+      color="indigo"
+    />
+    <:feature
+      icon="hero-musical-note"
+      title="Bring Your Gear"
+      description="Feel free to bring your own amps, pedals, or specific instruments to dial in your tone."
+      color="purple"
+    />
+  </.features_section>
+
+  <.house_rules title="Jam Session Rules">
+    <:rule>Reset instruments to their original places.</:rule>
+    <:rule>No drinks on top of the piano or amps.</:rule>
+    <:rule>Be mindful of volume for our coworking neighbors.</:rule>
+  </.house_rules>
+</Layouts.app>

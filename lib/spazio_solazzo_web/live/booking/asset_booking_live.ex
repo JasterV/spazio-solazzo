@@ -2,6 +2,7 @@ defmodule SpazioSolazzoWeb.AssetBookingLive do
   use SpazioSolazzoWeb, :live_view
 
   alias SpazioSolazzo.BookingSystem
+  import SpazioSolazzoWeb.BookingComponents
   require Ash.Query
 
   def mount(%{"asset_id" => asset_id}, _session, socket) do

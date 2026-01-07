@@ -17,8 +17,8 @@ defmodule SpazioSolazzoWeb.CoworkingLiveTest do
       {:ok, _view, html} = live(conn, "/coworking")
 
       assert html =~ space.name
-      assert html =~ "Select Your Desk"
-      assert html =~ "High-speed WiFi"
+      assert html =~ "Interactive Floor Plan"
+      assert html =~ "Fiber Internet"
     end
 
     test "displays all available assets as selectable cards", %{

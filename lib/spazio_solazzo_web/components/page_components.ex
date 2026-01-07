@@ -136,8 +136,7 @@ defmodule SpazioSolazzoWeb.PageComponents do
               navigate={@booking_url}
               class="h-10 px-6 bg-sky-500 hover:bg-sky-600 text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2 group-hover:shadow-lg group-hover:shadow-sky-500/20"
             >
-              <.icon name="hero-calendar" class="size-5" />
-              Book {@asset_type}
+              <.icon name="hero-calendar" class="size-5" /> Book {@asset_type}
             </.link>
           </div>
         </div>

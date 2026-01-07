@@ -14,15 +14,13 @@ defmodule SpazioSolazzoWeb.MeetingLiveTest do
   describe "MeetingLive landing page" do
     test "renders meeting landing page with space information", %{
       conn: conn,
-      space: space,
-      asset: asset
+      space: space
     } do
       {:ok, view, html} = live(conn, "/meeting")
 
       assert html =~ space.name
-      assert html =~ asset.name
       assert html =~ "Book This Room"
-      assert has_element?(view, "h3", "Features & Amenities")
+      assert has_element?(view, "h2", "Everything you need to succeed")
     end
 
     test "has link to asset booking page with correct asset id", %{conn: conn, asset: asset} do

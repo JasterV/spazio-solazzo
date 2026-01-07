@@ -14,15 +14,13 @@ defmodule SpazioSolazzoWeb.MusicLiveTest do
   describe "MusicLive landing page" do
     test "renders music landing page with space information", %{
       conn: conn,
-      space: space,
-      asset: asset
+      space: space
     } do
       {:ok, view, html} = live(conn, "/music")
 
       assert html =~ space.name
-      assert html =~ asset.name
       assert html =~ "Book This Room"
-      assert has_element?(view, "h3", "Features & Equipment")
+      assert has_element?(view, "h2", "Jam, Practice, Create")
     end
 
     test "has link to asset booking page with correct asset id", %{conn: conn, asset: asset} do

@@ -1,4 +1,4 @@
-defmodule SpazioSolazzoWeb.BookingComponents.BookingFormComponent do
+defmodule SpazioSolazzoWeb.BookingFormLiveComponent do
   @moduledoc """
   A live component that collects customer information for completing a booking.
   """
