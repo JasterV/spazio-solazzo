@@ -1,4 +1,8 @@
 defmodule SpazioSolazzo.Secrets do
+  @moduledoc """
+  Provides access to application secrets for authentication.
+  """
+
   use AshAuthentication.Secret
 
   def secret_for(

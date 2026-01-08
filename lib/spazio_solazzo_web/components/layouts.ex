@@ -31,6 +31,10 @@ defmodule SpazioSolazzoWeb.Layouts do
     default: nil,
     doc: "the current [scope](https://hexdocs.pm/phoenix/scopes.html)"
 
+  attr :current_user, :map,
+    default: nil,
+    doc: "the current authenticated user"
+
   slot :inner_block, required: true
 
   def app(assigns) do
@@ -50,6 +54,24 @@ defmodule SpazioSolazzoWeb.Layouts do
         </.link>
 
         <div class="flex items-center gap-4">
+          <%= if @current_user do %>
+            <.link
+              href={~p"/sign-out"}
+              method="delete"
+              id="sign-out-link"
+              class="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
+            >
+              Log Out
+            </.link>
+          <% else %>
+            <.link
+              navigate={~p"/sign-in"}
+              id="sign-in-link"
+              class="px-4 py-2 text-sm font-medium text-white bg-sky-500 hover:bg-sky-600 rounded-lg transition-colors shadow-sm"
+            >
+              Sign In
+            </.link>
+          <% end %>
           <.theme_toggle />
         </div>
       </div>

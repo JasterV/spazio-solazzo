@@ -1,4 +1,8 @@
 defmodule SpazioSolazzo.Accounts.Token do
+  @moduledoc """
+  Authentication token resource for storing user session tokens.
+  """
+
   use Ash.Resource,
     otp_app: :spazio_solazzo,
     domain: SpazioSolazzo.Accounts,

@@ -3,8 +3,9 @@ defmodule SpazioSolazzoWeb.BookingLive.AssetBookingTest do
   import Phoenix.LiveViewTest
 
   alias SpazioSolazzo.BookingSystem
+  alias SpazioSolazzo.Accounts.User
 
-  setup do
+  setup %{conn: conn} do
     {:ok, space} = BookingSystem.create_space("TestSpace", "test-space", "Test description")
     {:ok, asset} = BookingSystem.create_asset("Test Asset", space.id)
 
@@ -19,7 +20,24 @@ defmodule SpazioSolazzoWeb.BookingLive.AssetBookingTest do
         space.id
       )
 
-    %{space: space, asset: asset, slot: slot}
+    conn = Plug.Test.init_test_session(conn, %{})
+    conn = log_in_user(conn)
+
+    %{space: space, asset: asset, slot: slot, conn: conn}
+  end
+
+  defp log_in_user(conn) do
+    user =
+      User
+      |> Ash.Changeset.for_create(:register, %{
+        email: "test@example.com",
+        name: "Test User",
+        phone_number: "+1234567890"
+      })
+      |> Ash.create!(authorize?: false)
+
+    token = AshAuthentication.Jwt.token_for_user(user)
+    Plug.Conn.put_session(conn, "user_token", token)
   end
 
   describe "AssetBooking mount" do

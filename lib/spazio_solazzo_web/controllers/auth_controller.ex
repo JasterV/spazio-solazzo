@@ -2,54 +2,50 @@ defmodule SpazioSolazzoWeb.AuthController do
   use SpazioSolazzoWeb, :controller
   use AshAuthentication.Phoenix.Controller
 
-  def success(conn, activity, user, _token) do
-    return_to = get_session(conn, :return_to) || ~p"/"
+  alias AshAuthentication.Jwt
+  alias SpazioSolazzo.Accounts.User
 
-    message =
-      case activity do
-        {:confirm_new_user, :confirm} -> "Your email address has now been confirmed"
-        {:password, :reset} -> "Your password has successfully been reset"
-        _ -> "You are now signed in"
-      end
+  def callback(conn, %{"token" => token}) do
+    case Jwt.verify(token, :spazio_solazzo) do
+      {:ok, %{"sub" => subject}, _resource} ->
+        # Use your User resource's read action to fetch the user by subject
+        case User
+             |> Ash.Query.for_read(:get_by_subject, %{subject: subject})
+             |> Ash.read_one(authorize?: false) do
+          {:ok, user} when not is_nil(user) ->
+            user = Ash.Resource.put_metadata(user, :token, token)
+            success(conn, :magic_link, user, token)
+
+          _ ->
+            failure(conn, %{})
+        end
+
+      {:error, _} ->
+        failure(conn, %{})
+    end
+  end
+
+  def success(conn, _activity, user, _token) do
+    return_to = get_session(conn, :return_to) || ~p"/"
 
     conn
     |> delete_session(:return_to)
     |> store_in_session(user)
-    # If your resource has a different name, update the assign name here (i.e :current_admin)
     |> assign(:current_user, user)
-    |> put_flash(:info, message)
+    |> put_flash(:info, "You are now signed in")
     |> redirect(to: return_to)
   end
 
-  def failure(conn, activity, reason) do
-    message =
-      case {activity, reason} do
-        {_,
-         %AshAuthentication.Errors.AuthenticationFailed{
-           caused_by: %Ash.Error.Forbidden{
-             errors: [%AshAuthentication.Errors.CannotConfirmUnconfirmedUser{}]
-           }
-         }} ->
-          """
-          You have already signed in another way, but have not confirmed your account.
-          You can confirm your account using the link we sent to you, or by resetting your password.
-          """
-
-        _ ->
-          "Incorrect email or password"
-      end
-
+  def failure(conn, _params) do
     conn
-    |> put_flash(:error, message)
+    |> put_flash(:error, "Authentication failed. Please try again.")
     |> redirect(to: ~p"/sign-in")
   end
 
   def sign_out(conn, _params) do
-    return_to = get_session(conn, :return_to) || ~p"/"
-
     conn
     |> clear_session(:spazio_solazzo)
     |> put_flash(:info, "You are now signed out")
-    |> redirect(to: return_to)
+    |> redirect(to: ~p"/")
   end
 end

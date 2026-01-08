@@ -24,14 +24,29 @@ defmodule SpazioSolazzoWeb.Router do
   scope "/", SpazioSolazzoWeb do
     pipe_through :browser
 
-    live "/", PageLive
-    live "/coworking", CoworkingLive
-    live "/meeting", MeetingLive
-    live "/music", MusicLive
     get "/bookings/confirm", BookingController, :confirm
     get "/bookings/cancel", BookingController, :cancel
-    auth_routes AuthController, SpazioSolazzo.Accounts.User, path: "/auth"
-    sign_out_route AuthController
+    delete "/sign-out", AuthController, :sign_out
+    get "/auth/callback", AuthController, :callback
+    get "/auth/failure", AuthController, :failure
+
+    ash_authentication_live_session :unauthenticated_routes,
+      on_mount: [
+        {SpazioSolazzoWeb.LiveUserAuth, :live_user_optional}
+      ] do
+      live "/", PageLive
+      live "/coworking", CoworkingLive
+      live "/meeting", MeetingLive
+      live "/music", MusicLive
+    end
+
+    ash_authentication_live_session :no_user_routes,
+      on_mount: [
+        {SpazioSolazzoWeb.LiveUserAuth, :live_no_user}
+      ] do
+      live "/sign-in/callback", AuthCallbackLive
+      live "/sign-in", SignInLive
+    end
 
     ash_authentication_live_session :authenticated_routes,
       on_mount: [
@@ -39,30 +54,7 @@ defmodule SpazioSolazzoWeb.Router do
       ] do
       live "/book/asset/:asset_id", AssetBookingLive
     end
-
-    # Remove these if you'd like to use your own authentication views
-    sign_in_route register_path: "/register",
-                  reset_path: "/reset",
-                  auth_routes_prefix: "/auth",
-                  on_mount: [{SpazioSolazzoWeb.LiveUserAuth, :live_no_user}],
-                  overrides: [
-                    SpazioSolazzoWeb.AuthOverrides,
-                    Elixir.AshAuthentication.Phoenix.Overrides.DaisyUI
-                  ]
-
-    magic_sign_in_route(SpazioSolazzo.Accounts.User, :magic_link,
-      auth_routes_prefix: "/auth",
-      overrides: [
-        SpazioSolazzoWeb.AuthOverrides,
-        Elixir.AshAuthentication.Phoenix.Overrides.DaisyUI
-      ]
-    )
   end
-
-  # Other scopes may use custom stacks.
-  # scope "/api", SpazioSolazzoWeb do
-  #   pipe_through :api
-  # end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
   if Application.compile_env(:spazio_solazzo, :dev_routes) do

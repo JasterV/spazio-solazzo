@@ -21,8 +21,7 @@ defmodule SpazioSolazzo.Accounts.User.Senders.SendMagicLinkEmail do
       end
 
     new()
-    # TODO: Replace with your email
-    |> from({"noreply", "noreply@example.com"})
+    |> from({"Spazio Solazzo", "noreply@example.com"})
     |> to(to_string(email))
     |> subject("Your login link")
     |> html_body(body(token: token, email: email))
@@ -30,11 +29,11 @@ defmodule SpazioSolazzo.Accounts.User.Senders.SendMagicLinkEmail do
   end
 
   defp body(params) do
-    # NOTE: You may have to change this to match your magic link acceptance URL.
+    magic_link_url = url(~p"/sign-in/callback?token=#{params[:token]}")
 
     """
     <p>Hello, #{params[:email]}! Click this link to sign in:</p>
-    <p><a href="#{url(~p"/magic_link/#{params[:token]}")}">#{url(~p"/magic_link/#{params[:token]}")}</a></p>
+    <p><a href="#{magic_link_url}">#{magic_link_url}</a></p>
     """
   end
 end

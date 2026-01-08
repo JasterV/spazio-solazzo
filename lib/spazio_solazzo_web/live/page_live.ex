@@ -2,9 +2,7 @@ defmodule SpazioSolazzoWeb.PageLive do
   use SpazioSolazzoWeb, :live_view
 
   import SpazioSolazzoWeb.PageComponents
-
   alias SpazioSolazzo.BookingSystem
-  require Ash.Query
 
   def mount(_params, _session, socket) do
     {:ok, coworking_space} = BookingSystem.get_space_by_slug("coworking")

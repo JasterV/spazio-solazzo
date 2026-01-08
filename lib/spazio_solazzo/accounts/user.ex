@@ -1,4 +1,8 @@
 defmodule SpazioSolazzo.Accounts.User do
+  @moduledoc """
+  Represents a user in the system with magic link authentication.
+  """
+
   use Ash.Resource,
     otp_app: :spazio_solazzo,
     domain: SpazioSolazzo.Accounts,
@@ -26,7 +30,6 @@ defmodule SpazioSolazzo.Accounts.User do
         identity_field :email
         registration_enabled? true
         require_interaction? true
-
         sender SpazioSolazzo.Accounts.User.Senders.SendMagicLinkEmail
       end
 
@@ -51,7 +54,9 @@ defmodule SpazioSolazzo.Accounts.User do
 
     read :get_by_email do
       description "Looks up a user by their email"
-      get_by :email
+      argument :email, :ci_string, allow_nil?: false
+      get? true
+      filter expr(email == ^arg(:email))
     end
 
     create :sign_in_with_magic_link do
@@ -67,12 +72,25 @@ defmodule SpazioSolazzo.Accounts.User do
         allow_nil? true
       end
 
+      argument :name, :string do
+        description "User's full name (required for new users)"
+        allow_nil? true
+      end
+
+      argument :phone_number, :string do
+        description "User's phone number (required for new users)"
+        allow_nil? true
+      end
+
       upsert? true
       upsert_identity :unique_email
-      upsert_fields [:email]
+      upsert_fields [:email, :name, :phone_number]
 
       # Uses the information from the token to create or sign in the user
       change AshAuthentication.Strategy.MagicLink.SignInChange
+
+      # Conditionally validate name and phone_number for new users
+      change SpazioSolazzo.Accounts.User.Changes.ValidateRegistrationFields
 
       change {AshAuthentication.Strategy.RememberMe.MaybeGenerateTokenChange,
               strategy_name: :remember_me}
@@ -83,10 +101,7 @@ defmodule SpazioSolazzo.Accounts.User do
     end
 
     action :request_magic_link do
-      argument :email, :ci_string do
-        allow_nil? false
-      end
-
+      argument :email, :ci_string, allow_nil?: false
       run AshAuthentication.Strategy.MagicLink.Request
     end
   end
@@ -101,6 +116,16 @@ defmodule SpazioSolazzo.Accounts.User do
     uuid_primary_key :id
 
     attribute :email, :ci_string do
+      allow_nil? false
+      public? true
+    end
+
+    attribute :name, :string do
+      allow_nil? false
+      public? true
+    end
+
+    attribute :phone_number, :string do
       allow_nil? false
       public? true
     end

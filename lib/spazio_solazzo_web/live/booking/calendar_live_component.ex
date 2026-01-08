@@ -1,4 +1,8 @@
 defmodule SpazioSolazzoWeb.CalendarLiveComponent do
+  @moduledoc """
+  LiveView component for rendering booking calendars.
+  """
+
   use SpazioSolazzoWeb, :live_component
 
   # There are 7 days displayed in the calendar
