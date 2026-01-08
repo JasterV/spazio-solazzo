@@ -30,30 +30,23 @@
       "generated?": false,
       "precision": null,
       "primary_key?": false,
-      "references": {
-        "deferrable": false,
-        "destination_attribute": "id",
-        "destination_attribute_default": null,
-        "destination_attribute_generated": null,
-        "index?": false,
-        "match_type": null,
-        "match_with": null,
-        "multitenancy": {
-          "attribute": null,
-          "global": null,
-          "strategy": null
-        },
-        "name": "assets_space_id_fkey",
-        "on_delete": null,
-        "on_update": null,
-        "primary_key?": true,
-        "schema": "public",
-        "table": "spaces"
-      },
+      "references": null,
       "scale": null,
       "size": null,
-      "source": "space_id",
-      "type": "uuid"
+      "source": "description",
+      "type": "text"
+    },
+    {
+      "allow_nil?": false,
+      "default": "nil",
+      "generated?": false,
+      "precision": null,
+      "primary_key?": false,
+      "references": null,
+      "scale": null,
+      "size": null,
+      "source": "slug",
+      "type": "text"
     }
   ],
   "base_filter": null,
@@ -61,23 +54,33 @@
   "custom_indexes": [],
   "custom_statements": [],
   "has_create_action": true,
-  "hash": "97D347B19E86D5BB868AFF7F5C6BDEC04506D1A7772A99BA7752BC1206A34C0F",
+  "hash": "29965B10015A4BDE39A648F85CE4FDB39DDFC21E0CB18903C7F9677E11B11D21",
   "identities": [
     {
       "all_tenants?": false,
       "base_filter": null,
-      "index_name": "assets_unique_name_per_space_index",
+      "index_name": "spaces_unique_name_index",
       "keys": [
         {
           "type": "atom",
           "value": "name"
-        },
-        {
-          "type": "atom",
-          "value": "space_id"
         }
       ],
-      "name": "unique_name_per_space",
+      "name": "unique_name",
+      "nils_distinct?": true,
+      "where": null
+    },
+    {
+      "all_tenants?": false,
+      "base_filter": null,
+      "index_name": "spaces_unique_slug_index",
+      "keys": [
+        {
+          "type": "atom",
+          "value": "slug"
+        }
+      ],
+      "name": "unique_slug",
       "nils_distinct?": true,
       "where": null
     }
@@ -89,5 +92,5 @@
   },
   "repo": "Elixir.SpazioSolazzo.Repo",
   "schema": null,
-  "table": "assets"
+  "table": "spaces"
 }

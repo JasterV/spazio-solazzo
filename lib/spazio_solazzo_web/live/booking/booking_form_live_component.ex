@@ -7,14 +7,8 @@ defmodule SpazioSolazzoWeb.BookingFormLiveComponent do
 
   alias SpazioSolazzo.CalendarExt
 
-  @default_phone_prefix "+39"
-
   def update(assigns, socket) do
     initial_data = %{
-      "customer_name" => "",
-      "customer_email" => "",
-      "phone_prefix" => @default_phone_prefix,
-      "phone_number" => "",
       "customer_comment" => ""
     }
 
@@ -30,77 +24,10 @@ defmodule SpazioSolazzoWeb.BookingFormLiveComponent do
     {:noreply, assign(socket, form: to_form(params))}
   end
 
-  def handle_event("submit_booking", _params, socket) do
-    raw_data = socket.assigns.form.source
-
-    case validate_booking_form(raw_data) do
-      :ok ->
-        # Join prefix and number for the final booking data
-        final_phone =
-          "#{String.trim(raw_data["phone_prefix"])} #{String.trim(raw_data["phone_number"])}"
-
-        booking_data =
-          raw_data
-          |> Map.put("customer_phone", final_phone)
-          |> Map.drop(["phone_prefix", "phone_number"])
-
-        send(self(), {:booking_form_validated, booking_data})
-        {:noreply, socket}
-
-      {:error, message} ->
-        {:noreply, put_flash(socket, :error, message)}
-    end
-  end
-
-  defp validate_booking_form(data) do
-    with :ok <- validate_name(data["customer_name"]),
-         :ok <- validate_email(data["customer_email"]),
-         :ok <- validate_phone_prefix(data["phone_prefix"]) do
-      validate_phone_number(data["phone_number"])
-    end
-  end
-
-  defp validate_name(name) do
-    if String.trim(name || "") == "" do
-      {:error, "Name cannot be empty"}
-    else
-      :ok
-    end
-  end
-
-  defp validate_email(email) do
-    trimmed_email = String.trim(email || "")
-
-    if valid_email?(trimmed_email) do
-      :ok
-    else
-      {:error, "Please enter a valid email address"}
-    end
-  end
-
-  defp validate_phone_prefix(prefix) do
-    trimmed_prefix = String.trim(prefix || "")
-
-    if String.match?(trimmed_prefix, ~r/^\+\d{1,4}$/) do
-      :ok
-    else
-      {:error, "Invalid country code (e.g. +39)"}
-    end
-  end
-
-  defp validate_phone_number(number) do
-    trimmed_number = String.trim(number || "")
-
-    if String.match?(trimmed_number, ~r/^\d{6,15}$/) do
-      :ok
-    else
-      {:error, "Invalid phone number format"}
-    end
-  end
-
-  defp valid_email?(email) do
-    email_regex = ~r/^[^\s]+@[^\s]+\.[^\s]+$/
-    String.match?(email, email_regex)
+  def handle_event("submit_booking", params, socket) do
+    comment = params["customer_comment"] || ""
+    send(self(), {:create_booking, comment})
+    {:noreply, socket}
   end
 
   def render(assigns) do
@@ -125,66 +52,63 @@ defmodule SpazioSolazzoWeb.BookingFormLiveComponent do
             phx-target={@myself}
           >
             <div class="mt-6 space-y-4">
-              <.input
-                field={@form[:customer_name]}
-                type="text"
-                label="Full Name"
-                placeholder="John Doe"
-                required
-              />
-
-              <.input
-                field={@form[:customer_email]}
-                type="email"
-                label="Email"
-                placeholder="john@example.com"
-                required
-              />
-
-              <div class="fieldset mb-2">
-                <label>
-                  <span class="label mb-1 text-gray-900 dark:text-gray-100">Phone Number</span>
-                  <div class="mt-1 flex gap-2 items-center">
-                    <div class="w-[3ch] min-w-[55px] flex-shrink-0">
-                      <.input
-                        field={@form[:phone_prefix]}
-                        type="text"
-                        placeholder="+39"
-                        required
-                        maxlength="5"
-                        class="w-full input"
-                        id="phone_prefix"
-                      />
-                    </div>
-                    <div class="flex-1">
-                      <.input
-                        field={@form[:phone_number]}
-                        type="tel"
-                        placeholder="333 1234567"
-                        required
-                        class="input"
-                        id="phone_number"
-                      />
-                    </div>
-                  </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  Name
                 </label>
+                <div class="flex items-center gap-3 p-4 bg-gradient-to-r from-slate-50 to-sky-50/50 dark:from-slate-900 dark:to-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                  <div class="flex-shrink-0">
+                    <.icon name="hero-user" class="size-5 text-sky-600 dark:text-sky-400" />
+                  </div>
+                  <span class="text-sm font-medium text-slate-700 dark:text-slate-300 truncate">
+                    {@current_user.name}
+                  </span>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  Email
+                </label>
+                <div class="flex items-center gap-3 p-4 bg-gradient-to-r from-slate-50 to-sky-50/50 dark:from-slate-900 dark:to-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                  <div class="flex-shrink-0">
+                    <.icon name="hero-envelope" class="size-5 text-sky-600 dark:text-sky-400" />
+                  </div>
+                  <span class="text-sm font-medium text-slate-700 dark:text-slate-300 truncate">
+                    {@current_user.email}
+                  </span>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  Phone
+                </label>
+                <div class="flex items-center gap-3 p-4 bg-gradient-to-r from-slate-50 to-sky-50/50 dark:from-slate-900 dark:to-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                  <div class="flex-shrink-0">
+                    <.icon name="hero-phone" class="size-5 text-sky-600 dark:text-sky-400" />
+                  </div>
+                  <span class="text-sm font-medium text-slate-700 dark:text-slate-300 truncate">
+                    {@current_user.phone_number}
+                  </span>
+                </div>
               </div>
 
               <.input
                 field={@form[:customer_comment]}
                 type="textarea"
-                label="Additional Comments (Optional)"
+                label="Comments (Optional)"
                 placeholder="Any special requests or notes..."
-                rows="3"
+                rows="4"
               />
             </div>
 
             <div class="mt-6 flex items-center gap-3">
               <button
                 type="submit"
-                class="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 px-4 rounded-2xl transition-colors shadow-lg hover:shadow-xl"
+                class="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 px-4 rounded-2xl transition-colors"
               >
-                Book Now
+                Confirm
               </button>
               <button
                 type="button"

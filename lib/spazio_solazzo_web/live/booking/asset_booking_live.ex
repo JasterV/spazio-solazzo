@@ -27,14 +27,10 @@ defmodule SpazioSolazzoWeb.AssetBookingLive do
            asset: asset,
            space: asset.space,
            bookings: bookings,
-           email_verification_id: nil,
-           pending_booking_data: nil,
            selected_date: selected_date,
            selected_time_slot: nil,
            show_booking_modal: false,
            show_success_modal: false,
-           show_verification_expired_modal: false,
-           show_verification_modal: false,
            time_slots: time_slots
          )}
 
@@ -69,66 +65,26 @@ defmodule SpazioSolazzoWeb.AssetBookingLive do
   end
 
   def handle_event("cancel_booking", _params, socket) do
-    {:noreply,
-     assign(socket,
-       show_booking_modal: false,
-       show_verification_modal: false,
-       show_verification_expired_modal: false,
-       email_verification_id: nil,
-       pending_booking_data: nil
-     )}
+    {:noreply, assign(socket, show_booking_modal: false)}
   end
 
   def handle_event("close_success_modal", _params, socket) do
     {:noreply, assign(socket, show_success_modal: false)}
   end
 
-  def handle_info({:booking_form_validated, form_data}, socket) do
-    booking_params = %{
-      customer_name: form_data["customer_name"],
-      customer_email: form_data["customer_email"],
-      customer_phone: form_data["customer_phone"],
-      customer_comment: form_data["customer_comment"]
-    }
-
-    case BookingSystem.create_verification_code(booking_params.customer_email) do
-      {:ok, verification} ->
-        Phoenix.PubSub.subscribe(
-          SpazioSolazzo.PubSub,
-          "email_verification:verification_code_expired:#{verification.id}"
-        )
-
-        {:noreply,
-         socket
-         |> assign(
-           show_booking_modal: false,
-           show_verification_modal: true,
-           email_verification_id: verification.id,
-           pending_booking_data: booking_params
-         )}
-
-      {:error, error} ->
-        {:noreply,
-         socket
-         |> put_flash(:error, "Failed to send verification code: #{inspect(error)}")}
-    end
-  end
-
-  def handle_info(:email_verified, %{assigns: assigns} = socket) do
-    Phoenix.PubSub.unsubscribe(
-      SpazioSolazzo.PubSub,
-      "email_verification:verification_code_expired:#{assigns.email_verification_id}"
-    )
+  def handle_info({:create_booking, comment}, socket) do
+    current_user = socket.assigns.current_user
 
     result =
       BookingSystem.create_booking(
         socket.assigns.selected_time_slot.id,
         socket.assigns.asset.id,
+        current_user.id,
         socket.assigns.selected_date,
-        socket.assigns.pending_booking_data.customer_name,
-        socket.assigns.pending_booking_data.customer_email,
-        socket.assigns.pending_booking_data.customer_phone,
-        socket.assigns.pending_booking_data.customer_comment
+        current_user.name,
+        current_user.email,
+        current_user.phone_number,
+        comment
       )
 
     case result do
@@ -136,36 +92,16 @@ defmodule SpazioSolazzoWeb.AssetBookingLive do
         {:noreply,
          socket
          |> assign(
-           show_verification_modal: false,
-           show_success_modal: true,
-           email_verification_id: nil,
-           pending_booking_data: nil
+           show_booking_modal: false,
+           show_success_modal: true
          )}
 
       {:error, error} ->
         {:noreply,
          socket
-         |> assign(show_verification_modal: false)
+         |> assign(show_booking_modal: false)
          |> put_flash(:error, "Failed to create booking: #{inspect(error)}")}
     end
-  end
-
-  def handle_info(
-        %{topic: "email_verification:verification_code_expired:" <> id},
-        %{assigns: %{email_verification_id: id}} = socket
-      ) do
-    Phoenix.PubSub.unsubscribe(
-      SpazioSolazzo.PubSub,
-      "email_verification:verification_code_expired:#{id}"
-    )
-
-    {:noreply,
-     assign(socket,
-       show_verification_modal: false,
-       show_verification_expired_modal: true,
-       email_verification_id: nil,
-       pending_booking_data: nil
-     )}
   end
 
   def handle_info(

@@ -4,6 +4,7 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
 
   alias SpazioSolazzo.BookingSystem
   alias SpazioSolazzo.BookingSystem.Booking
+  alias SpazioSolazzo.Accounts.User
 
   alias SpazioSolazzo.BookingSystem.Booking.EmailWorker
 
@@ -19,14 +20,27 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
         space.id
       )
 
-    %{space: space, asset: asset, time_slot: time_slot}
+    {:ok, user} =
+      SpazioSolazzo.Repo.insert(%User{
+        id: Ash.UUID.generate(),
+        email: "test@example.com",
+        name: "Test User",
+        phone_number: "+1234567890"
+      })
+
+    %{space: space, asset: asset, time_slot: time_slot, user: user}
   end
 
-  test "it can create a booking from a time slot template", %{asset: asset, time_slot: time_slot} do
+  test "it can create a booking from a time slot template", %{
+    asset: asset,
+    time_slot: time_slot,
+    user: user
+  } do
     {:ok, booking} =
       BookingSystem.create_booking(
         time_slot.id,
         asset.id,
+        user.id,
         Date.utc_today(),
         "John",
         "john@example.com",
@@ -37,16 +51,19 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
     assert booking.start_time == time_slot.start_time
     assert booking.end_time == time_slot.end_time
     assert booking.state == :reserved
+    assert booking.user_id == user.id
   end
 
   test "it sends a confirmation email after the booking is created", %{
     asset: asset,
-    time_slot: time_slot
+    time_slot: time_slot,
+    user: user
   } do
     {:ok, booking} =
       BookingSystem.create_booking(
         time_slot.id,
         asset.id,
+        user.id,
         Date.utc_today(),
         "John",
         "john@example.com",
@@ -67,11 +84,12 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
                     }
   end
 
-  test "it can confirm a booking was paid", %{asset: asset, time_slot: time_slot} do
+  test "it can confirm a booking was paid", %{asset: asset, time_slot: time_slot, user: user} do
     {:ok, booking} =
       BookingSystem.create_booking(
         time_slot.id,
         asset.id,
+        user.id,
         Date.utc_today(),
         "John",
         "john@example.com",
@@ -86,11 +104,12 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
     assert booking.state == :completed
   end
 
-  test "it can cancel a booking", %{asset: asset, time_slot: time_slot} do
+  test "it can cancel a booking", %{asset: asset, time_slot: time_slot, user: user} do
     {:ok, booking} =
       BookingSystem.create_booking(
         time_slot.id,
         asset.id,
+        user.id,
         Date.utc_today(),
         "John",
         "john@example.com",
@@ -105,7 +124,12 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
     assert booking.state == :cancelled
   end
 
-  test "it can list asset bookings by date", %{asset: asset, space: space, time_slot: time_slot} do
+  test "it can list asset bookings by date", %{
+    asset: asset,
+    space: space,
+    time_slot: time_slot,
+    user: user
+  } do
     {:ok, asset2} = BookingSystem.create_asset("Table 2", space.id)
     {:ok, asset3} = BookingSystem.create_asset("Table 3", space.id)
     today_date = Date.utc_today()
@@ -121,6 +145,7 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
              BookingSystem.create_booking(
                time_slot2.id,
                asset.id,
+               user.id,
                today_date,
                "John",
                "john@example.com",
@@ -132,6 +157,7 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
              BookingSystem.create_booking(
                time_slot3.id,
                asset.id,
+               user.id,
                today_date,
                "John",
                "john@example.com",
@@ -144,6 +170,7 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
              BookingSystem.create_booking(
                time_slot2.id,
                asset.id,
+               user.id,
                Date.add(today_date, 1),
                "John",
                "john@example.com",
@@ -156,6 +183,7 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
              BookingSystem.create_booking(
                time_slot.id,
                asset2.id,
+               user.id,
                today_date,
                "John",
                "john@example.com",
@@ -167,6 +195,7 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
              BookingSystem.create_booking(
                time_slot.id,
                asset3.id,
+               user.id,
                today_date,
                "John",
                "john@example.com",
@@ -183,5 +212,31 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
              %Booking{date: ^today_date, asset_id: ^asset_id},
              %Booking{date: ^today_date, asset_id: ^asset_id}
            ] = bookings
+  end
+
+  test "booking belongs to the user who created it", %{
+    asset: asset,
+    time_slot: time_slot,
+    user: user
+  } do
+    {:ok, booking} =
+      BookingSystem.create_booking(
+        time_slot.id,
+        asset.id,
+        user.id,
+        Date.utc_today(),
+        user.name,
+        user.email,
+        user.phone_number,
+        "test comment"
+      )
+
+    assert booking.user_id == user.id
+
+    # Load the booking with the user relationship
+    {:ok, booking_with_user} = Ash.load(booking, :user, authorize?: false)
+    assert booking_with_user.user.id == user.id
+    assert to_string(booking_with_user.user.email) == user.email
+    assert booking_with_user.user.name == user.name
   end
 end

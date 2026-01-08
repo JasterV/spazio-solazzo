@@ -27,17 +27,19 @@ defmodule SpazioSolazzoWeb.BookingLive.AssetBookingTest do
   end
 
   defp log_in_user(conn) do
-    user =
-      User
-      |> Ash.Changeset.for_create(:register, %{
+    {:ok, user} =
+      SpazioSolazzo.Repo.insert(%User{
+        id: Ash.UUID.generate(),
         email: "test@example.com",
         name: "Test User",
         phone_number: "+1234567890"
       })
-      |> Ash.create!(authorize?: false)
 
-    token = AshAuthentication.Jwt.token_for_user(user)
-    Plug.Conn.put_session(conn, "user_token", token)
+    {:ok, token, _claims} = AshAuthentication.Jwt.token_for_user(user)
+
+    conn
+    |> Plug.Test.init_test_session(%{})
+    |> Plug.Conn.put_session("user_token", token)
   end
 
   describe "AssetBooking mount" do
@@ -87,16 +89,12 @@ defmodule SpazioSolazzoWeb.BookingLive.AssetBookingTest do
       |> render_click()
 
       assert has_element?(view, "#booking-modal")
-      assert has_element?(view, "input[name='customer_name']")
-      assert has_element?(view, "input[name='customer_email']")
-      assert has_element?(view, "input[name='phone_number']")
-      assert has_element?(view, "input[name='phone_prefix']")
       assert has_element?(view, "textarea[name='customer_comment']")
     end
   end
 
   describe "AssetBooking full booking flow" do
-    test "completes full booking flow with email verification", %{conn: conn, asset: asset} do
+    test "completes full booking flow", %{conn: conn, asset: asset} do
       {:ok, view, _html} = live(conn, ~p"/book/asset/#{asset.id}")
 
       view
@@ -105,116 +103,19 @@ defmodule SpazioSolazzoWeb.BookingLive.AssetBookingTest do
 
       assert has_element?(view, "#booking-modal")
 
-      form_data = %{
-        "customer_name" => "Test User",
-        "customer_email" => "testuser@example.com",
-        "phone_prefix" => "+39",
-        "phone_number" => "35273464176",
-        "customer_comment" => "test comment"
-      }
-
       view
       |> element("#booking-form")
-      |> render_change(%{
-        "customer_name" => form_data["customer_name"],
-        "customer_email" => form_data["customer_email"],
-        "phone_prefix" => form_data["phone_prefix"],
-        "phone_number" => form_data["phone_number"],
-        "customer_comment" => form_data["customer_comment"]
-      })
-
-      view
-      |> element("#booking-form")
-      |> render_submit(%{})
-
-      assert has_element?(view, "#email-verification-modal")
-
-      Oban.drain_queue(queue: :email_verification)
-
-      assert %Swoosh.Email{
-               subject: subject,
-               html_body: html_body,
-               to: sent_to
-             } = pop_email()
-
-      assert sent_to == [{"", form_data["customer_email"]}]
-      assert subject == "Verify your booking at Spazio Solazzo"
-
-      [_, extracted_code] = Regex.run(~r/code-text">(\d{6})</, html_body)
-
-      view
-      |> element("#otp-form-email-verification-modal")
-      |> render_submit(%{"code" => extracted_code})
+      |> render_submit(%{"customer_comment" => "test comment"})
 
       assert has_element?(view, "#success-modal")
 
       assert {:ok, [booking]} =
                BookingSystem.list_active_asset_bookings_by_date(asset.id, Date.utc_today())
 
-      assert booking.customer_email == form_data["customer_email"]
-      assert booking.customer_phone == "+39 35273464176"
-    end
-  end
-
-  describe "AssetBooking validation" do
-    test "rejects booking with invalid email", %{conn: conn, asset: asset} do
-      {:ok, view, _html} = live(conn, ~p"/book/asset/#{asset.id}")
-
-      view
-      |> element("button[phx-click='select_slot']")
-      |> render_click()
-
-      view
-      |> element("#booking-form")
-      |> render_submit(%{
-        "customer_name" => "Test User",
-        "customer_email" => "invalid-email",
-        "phone_prefix" => "+39",
-        "phone_number" => "35273464176",
-        "customer_comment" => "test comment"
-      })
-
-      assert view |> has_element?("#booking-form")
-    end
-
-    test "rejects booking with empty name", %{conn: conn, asset: asset} do
-      {:ok, view, _html} = live(conn, ~p"/book/asset/#{asset.id}")
-
-      view
-      |> element("button[phx-click='select_slot']")
-      |> render_click()
-
-      view
-      |> element("#booking-form")
-      |> render_submit(%{
-        "customer_name" => "",
-        "customer_email" => "test@example.com",
-        "phone_prefix" => "+39",
-        "phone_number" => "35273464176",
-        "customer_comment" => "test comment"
-      })
-
-      assert view |> has_element?("#booking-form")
-    end
-
-    test "rejects booking with invalid phone number", %{conn: conn, asset: asset} do
-      {:ok, view, _html} = live(conn, ~p"/book/asset/#{asset.id}")
-
-      view
-      |> element("button[phx-click='select_slot']")
-      |> render_click()
-
-      view
-      |> element("#booking-form")
-      |> render_submit(%{
-        "customer_name" => "Test User",
-        "customer_email" => "test@example.com",
-        "phone_prefix" => "+39",
-        "phone_number" => "invalid",
-        "customer_comment" => "test comment"
-      })
-
-      assert view |> has_element?("#booking-form")
+      assert booking.customer_email == "test@example.com"
+      assert booking.customer_name == "Test User"
+      assert booking.customer_phone == "+1234567890"
+      assert booking.customer_comment == "test comment"
     end
   end
 

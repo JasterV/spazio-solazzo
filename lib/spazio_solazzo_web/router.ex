@@ -28,7 +28,7 @@ defmodule SpazioSolazzoWeb.Router do
     get "/bookings/cancel", BookingController, :cancel
     delete "/sign-out", AuthController, :sign_out
     get "/auth/callback", AuthController, :callback
-    get "/auth/failure", AuthController, :failure
+    get "/auth/failure", AuthController, :auth_failure
 
     ash_authentication_live_session :unauthenticated_routes,
       on_mount: [

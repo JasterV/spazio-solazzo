@@ -11,6 +11,7 @@ defmodule SpazioSolazzo.Accounts do
 
     resource SpazioSolazzo.Accounts.User do
       define :get_user_by_email, action: :read, get_by: [:email]
+      define :get_user_by_subject, action: :get_by_subject, args: [:subject]
     end
   end
 end

@@ -93,7 +93,7 @@ defmodule SpazioSolazzoWeb.AuthCallbackLive do
         {:ok, token, _claims} = AshAuthentication.Jwt.token_for_user(user)
         {:noreply, redirect(socket, to: ~p"/auth/callback?token=#{token}")}
 
-      {:error, _error} ->
+      {:error, _} ->
         {:noreply, redirect(socket, to: ~p"/auth/failure")}
     end
   end

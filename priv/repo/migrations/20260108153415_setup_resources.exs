@@ -8,6 +8,31 @@ defmodule SpazioSolazzo.Repo.Migrations.SetupResources do
   use Ecto.Migration
 
   def up do
+    create table(:users, primary_key: false) do
+      add :id, :uuid, null: false, default: fragment("gen_random_uuid()"), primary_key: true
+      add :email, :citext, null: false
+      add :name, :text, null: false
+      add :phone_number, :text, null: false
+    end
+
+    create unique_index(:users, [:email], name: "users_unique_email_index")
+
+    create table(:tokens, primary_key: false) do
+      add :jti, :text, null: false, primary_key: true
+      add :subject, :text, null: false
+      add :expires_at, :utc_datetime, null: false
+      add :purpose, :text, null: false
+      add :extra_data, :map
+
+      add :created_at, :utc_datetime_usec,
+        null: false,
+        default: fragment("(now() AT TIME ZONE 'utc')")
+
+      add :updated_at, :utc_datetime_usec,
+        null: false,
+        default: fragment("(now() AT TIME ZONE 'utc')")
+    end
+
     create table(:time_slot_templates, primary_key: false) do
       add :id, :uuid, null: false, default: fragment("gen_random_uuid()"), primary_key: true
       add :start_time, :time, null: false
@@ -39,16 +64,6 @@ defmodule SpazioSolazzo.Repo.Migrations.SetupResources do
     create unique_index(:spaces, [:name], name: "spaces_unique_name_index")
 
     create unique_index(:spaces, [:slug], name: "spaces_unique_slug_index")
-
-    create table(:email_verifications, primary_key: false) do
-      add :id, :uuid, null: false, default: fragment("gen_random_uuid()"), primary_key: true
-      add :email, :text, null: false
-      add :code_hash, :text, null: false
-
-      add :inserted_at, :utc_datetime_usec,
-        null: false,
-        default: fragment("(now() AT TIME ZONE 'utc')")
-    end
 
     create table(:bookings, primary_key: false) do
       add :id, :uuid, null: false, default: fragment("gen_random_uuid()"), primary_key: true
@@ -135,8 +150,6 @@ defmodule SpazioSolazzo.Repo.Migrations.SetupResources do
 
     drop table(:bookings)
 
-    drop table(:email_verifications)
-
     drop_if_exists unique_index(:spaces, [:slug], name: "spaces_unique_slug_index")
 
     drop_if_exists unique_index(:spaces, [:name], name: "spaces_unique_name_index")
@@ -156,5 +169,11 @@ defmodule SpazioSolazzo.Repo.Migrations.SetupResources do
     drop table(:spaces)
 
     drop table(:time_slot_templates)
+
+    drop table(:tokens)
+
+    drop_if_exists unique_index(:users, [:email], name: "users_unique_email_index")
+
+    drop table(:users)
   end
 end

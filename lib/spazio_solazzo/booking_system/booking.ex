@@ -43,6 +43,7 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
     create :create do
       argument :time_slot_template_id, :uuid, allow_nil?: false
       argument :asset_id, :uuid, allow_nil?: false
+      argument :user_id, :uuid, allow_nil?: false
       argument :date, :date, allow_nil?: false
       argument :customer_name, :string, allow_nil?: false
       argument :customer_email, :string, allow_nil?: false
@@ -54,6 +55,8 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
              )
 
       change manage_relationship(:asset_id, :asset, type: :append_and_remove)
+
+      change manage_relationship(:user_id, :user, type: :append_and_remove, authorize?: false)
 
       change fn changeset, _ctx ->
         template_id = Ash.Changeset.get_argument(changeset, :time_slot_template_id)
@@ -153,5 +156,6 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
   relationships do
     belongs_to :asset, SpazioSolazzo.BookingSystem.Asset
     belongs_to :time_slot_template, SpazioSolazzo.BookingSystem.TimeSlotTemplate
+    belongs_to :user, SpazioSolazzo.Accounts.User
   end
 end

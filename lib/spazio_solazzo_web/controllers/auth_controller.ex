@@ -17,11 +17,11 @@ defmodule SpazioSolazzoWeb.AuthController do
             success(conn, :magic_link, user, token)
 
           _ ->
-            failure(conn, %{})
+            auth_failure(conn, %{})
         end
 
       {:error, _} ->
-        failure(conn, %{})
+        auth_failure(conn, %{})
     end
   end
 
@@ -36,7 +36,7 @@ defmodule SpazioSolazzoWeb.AuthController do
     |> redirect(to: return_to)
   end
 
-  def failure(conn, _params) do
+  def auth_failure(conn, _params) do
     conn
     |> put_flash(:error, "Authentication failed. Please try again.")
     |> redirect(to: ~p"/sign-in")

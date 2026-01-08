@@ -1,6 +1,6 @@
 defmodule SpazioSolazzo.BookingSystem do
   @moduledoc """
-  Manages bookings, spaces, assets, time slots, and email verification for the booking system.
+  Manages bookings, spaces, assets and time slots for the booking system.
   """
 
   use Ash.Domain,
@@ -39,6 +39,7 @@ defmodule SpazioSolazzo.BookingSystem do
         args: [
           :time_slot_template_id,
           :asset_id,
+          :user_id,
           :date,
           :customer_name,
           :customer_email,
@@ -48,12 +49,6 @@ defmodule SpazioSolazzo.BookingSystem do
 
       define :confirm_booking, action: :confirm_booking, args: []
       define :cancel_booking, action: :cancel, args: []
-    end
-
-    resource SpazioSolazzo.BookingSystem.EmailVerification do
-      define :create_verification_code, action: :create, args: [:email]
-      define :verify_code, action: :verify, args: [:code]
-      define :expire_verification_code, action: :expire, args: []
     end
   end
 end

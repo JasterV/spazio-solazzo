@@ -60,11 +60,7 @@ config :spazio_solazzo,
 config :spazio_solazzo, Oban,
   repo: SpazioSolazzo.Repo,
   plugins: [Oban.Plugins.Pruner],
-  queues: [
-    default: 10,
-    email_verification: 10,
-    booking_email: 10
-  ]
+  queues: [default: 10, booking_email: 10]
 
 config :ash_phoenix, :pub_sub_module, SpazioSolazzo.PubSub
 

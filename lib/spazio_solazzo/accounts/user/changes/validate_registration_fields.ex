@@ -5,43 +5,34 @@ defmodule SpazioSolazzo.Accounts.User.Changes.ValidateRegistrationFields do
   """
   use Ash.Resource.Change
 
-  # TODO: Fix this logic, the action type is always create
-  # We need another way to check if the user already existed or not
   @impl true
   def change(changeset, _opts, _context) do
-    if changeset.action_type == :create do
-      changeset
-      |> validate_argument_present(:name, "Name is required for new users")
-      |> validate_argument_present(:phone_number, "Phone number is required for new users")
-      |> set_attributes_from_arguments()
+    email = Ash.Changeset.get_attribute(changeset, :email)
+
+    case SpazioSolazzo.Accounts.get_user_by_email(email, authorize?: false) do
+      {:ok, %{phone_number: phone, name: name}} ->
+        changeset
+        |> Ash.Changeset.force_change_attribute(:name, name)
+        |> Ash.Changeset.force_change_attribute(:phone_number, phone)
+
+      _ ->
+        name = Ash.Changeset.get_argument(changeset, :name)
+        phone = Ash.Changeset.get_argument(changeset, :phone_number)
+
+        changeset
+        |> validate_required_for_registration(:name, name)
+        |> validate_required_for_registration(:phone_number, phone)
+    end
+  end
+
+  defp validate_required_for_registration(changeset, field, value) do
+    if is_nil(value) || value == "" do
+      Ash.Changeset.add_error(
+        changeset,
+        Ash.Error.Changes.Required.exception(field: field, type: :argument)
+      )
     else
-      changeset
-    end
-  end
-
-  defp validate_argument_present(changeset, argument, message) do
-    case Ash.Changeset.fetch_argument(changeset, argument) do
-      {:ok, value} when not is_nil(value) and value != "" ->
-        changeset
-
-      _ ->
-        Ash.Changeset.add_error(changeset, field: argument, message: message)
-    end
-  end
-
-  defp set_attributes_from_arguments(changeset) do
-    changeset
-    |> maybe_set_attribute(:name)
-    |> maybe_set_attribute(:phone_number)
-  end
-
-  defp maybe_set_attribute(changeset, field) do
-    case Ash.Changeset.fetch_argument(changeset, field) do
-      {:ok, value} when not is_nil(value) ->
-        Ash.Changeset.change_attribute(changeset, field, value)
-
-      _ ->
-        changeset
+      Ash.Changeset.change_attribute(changeset, field, value)
     end
   end
 end

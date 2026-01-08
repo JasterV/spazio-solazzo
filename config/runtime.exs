@@ -89,7 +89,6 @@ if config_env() == :prod do
     spazio_solazzo_email:
       System.get_env("SPAZIO_SOLAZZO_EMAIL") ||
         raise("Missing environment variable `SPAZIO_SOLAZZO_EMAIL`!"),
-    verification_timeout: 60,
     front_office_phone_number:
       System.get_env("FRONT_OFFICE_PHONE_NUMBER") ||
         raise("Missing environment variable `FRONT_OFFICE_PHONE_NUMBER`!")

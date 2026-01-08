@@ -3,6 +3,7 @@ defmodule SpazioSolazzoWeb.BookingControllerTest do
 
   alias SpazioSolazzo.BookingSystem
   alias SpazioSolazzo.BookingSystem.Booking.Token
+  alias SpazioSolazzo.Accounts.User
 
   setup do
     {:ok, space} = BookingSystem.create_space("Test", "test-space", "desc")
@@ -16,19 +17,29 @@ defmodule SpazioSolazzoWeb.BookingControllerTest do
         space.id
       )
 
-    %{space: space, asset: asset, time_slot: time_slot}
+    {:ok, user} =
+      SpazioSolazzo.Repo.insert(%User{
+        id: Ash.UUID.generate(),
+        email: "test@example.com",
+        name: "Test User",
+        phone_number: "+1234567890"
+      })
+
+    %{space: space, asset: asset, time_slot: time_slot, user: user}
   end
 
   describe "cancel/2" do
     test "first cancel shows success message, not error message", %{
       conn: conn,
       asset: asset,
-      time_slot: time_slot
+      time_slot: time_slot,
+      user: user
     } do
       {:ok, booking} =
         BookingSystem.create_booking(
           time_slot.id,
           asset.id,
+          user.id,
           Date.utc_today(),
           "John",
           "john@example.com",
@@ -58,12 +69,14 @@ defmodule SpazioSolazzoWeb.BookingControllerTest do
     test "shows error message when booking is already cancelled", %{
       conn: conn,
       asset: asset,
-      time_slot: time_slot
+      time_slot: time_slot,
+      user: user
     } do
       {:ok, booking} =
         BookingSystem.create_booking(
           time_slot.id,
           asset.id,
+          user.id,
           Date.utc_today(),
           "John",
           "john@example.com",
