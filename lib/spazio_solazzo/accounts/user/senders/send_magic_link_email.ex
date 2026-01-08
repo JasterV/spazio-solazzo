@@ -11,9 +11,6 @@ defmodule SpazioSolazzo.Accounts.User.Senders.SendMagicLinkEmail do
 
   @impl true
   def send(user_or_email, token, _) do
-    # if you get a user, its for a user that already exists.
-    # if you get an email, then the user does not yet exist.
-
     email =
       case user_or_email do
         %{email: email} -> email
@@ -21,7 +18,7 @@ defmodule SpazioSolazzo.Accounts.User.Senders.SendMagicLinkEmail do
       end
 
     new()
-    |> from({"Spazio Solazzo", "noreply@example.com"})
+    |> from({"Spazio Solazzo", spazio_solazzo_email()})
     |> to(to_string(email))
     |> subject("Your login link")
     |> html_body(body(token: token, email: email))
@@ -35,5 +32,9 @@ defmodule SpazioSolazzo.Accounts.User.Senders.SendMagicLinkEmail do
     <p>Hello, #{params[:email]}! Click this link to sign in:</p>
     <p><a href="#{magic_link_url}">#{magic_link_url}</a></p>
     """
+  end
+
+  defp spazio_solazzo_email do
+    Application.get_env(:spazio_solazzo, :spazio_solazzo_email)
   end
 end

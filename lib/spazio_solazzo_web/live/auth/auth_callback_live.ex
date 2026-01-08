@@ -7,7 +7,6 @@ defmodule SpazioSolazzoWeb.AuthCallbackLive do
   use SpazioSolazzoWeb, :live_view
 
   alias SpazioSolazzo.Accounts
-  alias SpazioSolazzo.Accounts.User
 
   @impl true
   def mount(_params, _session, socket) do
@@ -62,8 +61,9 @@ defmodule SpazioSolazzoWeb.AuthCallbackLive do
   @impl true
   def handle_event("sign_in", args, %{assigns: %{token: token}} = socket) do
     remember_me = Map.get(args, "remember_me") == "on"
-    params = %{"token" => token, "remember_me" => remember_me}
-    sign_in(socket, params)
+
+    {:noreply,
+     redirect(socket, to: ~p"/auth/magic/sign-in?token=#{token}&remember_me=#{remember_me}")}
   end
 
   @impl true
@@ -75,27 +75,11 @@ defmodule SpazioSolazzoWeb.AuthCallbackLive do
     %{token: token} = socket.assigns
     remember_me = Map.get(args, "remember_me") == "on"
 
-    params = %{
-      "token" => token,
-      "name" => name,
-      "phone_number" => phone_number,
-      "remember_me" => remember_me
-    }
-
-    sign_in(socket, params)
-  end
-
-  defp sign_in(socket, params) do
-    case User
-         |> Ash.Changeset.for_create(:sign_in_with_magic_link, params)
-         |> Ash.create(authorize?: false) do
-      {:ok, user} ->
-        {:ok, token, _claims} = AshAuthentication.Jwt.token_for_user(user)
-        {:noreply, redirect(socket, to: ~p"/auth/callback?token=#{token}")}
-
-      {:error, _} ->
-        {:noreply, redirect(socket, to: ~p"/auth/failure")}
-    end
+    {:noreply,
+     redirect(socket,
+       to:
+         ~p"/auth/magic/sign-in?token=#{token}&name=#{name}&phone_number=#{phone_number}&remember_me=#{remember_me}"
+     )}
   end
 
   defp extract_email_from_token(token) do

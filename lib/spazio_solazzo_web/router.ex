@@ -12,6 +12,7 @@ defmodule SpazioSolazzoWeb.Router do
     plug :put_root_layout, html: {SpazioSolazzoWeb.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug :sign_in_with_remember_me
     plug :load_from_session
   end
 
@@ -27,7 +28,7 @@ defmodule SpazioSolazzoWeb.Router do
     get "/bookings/confirm", BookingController, :confirm
     get "/bookings/cancel", BookingController, :cancel
     delete "/sign-out", AuthController, :sign_out
-    get "/auth/callback", AuthController, :callback
+    get "/auth/magic/sign-in", AuthController, :magic_sign_in
     get "/auth/failure", AuthController, :auth_failure
 
     ash_authentication_live_session :unauthenticated_routes,

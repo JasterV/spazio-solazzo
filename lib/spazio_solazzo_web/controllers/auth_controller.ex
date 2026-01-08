@@ -2,31 +2,60 @@ defmodule SpazioSolazzoWeb.AuthController do
   use SpazioSolazzoWeb, :controller
   use AshAuthentication.Phoenix.Controller
 
-  alias AshAuthentication.Jwt
   alias SpazioSolazzo.Accounts.User
 
-  def callback(conn, %{"token" => token}) do
-    case Jwt.verify(token, :spazio_solazzo) do
-      {:ok, %{"sub" => subject}, _resource} ->
-        # Use your User resource's read action to fetch the user by subject
-        case User
-             |> Ash.Query.for_read(:get_by_subject, %{subject: subject})
-             |> Ash.read_one(authorize?: false) do
-          {:ok, user} when not is_nil(user) ->
-            user = Ash.Resource.put_metadata(user, :token, token)
-            success(conn, :magic_link, user, token)
+  def magic_sign_in(conn, %{"token" => token} = args) do
+    params =
+      case args do
+        %{
+          "token" => token,
+          "remember_me" => remember_me,
+          "name" => name,
+          "phone_number" => phone_number
+        } ->
+          %{
+            "token" => token,
+            "remember_me" => remember_me == "true",
+            "name" => name,
+            "phone_number" => phone_number
+          }
 
-          _ ->
-            auth_failure(conn, %{})
-        end
+        %{"remember_me" => remember_me} ->
+          %{"token" => token, "remember_me" => remember_me == "true"}
 
-      {:error, _} ->
-        auth_failure(conn, %{})
+        %{} ->
+          %{"token" => token, "remember_me" => false}
+      end
+
+    case User
+         |> Ash.Changeset.for_create(:sign_in_with_magic_link, params)
+         |> Ash.create(authorize?: false) do
+      {:ok, user} ->
+        auth_success(conn, user)
+
+      {:error, error} ->
+        dbg(error)
+        auth_failure(conn)
     end
   end
 
-  def success(conn, _activity, user, _token) do
+  def auth_success(conn, user) do
     return_to = get_session(conn, :return_to) || ~p"/"
+    remember_me = Ash.Resource.get_metadata(user, :remember_me)
+
+    conn =
+      case remember_me do
+        nil ->
+          conn
+
+        %{max_age: max_age, token: token} ->
+          put_resp_cookie(conn, "remember_me", token,
+            http_only: true,
+            secure: true,
+            same_site: "lax",
+            max_age: max_age
+          )
+      end
 
     conn
     |> delete_session(:return_to)
@@ -36,7 +65,7 @@ defmodule SpazioSolazzoWeb.AuthController do
     |> redirect(to: return_to)
   end
 
-  def auth_failure(conn, _params) do
+  defp auth_failure(conn) do
     conn
     |> put_flash(:error, "Authentication failed. Please try again.")
     |> redirect(to: ~p"/sign-in")
@@ -45,6 +74,9 @@ defmodule SpazioSolazzoWeb.AuthController do
   def sign_out(conn, _params) do
     conn
     |> clear_session(:spazio_solazzo)
+    |> AshAuthentication.Strategy.RememberMe.Plug.Helpers.delete_all_remember_me_cookies(
+      :spazio_solazzo
+    )
     |> put_flash(:info, "You are now signed out")
     |> redirect(to: ~p"/")
   end

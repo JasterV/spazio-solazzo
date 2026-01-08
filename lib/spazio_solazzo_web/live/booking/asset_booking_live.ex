@@ -42,23 +42,6 @@ defmodule SpazioSolazzoWeb.AssetBookingLive do
     end
   end
 
-  def handle_event("change_date", %{"date" => date_string}, socket) do
-    date = Date.from_iso8601!(date_string)
-
-    {:ok, time_slots} =
-      BookingSystem.get_space_time_slots_by_date(socket.assigns.space.id, date)
-
-    {:ok, bookings} =
-      BookingSystem.list_active_asset_bookings_by_date(socket.assigns.asset.id, date)
-
-    {:noreply,
-     assign(socket,
-       selected_date: date,
-       time_slots: time_slots,
-       bookings: bookings
-     )}
-  end
-
   def handle_event("select_slot", %{"time_slot_id" => time_slot_id}, socket) do
     time_slot = Enum.find(socket.assigns.time_slots, &(&1.id == time_slot_id))
     {:noreply, assign(socket, selected_time_slot: time_slot, show_booking_modal: true)}
