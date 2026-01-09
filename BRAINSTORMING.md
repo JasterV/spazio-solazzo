@@ -1,3 +1,20 @@
+
+## Meeting with Giggio 09/01/2026
+
+- Put the phone number optional to not force the users to introduce private information
+
+- Walk-in bookings will be allowed both for the coworking space and meeting.
+
+- Magic music morning is an event that can happen once or twice a week and users booking for the coworking space those days have to be informed about it.
+
+- There will be a form in the home page to contact Mojo for custom queries or if they want to book for custom events.
+
+- The home page will also have a section "Events" that will link to the Caravanserai Page
+
+- We have to offer the page in Italian too.
+
+- The deadline will be around the 24th
+
 ## Next
 
 - Mojo will have an admin account with a panel to see reserves for all 3 spaces
