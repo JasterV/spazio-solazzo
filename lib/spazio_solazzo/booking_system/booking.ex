@@ -8,6 +8,7 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
     domain: SpazioSolazzo.BookingSystem,
     data_layer: AshPostgres.DataLayer,
     notifiers: [Ash.Notifier.PubSub],
+    authorizers: [Ash.Policy.Authorizer],
     extensions: [AshStateMachine]
 
   alias SpazioSolazzo.BookingSystem.Booking.EmailWorker
@@ -15,6 +16,10 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
   postgres do
     table "bookings"
     repo SpazioSolazzo.Repo
+
+    references do
+      reference :user, on_delete: :nilify, index?: true
+    end
   end
 
   state_machine do
@@ -23,7 +28,7 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
 
     transitions do
       transition(:confirm_booking, from: :reserved, to: :completed)
-      transition(:cancel, from: [:reserved], to: :cancelled)
+      transition(:cancel, from: :reserved, to: :cancelled)
     end
   end
 
@@ -122,6 +127,29 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
       accept []
       change transition_state(:cancelled)
     end
+
+    destroy :destroy do
+      description "Delete a booking record"
+      primary? true
+    end
+  end
+
+  policies do
+    policy action([:cancel, :confirm_booking]) do
+      authorize_if always()
+    end
+
+    policy action_type(:destroy) do
+      authorize_if expr(:user_id == ^actor(:id))
+    end
+
+    policy action_type(:read) do
+      authorize_if always()
+    end
+
+    policy action_type(:create) do
+      authorize_if always()
+    end
   end
 
   pub_sub do
@@ -156,6 +184,9 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
   relationships do
     belongs_to :asset, SpazioSolazzo.BookingSystem.Asset
     belongs_to :time_slot_template, SpazioSolazzo.BookingSystem.TimeSlotTemplate
-    belongs_to :user, SpazioSolazzo.Accounts.User
+
+    belongs_to :user, SpazioSolazzo.Accounts.User do
+      allow_nil? true
+    end
   end
 end

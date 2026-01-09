@@ -39,43 +39,7 @@ defmodule SpazioSolazzoWeb.Layouts do
 
   def app(assigns) do
     ~H"""
-    <header class="sticky top-0 z-50 w-full border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md px-6 py-4">
-      <div class="mx-auto flex h-10 max-w-[1200px] items-center justify-between">
-        <.link
-          navigate="/"
-          class="flex items-center gap-4 text-slate-900 dark:text-slate-100 hover:opacity-80 transition-opacity"
-        >
-          <div class="flex items-center justify-center size-8 bg-sky-500 rounded-lg text-white shadow-lg shadow-sky-500/20">
-            <.icon name="hero-squares-2x2" class="size-5" />
-          </div>
-          <h2 class="text-lg font-bold leading-tight tracking-tight text-slate-800 dark:text-slate-100">
-            Spazio Solazzo
-          </h2>
-        </.link>
-
-        <div class="flex items-center gap-4">
-          <%= if @current_user do %>
-            <.link
-              href={~p"/sign-out"}
-              method="delete"
-              id="sign-out-link"
-              class="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
-            >
-              Log Out
-            </.link>
-          <% else %>
-            <.link
-              navigate={~p"/sign-in"}
-              id="sign-in-link"
-              class="px-4 py-2 text-sm font-medium text-white bg-sky-500 hover:bg-sky-600 rounded-lg transition-colors shadow-sm"
-            >
-              Sign In
-            </.link>
-          <% end %>
-          <.theme_toggle />
-        </div>
-      </div>
-    </header>
+    <.app_header current_user={@current_user} />
 
     <main class="bg-slate-50 dark:bg-slate-900 flex-1 relative transition-colors duration-300">
       {render_slot(@inner_block)}
@@ -149,6 +113,89 @@ defmodule SpazioSolazzoWeb.Layouts do
       <.icon name="hero-sun" class="size-5 [[data-theme=dark]_&]:hidden" />
       <.icon name="hero-moon" class="size-5 hidden [[data-theme=dark]_&]:block" />
     </button>
+    """
+  end
+
+  defp app_header(assigns) do
+    ~H"""
+    <header class="sticky top-0 z-50 w-full border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md px-6 py-4">
+      <div class="mx-auto flex h-10 max-w-[1200px] items-center justify-between">
+        <.link
+          navigate="/"
+          class="flex items-center gap-4 text-slate-900 dark:text-slate-100 hover:opacity-80 transition-opacity"
+        >
+          <div class="flex items-center justify-center size-8 bg-sky-500 rounded-lg text-white shadow-lg shadow-sky-500/20">
+            <.icon name="hero-squares-2x2" class="size-5" />
+          </div>
+          <h2 class="text-lg font-bold leading-tight tracking-tight text-slate-800 dark:text-slate-100">
+            Spazio Solazzo
+          </h2>
+        </.link>
+
+        <div class="flex items-center gap-4">
+          <.theme_toggle />
+          <%= if @current_user do %>
+            <%!-- Desktop menu --%>
+            <div class="hidden md:flex items-center gap-3">
+              <.link
+                navigate={~p"/profile"}
+                class="size-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-400 border-2 border-primary/20 hover:border-primary/40 transition-colors"
+              >
+                <.icon name="hero-user" class="size-5" />
+              </.link>
+              <.link
+                href={~p"/sign-out"}
+                id="sign-out-link"
+                class="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-red-600 hover:bg-red-50 dark:hover:text-red-400 dark:hover:bg-red-950/30 rounded-lg transition-colors border border-slate-300 dark:border-slate-600 hover:border-red-300 dark:hover:border-red-800"
+              >
+                Sign Out
+              </.link>
+            </div>
+            <%!-- Mobile menu button --%>
+            <button
+              phx-click={JS.toggle(to: "#mobile-menu")}
+              class="md:hidden p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              id="mobile-menu-button"
+            >
+              <.icon name="hero-bars-3" class="size-6 text-slate-600 dark:text-slate-400" />
+            </button>
+          <% else %>
+            <.link
+              navigate={~p"/sign-in"}
+              id="sign-in-link"
+              class="px-4 py-2 text-sm font-medium text-white bg-sky-500 hover:bg-sky-600 rounded-lg transition-colors shadow-sm"
+            >
+              Sign In
+            </.link>
+          <% end %>
+        </div>
+      </div>
+      <%!-- Mobile dropdown menu --%>
+      <%= if @current_user do %>
+        <div
+          id="mobile-menu"
+          class="md:hidden absolute top-full right-0 left-0 mt-2 mx-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-lg overflow-hidden"
+          style="display: none;"
+        >
+          <div class="flex flex-col">
+            <.link
+              navigate={~p"/profile"}
+              phx-click={JS.hide(to: "#mobile-menu")}
+              class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+            >
+              <.icon name="hero-user" class="size-5 text-slate-500 dark:text-slate-400" /> Profile
+            </.link>
+            <.link
+              href={~p"/sign-out"}
+              id="mobile-sign-out-link"
+              class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors border-t border-slate-200 dark:border-slate-800"
+            >
+              <.icon name="hero-arrow-right-on-rectangle" class="size-5" /> Sign Out
+            </.link>
+          </div>
+        </div>
+      <% end %>
+    </header>
     """
   end
 

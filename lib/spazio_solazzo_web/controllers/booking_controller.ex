@@ -8,9 +8,21 @@ defmodule SpazioSolazzoWeb.BookingController do
   def confirm(conn, %{"token" => token}) do
     case Token.verify(token) do
       {:ok, %{booking_id: booking_id, role: :admin, action: :confirm}} ->
-        booking = Ash.get!(Booking, booking_id)
-        action_result = BookingSystem.confirm_booking(booking)
-        build_response(conn, action_result, :confirm)
+        case Ash.get(Booking, booking_id, error?: false) do
+          {:ok, nil} ->
+            conn
+            |> put_flash(:error, "Booking not found, cancelling aborted.")
+            |> redirect(to: "/")
+
+          {:ok, booking} ->
+            action_result = BookingSystem.confirm_booking(booking)
+            build_response(conn, action_result, :confirm)
+
+          {:error, _} ->
+            conn
+            |> put_flash(:error, "Unexpected error occurred, couldn't cancel booking.")
+            |> redirect(to: "/")
+        end
 
       _ ->
         conn
@@ -22,9 +34,21 @@ defmodule SpazioSolazzoWeb.BookingController do
   def cancel(conn, %{"token" => token}) do
     case Token.verify(token) do
       {:ok, %{booking_id: booking_id, role: _, action: :cancel}} ->
-        booking = Ash.get!(Booking, booking_id)
-        action_result = BookingSystem.cancel_booking(booking)
-        build_response(conn, action_result, :cancel)
+        case Ash.get(Booking, booking_id, error?: false) do
+          {:ok, nil} ->
+            conn
+            |> put_flash(:error, "Booking not found, cancelling aborted.")
+            |> redirect(to: "/")
+
+          {:ok, booking} ->
+            action_result = BookingSystem.cancel_booking(booking)
+            build_response(conn, action_result, :cancel)
+
+          {:error, _} ->
+            conn
+            |> put_flash(:error, "Unexpected error occurred, couldn't cancel booking.")
+            |> redirect(to: "/")
+        end
 
       _ ->
         conn

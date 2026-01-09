@@ -6,7 +6,11 @@ defmodule SpazioSolazzoWeb.BookingControllerTest do
   alias SpazioSolazzo.Accounts.User
 
   setup do
-    {:ok, space} = BookingSystem.create_space("Test", "test-space", "desc")
+    unique_id = :erlang.unique_integer([:positive, :monotonic])
+
+    {:ok, space} =
+      BookingSystem.create_space("Test #{unique_id}", "test-space-#{unique_id}", "desc")
+
     {:ok, asset} = BookingSystem.create_asset("Table 1", space.id)
 
     {:ok, time_slot} =

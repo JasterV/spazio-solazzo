@@ -86,6 +86,7 @@ defmodule SpazioSolazzo.Repo.Migrations.SetupResources do
 
       add :asset_id, :uuid
       add :time_slot_template_id, :uuid
+      add :user_id, :uuid
     end
 
     create table(:assets, primary_key: false) do
@@ -108,7 +109,18 @@ defmodule SpazioSolazzo.Repo.Migrations.SetupResources do
                type: :uuid,
                prefix: "public"
              )
+
+      modify :user_id,
+             references(:users,
+               column: :id,
+               name: "bookings_user_id_fkey",
+               type: :uuid,
+               prefix: "public",
+               on_delete: :nilify_all
+             )
     end
+
+    create index(:bookings, [:user_id])
 
     alter table(:assets) do
       add :name, :text, null: false
@@ -137,11 +149,16 @@ defmodule SpazioSolazzo.Repo.Migrations.SetupResources do
       remove :name
     end
 
+    drop_if_exists index(:bookings, [:user_id])
+
     drop constraint(:bookings, "bookings_asset_id_fkey")
 
     drop constraint(:bookings, "bookings_time_slot_template_id_fkey")
 
+    drop constraint(:bookings, "bookings_user_id_fkey")
+
     alter table(:bookings) do
+      modify :user_id, :uuid
       modify :time_slot_template_id, :uuid
       modify :asset_id, :uuid
     end

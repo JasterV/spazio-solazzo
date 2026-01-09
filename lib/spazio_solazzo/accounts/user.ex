@@ -45,13 +45,6 @@ defmodule SpazioSolazzo.Accounts.User do
   actions do
     defaults [:read]
 
-    read :get_by_subject do
-      description "Get a user by the subject claim in a JWT"
-      argument :subject, :string, allow_nil?: false
-      get? true
-      prepare AshAuthentication.Preparations.FilterBySubject
-    end
-
     read :get_by_email do
       description "Looks up a user by their email"
       argument :email, :ci_string, allow_nil?: false
@@ -104,11 +97,41 @@ defmodule SpazioSolazzo.Accounts.User do
       argument :email, :ci_string, allow_nil?: false
       run AshAuthentication.Strategy.MagicLink.Request
     end
+
+    update :update_profile do
+      description "Update user profile (name and phone number)"
+      accept [:name, :phone_number]
+      require_atomic? false
+    end
+
+    destroy :terminate_account do
+      description "Delete user account with optional booking data removal"
+      require_atomic? false
+
+      argument :delete_history, :boolean do
+        description "Whether to permanently delete all booking history"
+        default false
+      end
+
+      change SpazioSolazzo.Accounts.User.Changes.HandleBookingsOnAccountDeletion
+    end
   end
 
   policies do
     bypass AshAuthentication.Checks.AshAuthenticationInteraction do
       authorize_if always()
+    end
+
+    policy action_type(:read) do
+      authorize_if always()
+    end
+
+    policy action_type(:update) do
+      authorize_if expr(id == ^actor(:id))
+    end
+
+    policy action_type(:destroy) do
+      authorize_if expr(id == ^actor(:id))
     end
   end
 

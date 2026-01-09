@@ -79,11 +79,11 @@ defmodule SpazioSolazzoWeb.AssetBookingLive do
            show_success_modal: true
          )}
 
-      {:error, error} ->
+      {:error, _error} ->
         {:noreply,
          socket
          |> assign(show_booking_modal: false)
-         |> put_flash(:error, "Failed to create booking: #{inspect(error)}")}
+         |> put_flash(:error, "Failed to create booking.}")}
     end
   end
 

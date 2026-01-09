@@ -6,10 +6,7 @@ defmodule SpazioSolazzoWeb.PageLiveTest do
 
   setup do
     for {name, slug} <- [{"Coworking", "coworking"}, {"Meeting", "meeting"}, {"Music", "music"}] do
-      {:ok, _} =
-        BookingSystem.Space
-        |> Ash.Changeset.for_create(:create, %{name: name, slug: slug, description: "desc"})
-        |> Ash.create()
+      BookingSystem.create_space!(name, slug, "desc")
     end
 
     :ok

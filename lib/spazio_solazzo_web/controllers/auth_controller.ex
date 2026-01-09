@@ -2,39 +2,26 @@ defmodule SpazioSolazzoWeb.AuthController do
   use SpazioSolazzoWeb, :controller
   use AshAuthentication.Phoenix.Controller
 
-  alias SpazioSolazzo.Accounts.User
+  alias SpazioSolazzo.Accounts
 
-  def magic_sign_in(conn, %{"token" => token} = args) do
-    params =
-      case args do
-        %{
-          "token" => token,
-          "remember_me" => remember_me,
-          "name" => name,
-          "phone_number" => phone_number
-        } ->
-          %{
-            "token" => token,
-            "remember_me" => remember_me == "true",
-            "name" => name,
-            "phone_number" => phone_number
-          }
+  def magic_sign_in(conn, %{"token" => token, "remember_me" => remember_me} = args) do
+    name = Map.get(args, "name")
+    phone_number = Map.get(args, "phone_number")
 
-        %{"remember_me" => remember_me} ->
-          %{"token" => token, "remember_me" => remember_me == "true"}
+    result =
+      Accounts.sign_in_with_magic_link(
+        token,
+        remember_me == "true",
+        name,
+        phone_number,
+        authorize?: false
+      )
 
-        %{} ->
-          %{"token" => token, "remember_me" => false}
-      end
-
-    case User
-         |> Ash.Changeset.for_create(:sign_in_with_magic_link, params)
-         |> Ash.create(authorize?: false) do
+    case result do
       {:ok, user} ->
         auth_success(conn, user)
 
-      {:error, error} ->
-        dbg(error)
+      {:error, _error} ->
         auth_failure(conn)
     end
   end

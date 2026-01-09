@@ -5,7 +5,7 @@ defmodule SpazioSolazzoWeb.SignInLive do
 
   use SpazioSolazzoWeb, :live_view
 
-  alias SpazioSolazzo.Accounts.User
+  alias SpazioSolazzo.Accounts
 
   @impl true
   def mount(_params, _session, socket) do
@@ -21,10 +21,7 @@ defmodule SpazioSolazzoWeb.SignInLive do
   def handle_event("request_magic_link", %{"email" => email}, socket) do
     socket = assign(socket, :loading, true)
 
-    result =
-      User
-      |> Ash.ActionInput.for_action(:request_magic_link, %{email: email})
-      |> Ash.run_action(authorize?: false)
+    result = Accounts.request_magic_link(email, authorize?: false)
 
     case result do
       :ok ->
