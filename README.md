@@ -4,7 +4,7 @@ Spazio Solazzo is a cultural space in the heart of Palermo where people around t
 
 Spazio Solazzo is managed by the Caravanserai cultural association and is found next to the Mojo Coliving project, which also makes part of Caravanserai.
 
-This project allows Caravanserai to manage the different spaces inside Spazio Solazzo for rent. Spazio Solazzo at the moment is made out of three other spaces:
+This project allows Caravanserai to manage the booking of the different spaces inside Spazio Solazzo. Spazio Solazzo at the moment is made out of three other spaces:
 
 + A Coworking space, where people can book desks to work and share during the day.
 + A meeting room that people and companies can book for their own meetings.
