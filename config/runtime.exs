@@ -22,9 +22,9 @@ end
 
 port = String.to_integer(System.get_env("PORT", "8080"))
 
-config :spazio_solazzo, SpazioSolazzoWeb.Endpoint, http: [port: port]
-
-if config_env() == :prod do
+if config_env() != :prod do
+  config :spazio_solazzo, SpazioSolazzoWeb.Endpoint, http: [port: port]
+else
   database_url =
     System.get_env("DATABASE_URL") ||
       raise """
