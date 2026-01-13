@@ -32,14 +32,12 @@ if config_env() == :prod do
       For example: ecto://USER:PASS@HOST/DATABASE
       """
 
-  maybe_ipv6 = if System.get_env("ECTO_IPV6") in ~w(true 1), do: [:inet6], else: []
+  maybe_ipv6 = if System.get_env("ECTO_IPV6") in ~w(true 1), do: [:inet6], else: [:inet]
 
   config :spazio_solazzo, SpazioSolazzo.Repo,
-    # ssl: true,
     url: database_url,
     ssl: true,
-    socket_options: [:inet],
-    pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
+    pool_size: String.to_integer(System.get_env("POOL_SIZE") || "4"),
     # For machines with several cores, consider starting multiple pools of `pool_size`
     # pool_count: 4,
     socket_options: maybe_ipv6
@@ -92,7 +90,8 @@ if config_env() == :prod do
         raise("Missing environment variable `SPAZIO_SOLAZZO_EMAIL`!"),
     front_office_phone_number:
       System.get_env("FRONT_OFFICE_PHONE_NUMBER") ||
-        raise("Missing environment variable `FRONT_OFFICE_PHONE_NUMBER`!")
+        raise("Missing environment variable `FRONT_OFFICE_PHONE_NUMBER`!"),
+    base_url: "https://#{host}:#{port}"
 
   # Most non-SMTP adapters require an API client. Swoosh supports Req, Hackney,
   # and Finch out-of-the-box. This configuration is typically done at
