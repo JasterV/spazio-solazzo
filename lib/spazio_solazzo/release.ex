@@ -20,7 +20,7 @@ defmodule SpazioSolazzo.Release do
 
   def seed do
     load_app()
-    {:ok, _} = Application.ensure_all_started(@app)
+    Application.ensure_all_started(@app)
 
     for _repo <- repos() do
       seed_file = Application.app_dir(@app, "priv/repo/seeds.exs")
