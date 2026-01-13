@@ -5,9 +5,9 @@ defmodule SpazioSolazzoWeb.PageLive do
   alias SpazioSolazzo.BookingSystem
 
   def mount(_params, _session, socket) do
-    {:ok, coworking_space} = BookingSystem.get_space_by_slug("coworking")
-    {:ok, meeting_space} = BookingSystem.get_space_by_slug("meeting")
-    {:ok, music_space} = BookingSystem.get_space_by_slug("music")
+    {:ok, coworking_space} = BookingSystem.get_space_by_slug("coworking", not_found_error?: false)
+    {:ok, meeting_space} = BookingSystem.get_space_by_slug("meeting", not_found_error?: false)
+    {:ok, music_space} = BookingSystem.get_space_by_slug("music", not_found_error?: false)
 
     {:ok,
      assign(socket,

@@ -54,7 +54,7 @@ config :spazio_solazzo,
   ecto_repos: [SpazioSolazzo.Repo],
   generators: [timestamp_type: :utc_datetime],
   ash_domains: [SpazioSolazzo.Accounts, SpazioSolazzo.BookingSystem],
-  base_url: "http://localhost:4000",
+  base_url: "http://localhost:8080",
   ash_authentication: [return_error_on_invalid_magic_link_token?: true]
 
 config :spazio_solazzo, Oban,
