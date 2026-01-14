@@ -29,10 +29,13 @@ jobs:
       - name: Get code
         uses: actions/checkout@v4
 
+      - name: Build elixir image
+        run: docker build -t custom-image-elixir:1.19 -f Dockerfile .
+
       - name: Deploy PR app to Fly.io
         id: deploy
         uses: superfly/fly-pr-review-apps@1.2.0
         with:
           name: "pr-${{ github.event.pull_request.number }}-jasterv-spazio-solazzo"
-          image: elixir:1.19 # this is needed otherwise elixir isn't in the PATH.
+          image: custom-image-elixir:1.19
           config: fly.review.toml

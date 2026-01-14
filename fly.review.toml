@@ -4,7 +4,10 @@ primary_region = "ams"
 kill_signal = "SIGTERM"
 
 [build]
-dockerfile = "Dockerfile"
+
+[deploy]
+release_command = '/app/bin/migrate'
+wait_timeout = "10m"
 
 [env]
 PHX_SERVER = "true"
