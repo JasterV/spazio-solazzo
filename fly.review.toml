@@ -1,4 +1,5 @@
-# fly.preview.toml
+# fly.review.toml
+# 
 app = "spazio-solazzo"
 primary_region = "ams"
 kill_signal = "SIGTERM"

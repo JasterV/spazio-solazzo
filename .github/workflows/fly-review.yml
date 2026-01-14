@@ -50,3 +50,11 @@ jobs:
         with:
           name: ${{ env.APP_NAME }}
           config: fly.review.toml
+        env:
+          TOKEN_SIGNING_SECRET: ${{ secrets.TOKEN_SIGNING_SECRET }}
+          ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+          SPAZIO_SOLAZZO_EMAIL: ${{ secrets.SPAZIO_SOLAZZO_EMAIL }}
+          FRONT_OFFICE_PHONE_NUMBER: ${{ secrets.FRONT_OFFICE_PHONE_NUMBER }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
