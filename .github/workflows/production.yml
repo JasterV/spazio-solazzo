@@ -5,6 +5,10 @@ on:
   push:
     branches:
       - main
+
+env:
+  FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
 jobs:
   ci:
     uses: ./.github/workflows/ci.yml
@@ -25,7 +29,7 @@ jobs:
 
       - name: Set Fly secrets
         run: |
-          flyctl secrets set \
+          flyctl secrets --access-token "$FLY_API_TOKEN" set \
             TOKEN_SIGNING_SECRET="$TOKEN_SIGNING_SECRET" \
             ADMIN_EMAIL="$ADMIN_EMAIL" \
             SPAZIO_SOLAZZO_EMAIL="$SPAZIO_SOLAZZO_EMAIL" \
@@ -41,5 +45,3 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - run: flyctl deploy --remote-only
-        env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
