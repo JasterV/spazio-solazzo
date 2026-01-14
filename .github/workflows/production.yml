@@ -8,6 +8,7 @@ on:
 
 env:
   FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+  IMAGE_TAG: registry.fly.io/spazio-solazzo:sha-${{ github.sha }}
 
 jobs:
   ci:
@@ -39,7 +40,7 @@ jobs:
         with:
           push: true
           context: .
-          tags: registry.fly.io/spazio-solazzo:sha-${{ github.sha }}
+          tags: ${{ env.IMAGE_TAG }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
