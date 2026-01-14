@@ -39,7 +39,7 @@ defmodule SpazioSolazzoWeb.Layouts do
 
   def app(assigns) do
     ~H"""
-    <.app_header current_user={@current_user} />
+    <.app_header current_user={@current_user} title="Spazio Solazzo" icon="hero-sun-solid" />
 
     <main class="bg-slate-50 dark:bg-slate-900 flex-1 relative transition-colors duration-300">
       {render_slot(@inner_block)}
@@ -116,19 +116,26 @@ defmodule SpazioSolazzoWeb.Layouts do
     """
   end
 
+  attr :title, :string, default: nil, doc: "the title shown on the top left of the header"
+  attr :icon, :string, default: nil, doc: "The icon shown on the top left of the header"
+
+  attr :current_user, :map,
+    default: nil,
+    doc: "the current authenticated user"
+
   defp app_header(assigns) do
     ~H"""
     <header class="sticky top-0 z-50 w-full border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md px-6 py-4">
       <div class="mx-auto flex h-10 max-w-[1200px] items-center justify-between">
         <.link
           navigate="/"
-          class="flex items-center gap-4 text-slate-900 dark:text-slate-100 hover:opacity-80 transition-opacity"
+          class="flex items-center gap-3 text-slate-900 dark:text-slate-100 hover:opacity-80 transition-opacity"
         >
-          <div class="flex items-center justify-center size-8 bg-sky-500 rounded-lg text-white shadow-lg shadow-sky-500/20">
-            <.icon name="hero-squares-2x2" class="size-5" />
+          <div class="flex items-center justify-center text-sky-500">
+            <.icon name={@icon} class="size-8" />
           </div>
           <h2 class="text-lg font-bold leading-tight tracking-tight text-slate-800 dark:text-slate-100">
-            Spazio Solazzo
+            {@title}
           </h2>
         </.link>
 

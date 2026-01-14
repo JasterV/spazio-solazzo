@@ -54,7 +54,9 @@ else
       You can generate one by calling: mix phx.gen.secret
       """
 
-  host = System.get_env("PHX_HOST") || "example.com"
+  host =
+    System.get_env("PHX_HOST") ||
+      raise "Missing environment variable `PHX_HOST`!"
 
   config :spazio_solazzo, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
 

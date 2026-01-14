@@ -1,0 +1,66 @@
+name: Deploy Review App
+on:
+  # Run this workflow on every PR event. Existing review apps will be updated when the PR is updated.
+  pull_request:
+    types: [opened, reopened, synchronize, closed]
+
+env:
+  FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+  FLY_REGION: ams
+  FLY_ORG: personal
+  APP_NAME: pr-${{ github.event.pull_request.number }}-jasterv-spazio-solazzo
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+    secrets: inherit
+
+  review_app:
+    runs-on: ubuntu-latest
+    needs: ci
+    outputs:
+      url: ${{ steps.deploy.outputs.url }}
+    # Only run one deployment at a time per PR.
+    concurrency:
+      group: pr-${{ github.event.number }}
+
+    # Deploying apps with this "review" environment allows the URL for the app to be displayed in the PR UI.
+    # Feel free to change the name of this environment.
+    environment:
+      name: review
+      # The script in the `deploy` sets the URL output for each review app.
+      url: ${{ steps.deploy.outputs.url }}
+
+    steps:
+      - name: Get code
+        uses: actions/checkout@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Install flyctl CLI
+        uses: superfly/flyctl-actions/setup-flyctl@master
+      - name: Authenticate with Fly.io registry
+        run: flyctl auth docker
+      - name: Create Fly App before pushing docker image to registry
+        run: |
+          flyctl apps create ${{ env.APP_NAME }} --org ${{ env.FLY_ORG }} || true
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          tags: registry.fly.io/${{ env.APP_NAME }}:1.19
+          context: .
+      - name: Deploy PR app to Fly.io
+        id: deploy
+        uses: superfly/fly-pr-review-apps@1.5.0
+        with:
+          name: ${{ env.APP_NAME }}
+          config: fly.review.toml
+          secrets: |
+            TOKEN_SIGNING_SECRET=${{ secrets.TOKEN_SIGNING_SECRET }}
+            ADMIN_EMAIL=${{ secrets.ADMIN_EMAIL }}
+            SPAZIO_SOLAZZO_EMAIL=${{ secrets.SPAZIO_SOLAZZO_EMAIL }}
+            FRONT_OFFICE_PHONE_NUMBER=${{ secrets.FRONT_OFFICE_PHONE_NUMBER }}
+            RESEND_API_KEY=${{ secrets.RESEND_API_KEY }}
+            DATABASE_URL=${{ secrets.DATABASE_URL }}
+            SECRET_KEY_BASE=${{ secrets.SECRET_KEY_BASE }}
+            PHX_HOST=${{ env.APP_NAME }}.fly.dev
