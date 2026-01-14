@@ -80,6 +80,9 @@ jobs:
     concurrency:
       group: pr-${{ github.event.number }}
 
+    environment:
+      name: review
+
     steps:
       - name: Destroy PR app
         uses: superfly/fly-pr-review-apps@1.5.0
