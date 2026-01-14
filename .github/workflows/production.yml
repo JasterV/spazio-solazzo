@@ -39,7 +39,7 @@ jobs:
         with:
           push: true
           context: .
-          tags: registry.fly.io/${{ github.repository }}:sha-${{ github.sha }}
+          tags: registry.fly.io/spazio-solazzo:sha-${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
