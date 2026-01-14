@@ -1,0 +1,45 @@
+# See https://fly.io/docs/app-guides/continuous-deployment-with-github-actions/
+
+name: Production CI
+on:
+  push:
+    branches:
+      - main
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+    secrets: inherit
+
+  deploy:
+    name: Deploy app
+    needs: ci
+    runs-on: ubuntu-latest
+    concurrency: deploy-group # optional: ensure only one action runs at a time
+
+    environment:
+      name: production
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Set Fly secrets
+        run: |
+          flyctl secrets set \
+            TOKEN_SIGNING_SECRET="$TOKEN_SIGNING_SECRET" \
+            ADMIN_EMAIL="$ADMIN_EMAIL" \
+            SPAZIO_SOLAZZO_EMAIL="$SPAZIO_SOLAZZO_EMAIL" \
+            FRONT_OFFICE_PHONE_NUMBER="$FRONT_OFFICE_PHONE_NUMBER" \
+            RESEND_API_KEY="$RESEND_API_KEY" \
+            DATABASE_URL="$DATABASE_URL"
+        env:
+          TOKEN_SIGNING_SECRET: ${{ secrets.TOKEN_SIGNING_SECRET }}
+          ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+          SPAZIO_SOLAZZO_EMAIL: ${{ secrets.SPAZIO_SOLAZZO_EMAIL }}
+          FRONT_OFFICE_PHONE_NUMBER: ${{ secrets.FRONT_OFFICE_PHONE_NUMBER }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - run: flyctl deploy --remote-only
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
