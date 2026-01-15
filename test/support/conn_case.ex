@@ -31,6 +31,9 @@ defmodule SpazioSolazzoWeb.ConnCase do
 
       # Import DataCase helpers for email testing
       import SpazioSolazzo.DataCase, only: [pop_email: 0, pop_email: 2]
+
+      # Import authentication helpers
+      import SpazioSolazzo.AuthHelpers
     end
   end
 

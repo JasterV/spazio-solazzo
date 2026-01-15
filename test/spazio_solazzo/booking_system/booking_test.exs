@@ -4,8 +4,6 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
 
   alias SpazioSolazzo.BookingSystem
   alias SpazioSolazzo.BookingSystem.Booking
-  alias SpazioSolazzo.Accounts.User
-
   alias SpazioSolazzo.BookingSystem.Booking.EmailWorker
 
   setup do
@@ -20,13 +18,7 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
         space.id
       )
 
-    {:ok, user} =
-      SpazioSolazzo.Repo.insert(%User{
-        id: Ash.UUID.generate(),
-        email: "test@example.com",
-        name: "Test User",
-        phone_number: "+1234567890"
-      })
+    user = register_user("test@example.com")
 
     %{space: space, asset: asset, time_slot: time_slot, user: user}
   end
@@ -236,7 +228,7 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
     # Load the booking with the user relationship
     {:ok, booking_with_user} = Ash.load(booking, :user, authorize?: false)
     assert booking_with_user.user.id == user.id
-    assert to_string(booking_with_user.user.email) == user.email
+    assert booking_with_user.user.email == user.email
     assert booking_with_user.user.name == user.name
   end
 end

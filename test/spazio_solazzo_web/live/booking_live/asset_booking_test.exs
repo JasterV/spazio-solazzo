@@ -3,7 +3,6 @@ defmodule SpazioSolazzoWeb.BookingLive.AssetBookingTest do
   import Phoenix.LiveViewTest
 
   alias SpazioSolazzo.BookingSystem
-  alias SpazioSolazzo.Accounts.User
 
   setup %{conn: conn} do
     {:ok, space} = BookingSystem.create_space("TestSpace", "test-space", "Test description")
@@ -20,26 +19,10 @@ defmodule SpazioSolazzoWeb.BookingLive.AssetBookingTest do
         space.id
       )
 
-    conn = Plug.Test.init_test_session(conn, %{})
-    conn = log_in_user(conn)
+    user = register_user("test@example.com", "Test User", "+1234567890")
+    conn = log_in_user(conn, user)
 
     %{space: space, asset: asset, slot: slot, conn: conn}
-  end
-
-  defp log_in_user(conn) do
-    {:ok, user} =
-      SpazioSolazzo.Repo.insert(%User{
-        id: Ash.UUID.generate(),
-        email: "test@example.com",
-        name: "Test User",
-        phone_number: "+1234567890"
-      })
-
-    {:ok, token, _claims} = AshAuthentication.Jwt.token_for_user(user)
-
-    conn
-    |> Plug.Test.init_test_session(%{})
-    |> Plug.Conn.put_session("user_token", token)
   end
 
   describe "AssetBooking mount" do
@@ -105,7 +88,11 @@ defmodule SpazioSolazzoWeb.BookingLive.AssetBookingTest do
 
       view
       |> element("#booking-form")
-      |> render_submit(%{"customer_comment" => "test comment"})
+      |> render_submit(%{
+        "customer_name" => "Test User",
+        "customer_phone" => "+1234567890",
+        "customer_comment" => "test comment"
+      })
 
       assert has_element?(view, "#success-modal")
 
@@ -222,6 +209,115 @@ defmodule SpazioSolazzoWeb.BookingLive.AssetBookingTest do
 
       # Calendar should have empty divs for days not in current month
       assert html =~ ~s(<div class="p-2"></div>)
+    end
+  end
+
+  describe "AssetBooking without phone number" do
+    setup %{conn: conn} do
+      # Create a separate connection with a user without phone number
+      user = register_user("nophone@example.com", "User Without Phone", nil)
+      conn = log_in_user(conn, user)
+
+      %{conn: conn}
+    end
+
+    test "user without phone number can view booking form", %{conn: conn, asset: asset} do
+      {:ok, view, _html} = live(conn, ~p"/book/asset/#{asset.id}")
+
+      view
+      |> element("button[phx-click='select_slot']")
+      |> render_click()
+
+      assert has_element?(view, "#booking-modal")
+      assert has_element?(view, "input[name='customer_name']")
+      assert has_element?(view, "input[name='customer_phone']")
+      assert has_element?(view, "textarea[name='customer_comment']")
+    end
+
+    test "user without phone number can create booking without providing phone", %{
+      conn: conn,
+      asset: asset
+    } do
+      {:ok, view, _html} = live(conn, ~p"/book/asset/#{asset.id}")
+
+      view
+      |> element("button[phx-click='select_slot']")
+      |> render_click()
+
+      assert has_element?(view, "#booking-modal")
+
+      # Submit booking with name but no phone
+      view
+      |> element("#booking-form")
+      |> render_submit(%{
+        "customer_name" => "User Without Phone",
+        "customer_phone" => "",
+        "customer_comment" => "test comment"
+      })
+
+      assert has_element?(view, "#success-modal")
+
+      assert {:ok, [booking]} =
+               BookingSystem.list_active_asset_bookings_by_date(asset.id, Date.utc_today())
+
+      assert booking.customer_email == "nophone@example.com"
+      assert booking.customer_name == "User Without Phone"
+      assert booking.customer_phone == nil or booking.customer_phone == ""
+      assert booking.customer_comment == "test comment"
+    end
+
+    test "user without phone number can edit name in booking form", %{
+      conn: conn,
+      asset: asset
+    } do
+      {:ok, view, _html} = live(conn, ~p"/book/asset/#{asset.id}")
+
+      view
+      |> element("button[phx-click='select_slot']")
+      |> render_click()
+
+      # Change the name
+      view
+      |> element("#booking-form")
+      |> render_submit(%{
+        "customer_name" => "Different Name",
+        "customer_phone" => "",
+        "customer_comment" => ""
+      })
+
+      assert has_element?(view, "#success-modal")
+
+      assert {:ok, [booking]} =
+               BookingSystem.list_active_asset_bookings_by_date(asset.id, Date.utc_today())
+
+      assert booking.customer_name == "Different Name"
+    end
+
+    test "user without phone number can optionally add phone during booking", %{
+      conn: conn,
+      asset: asset
+    } do
+      {:ok, view, _html} = live(conn, ~p"/book/asset/#{asset.id}")
+
+      view
+      |> element("button[phx-click='select_slot']")
+      |> render_click()
+
+      # Add phone number during booking
+      view
+      |> element("#booking-form")
+      |> render_submit(%{
+        "customer_name" => "User Without Phone",
+        "customer_phone" => "+39 123 456 789",
+        "customer_comment" => ""
+      })
+
+      assert has_element?(view, "#success-modal")
+
+      assert {:ok, [booking]} =
+               BookingSystem.list_active_asset_bookings_by_date(asset.id, Date.utc_today())
+
+      assert booking.customer_phone == "+39 123 456 789"
     end
   end
 end

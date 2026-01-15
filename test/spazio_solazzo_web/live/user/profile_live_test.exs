@@ -8,8 +8,9 @@ defmodule SpazioSolazzoWeb.ProfileLiveTest do
   alias SpazioSolazzo.BookingSystem.Booking
 
   setup %{conn: conn} do
-    conn = Plug.Test.init_test_session(conn, %{})
-    {conn, user} = log_in_user(conn)
+    user = register_user("test@example.com", "Test User", "+123456789")
+    conn = log_in_user(conn, user)
+
     %{user: user, conn: conn}
   end
 
@@ -189,25 +190,6 @@ defmodule SpazioSolazzoWeb.ProfileLiveTest do
 
       assert {:error, _} = Ash.get(Booking, booking_id)
     end
-  end
-
-  defp log_in_user(conn) do
-    user =
-      SpazioSolazzo.Repo.insert!(%User{
-        id: Ash.UUID.generate(),
-        email: "test@example.com",
-        name: "Test User",
-        phone_number: "+1234567890"
-      })
-
-    {:ok, token, _claims} = AshAuthentication.Jwt.token_for_user(user)
-
-    conn =
-      conn
-      |> Plug.Test.init_test_session(%{})
-      |> Plug.Conn.put_session("user_token", token)
-
-    {conn, user}
   end
 
   defp create_booking_fixtures do

@@ -26,6 +26,7 @@ defmodule SpazioSolazzo.DataCase do
       import Ecto.Changeset
       import Ecto.Query
       import SpazioSolazzo.DataCase
+      import SpazioSolazzo.AuthHelpers
     end
   end
 
