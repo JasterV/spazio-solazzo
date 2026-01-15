@@ -30,6 +30,7 @@ defmodule SpazioSolazzoWeb.BookingFormLiveComponent do
     {:noreply, socket}
   end
 
+  # TODO: Make name and phone fields editable
   def render(assigns) do
     ~H"""
     <div>
