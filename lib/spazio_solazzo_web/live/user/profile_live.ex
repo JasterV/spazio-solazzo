@@ -26,10 +26,14 @@ defmodule SpazioSolazzoWeb.ProfileLive do
   def handle_event("save_profile", %{"form" => form_params}, socket) do
     case Form.submit(socket.assigns.profile_form, params: form_params) do
       {:ok, updated_user} ->
+        form =
+          Accounts.form_to_update_profile(updated_user, actor: updated_user)
+          |> to_form()
+
         {:noreply,
          socket
          |> assign(:current_user, updated_user)
-         |> assign(:profile_form, to_form(form_params))
+         |> assign(:profile_form, form)
          |> put_flash(:info, "Profile updated successfully")}
 
       {:error, form} ->

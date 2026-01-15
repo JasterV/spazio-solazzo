@@ -52,7 +52,7 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
       argument :date, :date, allow_nil?: false
       argument :customer_name, :string, allow_nil?: false
       argument :customer_email, :string, allow_nil?: false
-      argument :customer_phone, :string, allow_nil?: false
+      argument :customer_phone, :string, allow_nil?: true
       argument :customer_comment, :string, allow_nil?: true
 
       change manage_relationship(:time_slot_template_id, :time_slot_template,
@@ -167,7 +167,7 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
     attribute :customer_email, :string, allow_nil?: false
     attribute :start_time, :time, allow_nil?: false
     attribute :end_time, :time, allow_nil?: false
-    attribute :customer_phone, :string, allow_nil?: false
+    attribute :customer_phone, :string, allow_nil?: true
     attribute :customer_comment, :string, allow_nil?: true
 
     attribute :state, :atom do

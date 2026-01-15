@@ -83,7 +83,7 @@ defmodule SpazioSolazzo.Accounts.User do
       change AshAuthentication.Strategy.MagicLink.SignInChange
 
       # Conditionally validate name and phone_number for new users
-      change SpazioSolazzo.Accounts.User.Changes.ValidateRegistrationFields
+      change SpazioSolazzo.Accounts.User.Changes.ParseRegistrationFields
 
       change {AshAuthentication.Strategy.RememberMe.MaybeGenerateTokenChange,
               strategy_name: :remember_me}
@@ -149,7 +149,7 @@ defmodule SpazioSolazzo.Accounts.User do
     end
 
     attribute :phone_number, :string do
-      allow_nil? false
+      allow_nil? true
       public? true
     end
   end

@@ -89,7 +89,7 @@ defmodule SpazioSolazzoWeb.BookingFormLiveComponent do
                     <.icon name="hero-phone" class="size-5 text-sky-600 dark:text-sky-400" />
                   </div>
                   <span class="text-sm font-medium text-slate-700 dark:text-slate-300 truncate">
-                    {@current_user.phone_number}
+                    {@current_user.phone_number || "-"}
                   </span>
                 </div>
               </div>

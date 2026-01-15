@@ -98,20 +98,21 @@
                   for="phone_number"
                   class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
                 >
-                  Phone Number <span class="text-rose-500">*</span>
+                  Phone Number (Optional)
                 </label>
                 <div class="relative">
                   <input
                     type="tel"
                     name="phone_number"
                     id="phone_number"
-                    required
                     class="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-shadow"
-                    placeholder="+39 123 456 7890"
+                    placeholder="+39"
                   />
                   <div class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
                     <.icon name="hero-phone" class="size-5 text-slate-400 dark:text-slate-500" />
                   </div>
+                  <!-- TODO: Add a text here letting the user know that their phone number won't be used for any commercial purposes -->
+                  <!-- but only to contact them personally in case of any problems with a booking -->
                 </div>
               </div>
 
