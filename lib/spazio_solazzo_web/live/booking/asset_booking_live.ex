@@ -55,7 +55,7 @@ defmodule SpazioSolazzoWeb.AssetBookingLive do
     {:noreply, assign(socket, show_success_modal: false)}
   end
 
-  def handle_info({:create_booking, comment}, socket) do
+  def handle_info({:create_booking, booking_data}, socket) do
     current_user = socket.assigns.current_user
 
     result =
@@ -64,10 +64,10 @@ defmodule SpazioSolazzoWeb.AssetBookingLive do
         socket.assigns.asset.id,
         current_user.id,
         socket.assigns.selected_date,
-        current_user.name,
+        booking_data.customer_name,
         current_user.email,
-        current_user.phone_number,
-        comment
+        booking_data.customer_phone,
+        booking_data.customer_comment
       )
 
     case result do

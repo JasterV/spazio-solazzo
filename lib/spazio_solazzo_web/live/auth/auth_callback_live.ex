@@ -74,12 +74,17 @@ defmodule SpazioSolazzoWeb.AuthCallbackLive do
       ) do
     %{token: token} = socket.assigns
     remember_me = Map.get(args, "remember_me") == "on"
+    name = String.trim(name)
+    phone_number = String.trim(phone_number)
 
-    {:noreply,
-     redirect(socket,
-       to:
-         ~p"/auth/magic/sign-in?token=#{token}&name=#{name}&phone_number=#{phone_number}&remember_me=#{remember_me}"
-     )}
+    url =
+      if phone_number == "" do
+        ~p"/auth/magic/sign-in?token=#{token}&name=#{name}&remember_me=#{remember_me}"
+      else
+        ~p"/auth/magic/sign-in?token=#{token}&name=#{name}&phone_number=#{phone_number}&remember_me=#{remember_me}"
+      end
+
+    {:noreply, redirect(socket, to: url)}
   end
 
   defp extract_email_from_token(token) do

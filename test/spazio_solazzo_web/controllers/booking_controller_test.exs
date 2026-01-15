@@ -3,7 +3,6 @@ defmodule SpazioSolazzoWeb.BookingControllerTest do
 
   alias SpazioSolazzo.BookingSystem
   alias SpazioSolazzo.BookingSystem.Booking.Token
-  alias SpazioSolazzo.Accounts.User
 
   setup do
     unique_id = :erlang.unique_integer([:positive, :monotonic])
@@ -21,13 +20,7 @@ defmodule SpazioSolazzoWeb.BookingControllerTest do
         space.id
       )
 
-    {:ok, user} =
-      SpazioSolazzo.Repo.insert(%User{
-        id: Ash.UUID.generate(),
-        email: "test@example.com",
-        name: "Test User",
-        phone_number: "+1234567890"
-      })
+    user = register_user("test@example.com", "Test User", "+1234567890")
 
     %{space: space, asset: asset, time_slot: time_slot, user: user}
   end

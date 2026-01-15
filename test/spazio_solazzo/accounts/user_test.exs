@@ -9,7 +9,7 @@ defmodule SpazioSolazzo.Accounts.UserTest do
 
   describe "update_profile" do
     test "allows user to update their own name and phone_number" do
-      user = create_test_user("test@example.com")
+      user = register_user("test@example.com")
 
       {:ok, updated_user} =
         Accounts.update_profile(user, "Updated Name", "+9876543210", actor: user)
@@ -20,8 +20,8 @@ defmodule SpazioSolazzo.Accounts.UserTest do
     end
 
     test "prevents user from updating another user's profile" do
-      user1 = create_test_user("user1@example.com")
-      user2 = create_test_user("user2@example.com")
+      user1 = register_user("user1@example.com")
+      user2 = register_user("user2@example.com")
 
       result =
         Accounts.update_profile(user2, "Hacker", "1235837", actor: user1)
@@ -30,7 +30,7 @@ defmodule SpazioSolazzo.Accounts.UserTest do
     end
 
     test "validates that name is present" do
-      user = create_test_user("test@example.com")
+      user = register_user("test@example.com")
 
       result =
         Accounts.update_profile(user, "", "+9876543210", actor: user)
@@ -42,7 +42,7 @@ defmodule SpazioSolazzo.Accounts.UserTest do
 
   describe "terminate_account with delete_history: false (anonymization)" do
     test "deletes user but preserves bookings with nullified user_id" do
-      user = create_test_user("delete@example.com")
+      user = register_user("delete@example.com")
       {_space, asset, time_slot} = create_booking_fixtures()
 
       {:ok, booking1} =
@@ -87,7 +87,7 @@ defmodule SpazioSolazzo.Accounts.UserTest do
     end
 
     test "cancels future confirmed bookings before anonymizing" do
-      user = create_test_user("cancel@example.com")
+      user = register_user("cancel@example.com")
       {_space, asset, time_slot} = create_booking_fixtures()
 
       future_date = Date.add(Date.utc_today(), 7)
@@ -133,7 +133,7 @@ defmodule SpazioSolazzo.Accounts.UserTest do
 
   describe "terminate_account with delete_history: true (hard delete)" do
     test "deletes user and all associated bookings permanently" do
-      user = create_test_user("harddelete@example.com")
+      user = register_user("harddelete@example.com")
       {_space, asset, time_slot} = create_booking_fixtures()
 
       {:ok, booking1} =
@@ -173,25 +173,13 @@ defmodule SpazioSolazzo.Accounts.UserTest do
 
   describe "terminate_account authorization" do
     test "prevents user from deleting another user's account" do
-      user1 = create_test_user("user1@example.com")
-      user2 = create_test_user("user2@example.com")
+      user1 = register_user("user1@example.com")
+      user2 = register_user("user2@example.com")
 
       result = Accounts.terminate_account(user2, false, actor: user1)
 
       assert {:error, %Ash.Error.Forbidden{}} = result
     end
-  end
-
-  defp create_test_user(email) do
-    {:ok, user} =
-      SpazioSolazzo.Repo.insert(%User{
-        id: Ash.UUID.generate(),
-        email: email,
-        name: "Test User",
-        phone_number: "+1234567890"
-      })
-
-    user
   end
 
   defp create_booking_fixtures do
