@@ -1,6 +1,11 @@
 defmodule SpazioSolazzoWeb.CarouselLiveComponent do
   @moduledoc """
   A LiveComponent for image carousels with navigation controls.
+
+  ## Configuration Options
+  - `images`: List of image URLs (required)
+  - `height`: Height of the carousel (default: "650px")
+  - `rounded`: Rounded corners style (default: "none", options: "none", "2xl")
   """
   use Phoenix.LiveComponent
 
@@ -11,7 +16,9 @@ defmodule SpazioSolazzoWeb.CarouselLiveComponent do
     {:ok,
      socket
      |> assign(assigns)
-     |> assign_new(:carousel_index, fn -> 0 end)}
+     |> assign_new(:carousel_index, fn -> 0 end)
+     |> assign_new(:height, fn -> "650px" end)
+     |> assign_new(:rounded, fn -> "none" end)}
   end
 
   @impl true
@@ -31,7 +38,14 @@ defmodule SpazioSolazzoWeb.CarouselLiveComponent do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="relative w-full h-full">
+    <div
+      class={[
+        "relative w-full overflow-hidden",
+        @rounded == "2xl" && "rounded-2xl",
+        @rounded == "3xl" && "rounded-3xl"
+      ]}
+      style={"height: #{@height};"}
+    >
       <div
         class="flex h-full transition-transform duration-500 ease-in-out"
         style={"transform: translateX(-#{@carousel_index * 100}%);"}
@@ -43,12 +57,13 @@ defmodule SpazioSolazzoWeb.CarouselLiveComponent do
         >
         </div>
       </div>
+
       <%= if length(@images) > 1 do %>
         <button
           phx-click="carousel_prev"
           phx-target={@myself}
           aria-label="Previous image"
-          class="absolute z-999 left-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur-sm p-2 rounded-full text-white transition-colors cursor-pointer"
+          class="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur-sm p-2 rounded-full text-white transition-colors"
         >
           <.icon name="hero-chevron-left" class="w-6 h-6" />
         </button>
@@ -56,7 +71,7 @@ defmodule SpazioSolazzoWeb.CarouselLiveComponent do
           phx-click="carousel_next"
           phx-target={@myself}
           aria-label="Next image"
-          class="absolute z-999 right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur-sm p-2 rounded-full text-white transition-colors cursor-pointer"
+          class="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur-sm p-2 rounded-full text-white transition-colors"
         >
           <.icon name="hero-chevron-right" class="w-6 h-6" />
         </button>

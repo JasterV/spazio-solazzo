@@ -1,107 +1,106 @@
 <Layouts.app flash={@flash} current_user={@current_user}>
-  <div class="relative flex min-h-screen flex-col">
-    <section class="relative">
-      <div class="mx-auto max-w-[1200px] px-6 py-8 md:py-12">
-        <div class="relative overflow-hidden rounded-2xl bg-slate-800 min-h-[560px] flex flex-col items-center justify-center text-center p-8 md:p-16 isolate shadow-2xl shadow-black/20">
-          <div
-            class="absolute inset-0 z-[-1] bg-cover bg-center"
-            style="background-image: linear-gradient(rgba(15, 23, 42, 0.5) 0%, rgba(15, 23, 42, 0.9) 100%), url('https://lh3.googleusercontent.com/aida-public/AB6AXuBVz7hjSfL7xWWBlBXpSrRPuvuZmh5BA_08oQ4rFz40B3LzNT_5mEPpp7Rijgny5L9PuA2WdReFGkAVHYKwAooKRsKVNl2Z0Af7sEtbJexf3vy_ztOz6aQVY48nllXQtVOzowyihYcrTZWJkV4ZT6m6gTCzMovPPQsv-_Lk1UTwGUED4kHXQgnZQuvEUcEprvAcBTCpPHRq7cn3QVldkdAlDfVpoQUQfKMlfuAJHyrHHlFkGf5NlRiH0q-l8QAHCQ8T16DiZi5R3j9I');"
-          >
+  <div class="relative flex min-h-screen flex-col bg-base-100">
+    <main class="flex-1 bg-base-100">
+      <section class="bg-base-100">
+        <div class="mx-auto max-w-[1200px] px-6 pt-25 pb-20 text-center bg-base-100">
+          <div class="flex justify-center">
+            <img
+              alt="Spazio Solazzo"
+              class="hero-logo-img drop-shadow-sm"
+              src="/images/logo_spazio_solazzo.svg"
+            />
           </div>
+          <p class="text-lg md:text-xl text-earth font-light leading-relaxed max-w-2xl mx-auto mb-12">
+            A space in the heart of Palermo where people meet to work, share ideas and spend time together.
+          </p>
+          <a
+            href="#our-spaces"
+            class="btn btn-primary h-14 px-12 rounded-full text-white font-bold shadow-xl uppercase text-sm tracking-widest"
+          >
+            Explore Spaces <.icon name="hero-chevron-down" class="size-5" />
+          </a>
+        </div>
 
-          <div class="flex flex-col items-center gap-6 max-w-3xl">
-            <h1 class="text-white text-5xl md:text-7xl font-black leading-tight tracking-tight">
-              Creativity
-              <span class="text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-sky-400">
-                lives here
-              </span>
-            </h1>
-            <p class="text-slate-300 text-lg md:text-xl font-normal max-w-2xl leading-relaxed">
-              Work, Meet, and Jam in the heart of the city. Join a grounded community of innovators at Spazio Solazzo.
-            </p>
-            <div class="flex flex-col sm:flex-row gap-4 mt-4">
-              <a
-                href="#our-spaces"
-                class="h-12 px-8 rounded-xl bg-sky-500 hover:bg-sky-600 text-white font-bold transition-all shadow-lg shadow-sky-500/30 flex items-center gap-2"
-              >
-                Explore Spaces <.icon name="hero-arrow-down" class="size-5" />
-              </a>
+        <div class="w-full mb-24">
+          <.live_component
+            module={SpazioSolazzoWeb.CarouselLiveComponent}
+            id="home-carousel"
+            images={@carousel_images}
+            height="650px"
+            rounded="none"
+          />
+        </div>
+      </section>
+
+      <section class="bg-base-100" id="our-spaces">
+        <div class="mx-auto max-w-[1200px] px-6 pt-12 pb-12 bg-base-100">
+          <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-base-200 pb-10">
+            <div>
+              <h2 class="text-4xl font-extrabold tracking-tight text-plum-dark">
+                Our Natural Habitats
+              </h2>
+              <p class="mt-3 text-lg font-light text-earth">
+                Sophisticated environments tailored for your creative flow.
+              </p>
             </div>
           </div>
         </div>
-      </div>
-    </section>
 
-    <div class="mx-auto max-w-[1200px] px-6 pt-10 pb-6" id="our-spaces">
-      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-6">
-        <div>
-          <h2 class="text-slate-900 dark:text-slate-100 text-3xl font-bold tracking-tight">
-            Our Spaces
-          </h2>
-          <p class="text-slate-500 dark:text-slate-400 mt-2">
-            Choose the perfect environment for your needs.
-          </p>
+        <div class="mx-auto max-w-[1200px] px-6 pb-24 space-y-20 bg-base-100" id="spaces">
+          <%= if @coworking_space do %>
+            <.space_card
+              id="coworking"
+              title={@coworking_space.name}
+              description={@coworking_space.description}
+              price="15"
+              time_unit="4 hours"
+              image_url="https://lh3.googleusercontent.com/aida-public/AB6AXuApty1_MYrfkL2mpGOAKKvlxo-7B-Y6nnko3DA4UDhJ-dCSjcyOLMFy1C0xZmh1_Pu9TEEFj25GkJ74dR1Sb_x4sY9mDjecKICFvwHFgHkMFVMigsZjldl9rH34x4tZhdpWvUGCo32V1P5_0uwtXVPohKMbvIbBxr5nsPoEy_d7X4WgIMOA1Nv2bwDgkqbsG4X3noBx-riLqcnREEl3cb0kbtquJZJ6pYHfbimuNyuxtfQHzrG8KOMHe3YPoIgWt43mgPtgPL9gswni"
+              primary_label="Coworking"
+              primary_label_variant={:secondary}
+              image_position={:left}
+              booking_url={"/#{@coworking_space.slug}"}
+              asset_type="Desk"
+            />
+          <% end %>
+
+          <%= if @meeting_space do %>
+            <.space_card
+              id="meeting"
+              title={@meeting_space.name}
+              description={@meeting_space.description}
+              price="40"
+              time_unit="hour"
+              image_url="https://lh3.googleusercontent.com/aida-public/AB6AXuDmh_AkVuUoICqpHk1NdLuLdi0xQBOC8Hy9PrsSNz956igHFRhbNGsB8k0vSLe2U2NW1sxRVZm_dwR27Q4Db_f21XbYkLtfiRYob-j4ran1rTBB0bQAz4QLFSO1yL_cPhDIpAyvC069mDQ33-ckZgZ_yvFsIK_-_0Jj2NEOnDie684uaR7vKuiBWlsr-JmAsPzUp7Aik7Qbzozune348nBz1bvWkBNMCpMO3JV8hrYBo1i6JlUiGSuP3-5fWXKt8dKhxPUN-amjLFgh"
+              primary_label="Meeting"
+              primary_label_variant={:secondary}
+              secondary_label="Up to 8 people"
+              secondary_label_icon="hero-user-group"
+              image_position={:right}
+              booking_url={"/#{@meeting_space.slug}"}
+              asset_type="Room"
+            />
+          <% end %>
+
+          <%= if @music_space do %>
+            <.space_card
+              id="music"
+              title={@music_space.name}
+              description={@music_space.description}
+              price="25"
+              time_unit="hour"
+              image_url="https://lh3.googleusercontent.com/aida-public/AB6AXuBBJs1jEAgwwiIvJD00kx3aA9pfI-o2fXT-eZ9dEQeHNHhvwQdVqrwsqwNvCR69rIYUNBKf-uY1dqXZSvXaXoE__slTLMqGHkUzSQSXql9PwhW3cLoMMv1wtj52qDORHy-0NE2_qbTLxm051aTxGLloQKUCIklZ0EMKxs8lvMpnLisnRZBkSMyUVcTBcQu16gZw3eDuMGUtXaTXskrQFGwDcThTCCF4TZiNAmgEk87ae3VgEwfJ2zBVeyHQ-BfMo5KHRtNl6lbzBT9N"
+              primary_label="Music"
+              primary_label_variant={:primary}
+              secondary_label="Not Soundproof"
+              secondary_label_icon="hero-speaker-x-mark"
+              note="Note: This is not a professional studio and is not soundproofed."
+              image_position={:left}
+              booking_url={"/#{@music_space.slug}"}
+              asset_type="Slot"
+            />
+          <% end %>
         </div>
-        <div class="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800">
-          <.icon name="hero-information-circle" class="size-[18px]" />
-          <span>Payment due in person upon arrival</span>
-        </div>
-      </div>
-    </div>
-
-    <section class="mx-auto max-w-[1200px] px-6 pb-20 space-y-8" id="spaces">
-      <%= if @coworking_space do %>
-        <.space_card
-          id="coworking"
-          title={@coworking_space.name}
-          description={@coworking_space.description}
-          price="15"
-          time_unit="4 hours"
-          image_url="https://lh3.googleusercontent.com/aida-public/AB6AXuApty1_MYrfkL2mpGOAKKvlxo-7B-Y6nnko3DA4UDhJ-dCSjcyOLMFy1C0xZmh1_Pu9TEEFj25GkJ74dR1Sb_x4sY9mDjecKICFvwHFgHkMFVMigsZjldl9rH34x4tZhdpWvUGCo32V1P5_0uwtXVPohKMbvIbBxr5nsPoEy_d7X4WgIMOA1Nv2bwDgkqbsG4X3noBx-riLqcnREEl3cb0kbtquJZJ6pYHfbimuNyuxtfQHzrG8KOMHe3YPoIgWt43mgPtgPL9gswni"
-          primary_label="Workspace"
-          primary_label_variant={:primary}
-          image_position={:left}
-          booking_url={"/#{@coworking_space.slug}"}
-          asset_type="Desk"
-        />
-      <% end %>
-
-      <%= if @meeting_space do %>
-        <.space_card
-          id="meeting"
-          title={@meeting_space.name}
-          description={@meeting_space.description}
-          price="40"
-          time_unit="hour"
-          image_url="https://lh3.googleusercontent.com/aida-public/AB6AXuDmh_AkVuUoICqpHk1NdLuLdi0xQBOC8Hy9PrsSNz956igHFRhbNGsB8k0vSLe2U2NW1sxRVZm_dwR27Q4Db_f21XbYkLtfiRYob-j4ran1rTBB0bQAz4QLFSO1yL_cPhDIpAyvC069mDQ33-ckZgZ_yvFsIK_-_0Jj2NEOnDie684uaR7vKuiBWlsr-JmAsPzUp7Aik7Qbzozune348nBz1bvWkBNMCpMO3JV8hrYBo1i6JlUiGSuP3-5fWXKt8dKhxPUN-amjLFgh"
-          primary_label="Business"
-          primary_label_variant={:secondary}
-          secondary_label="Up to 8 people"
-          secondary_label_icon="hero-user-group"
-          image_position={:right}
-          booking_url={"/#{@meeting_space.slug}"}
-          asset_type="Room"
-        />
-      <% end %>
-
-      <%= if @music_space do %>
-        <.space_card
-          id="music"
-          title={@music_space.name}
-          description={@music_space.description}
-          price="25"
-          time_unit="hour"
-          image_url="https://lh3.googleusercontent.com/aida-public/AB6AXuBBJs1jEAgwwiIvJD00kx3aA9pfI-o2fXT-eZ9dEQeHNHhvwQdVqrwsqwNvCR69rIYUNBKf-uY1dqXZSvXaXoE__slTLMqGHkUzSQSXql9PwhW3cLoMMv1wtj52qDORHy-0NE2_qbTLxm051aTxGLloQKUCIklZ0EMKxs8lvMpnLisnRZBkSMyUVcTBcQu16gZw3eDuMGUtXaTXskrQFGwDcThTCCF4TZiNAmgEk87ae3VgEwfJ2zBVeyHQ-BfMo5KHRtNl6lbzBT9N"
-          primary_label="Jam Space"
-          primary_label_variant={:accent}
-          secondary_label="Not Soundproof"
-          secondary_label_icon="hero-speaker-x-mark"
-          note="Note: This is not a professional studio and is not soundproofed."
-          image_position={:left}
-          booking_url={"/#{@music_space.slug}"}
-          asset_type="Slot"
-        />
-      <% end %>
-    </section>
+      </section>
+    </main>
   </div>
 </Layouts.app>

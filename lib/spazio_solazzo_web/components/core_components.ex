@@ -256,12 +256,13 @@ defmodule SpazioSolazzoWeb.CoreComponents do
     ~H"""
     <div class="fieldset mb-2">
       <label>
-        <span :if={@label} class="label mb-1">{@label}</span>
+        <span :if={@label} class="label mb-1 text-base-content">{@label}</span>
         <textarea
           id={@id}
           name={@name}
           class={[
-            @class || "w-full textarea",
+            @class ||
+              "textarea textarea-bordered w-full rounded-xl focus:border-secondary !outline-none text-base-content resize-none",
             @errors != [] && (@error_class || "textarea-error")
           ]}
           {@rest}
@@ -309,14 +310,15 @@ defmodule SpazioSolazzoWeb.CoreComponents do
     ~H"""
     <div class="fieldset mb-2">
       <label>
-        <span :if={@label} class="label mb-1 text-gray-900 dark:text-gray-100">{@label}</span>
+        <span :if={@label} class="label mb-1 text-base-content">{@label}</span>
         <input
           type={@type}
           name={@name}
           id={@id}
           value={Phoenix.HTML.Form.normalize_value(@type, @value)}
           class={[
-            @class || "w-full input",
+            @class ||
+              "input input-bordered w-full rounded-xl focus:border-secondary !outline-none text-base-content",
             @errors != [] && (@error_class || "input-error")
           ]}
           {@rest}

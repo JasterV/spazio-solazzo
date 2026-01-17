@@ -27,26 +27,26 @@
   default: false;
   prefersdark: true;
   color-scheme: "dark";
-  --color-base-100: oklch(25% 0.015 200);
-  --color-base-200: oklch(20% 0.012 200);
-  --color-base-300: oklch(15% 0.01 200);
-  --color-base-content: oklch(95% 0.01 200);
-  --color-primary: oklch(58% 0.15 180);
-  --color-primary-content: oklch(98% 0.01 180);
-  --color-secondary: oklch(58% 0.15 180);
-  --color-secondary-content: oklch(98% 0.01 180);
-  --color-accent: oklch(60% 0.12 175);
-  --color-accent-content: oklch(98% 0.01 175);
-  --color-neutral: oklch(30% 0.02 200);
-  --color-neutral-content: oklch(98% 0.01 200);
-  --color-info: oklch(58% 0.158 241.966);
-  --color-info-content: oklch(97% 0.013 236.62);
-  --color-success: oklch(60% 0.118 184.704);
-  --color-success-content: oklch(98% 0.014 180.72);
-  --color-warning: oklch(66% 0.179 58.318);
-  --color-warning-content: oklch(98% 0.022 95.277);
-  --color-error: oklch(58% 0.253 17.585);
-  --color-error-content: oklch(96% 0.015 12.422);
+  --color-base-100: #1a1a1a;
+  --color-base-200: #2a2a2a;
+  --color-base-300: #3a3a3a;
+  --color-base-content: #e5e5e5;
+  --color-primary: #c85a6e;
+  --color-primary-content: #ffffff;
+  --color-secondary: #7bb8db;
+  --color-secondary-content: #ffffff;
+  --color-accent: #95c5db;
+  --color-accent-content: #ffffff;
+  --color-neutral: #9ca3af;
+  --color-neutral-content: #e5e5e5;
+  --color-info: #7bb8db;
+  --color-info-content: #ffffff;
+  --color-success: oklch(65% 0.14 150);
+  --color-success-content: #ffffff;
+  --color-warning: oklch(75% 0.18 50);
+  --color-warning-content: #1a1a1a;
+  --color-error: oklch(65% 0.22 25);
+  --color-error-content: #ffffff;
   --radius-selector: 1rem;
   --radius-field: 1rem;
   --radius-box: 1.5rem;
@@ -62,25 +62,25 @@
   default: true;
   prefersdark: false;
   color-scheme: "light";
-  --color-base-100: oklch(99% 0.005 200);
-  --color-base-200: oklch(97% 0.01 200);
-  --color-base-300: oklch(93% 0.015 200);
-  --color-base-content: oklch(30% 0.02 200);
-  --color-primary: oklch(58% 0.15 180);
-  --color-primary-content: oklch(98% 0.01 180);
-  --color-secondary: oklch(58% 0.15 180);
-  --color-secondary-content: oklch(98% 0.01 180);
-  --color-accent: oklch(62% 0.12 175);
-  --color-accent-content: oklch(98% 0.01 175);
-  --color-neutral: oklch(50% 0.02 200);
-  --color-neutral-content: oklch(98% 0.01 200);
-  --color-info: oklch(62% 0.18 210);
-  --color-info-content: oklch(97% 0.01 210);
+  --color-base-100: #ffffff;
+  --color-base-200: #f3f4f6;
+  --color-base-300: #d4c5b0;
+  --color-base-content: #2b1220;
+  --color-primary: #ac485a;
+  --color-primary-content: #ffffff;
+  --color-secondary: #63a5c9;
+  --color-secondary-content: #ffffff;
+  --color-accent: #7fafc9;
+  --color-accent-content: #ffffff;
+  --color-neutral: #5e503f;
+  --color-neutral-content: #ffffff;
+  --color-info: #63a5c9;
+  --color-info-content: #ffffff;
   --color-success: oklch(70% 0.14 140);
   --color-success-content: oklch(98% 0.01 140);
   --color-warning: oklch(78% 0.18 45);
   --color-warning-content: oklch(20% 0.02 45);
-  --color-error: oklch(58% 0.20 20);
+  --color-error: oklch(58% 0.2 20);
   --color-error-content: oklch(96% 0.01 20);
   --radius-selector: 1rem;
   --radius-field: 1rem;
@@ -101,61 +101,57 @@
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
 /* Make LiveView wrapper divs transparent for layout */
-[data-phx-session], [data-phx-teleported-src] { display: contents }
+[data-phx-session],
+[data-phx-teleported-src] {
+  display: contents;
+}
 
 /* This file is for your main application CSS */
 
-/* New Design Color Palette - Mediterranean Blue Theme */
+/* New Design Color Palette - Spazio Solazzo Theme */
 @theme {
-  /* Primary - Mediterranean Blue */
-  --color-primary: #0ea5e9;
-  --color-primary-hover: #0284c7;
+  /* Primary - Spazio Blue from logo */
+  --color-plum: #ac485a;
+  --color-plum-light: #b16788;
+  --color-plum-dark: #2b1220;
+  --color-sky-accent: #63a5c9;
+  --color-sky-accent-light: #7fafc9;
 
-  /* Accent - Sicilian Lemon/Sun */
-  --color-accent: #facc15;
+  /* Supporting Colors */
+  --color-forest: #1a3c34;
+  --color-cream: #ffffff;
+  --color-oak: #d4c5b0;
+  --color-ash: #f3f4f6;
+  --color-earth: #5e503f;
 
   /* Light Mode Colors */
-  --color-background-light: #f8fafc;
+  --color-background-light: #ffffff;
   --color-card-light: #ffffff;
-  --color-text-primary-light: #0f172a;
-  --color-text-secondary-light: #334155;
-  --color-border-light: #e2e8f0;
+  --color-text-primary-light: #2b1220;
+  --color-text-secondary-light: #5e503f;
+  --color-border-light: #f3f4f6;
 
   /* Dark Mode Colors */
-  --color-background-dark: #0f172a;
-  --color-card-dark: #1e293b;
-  --color-text-primary-dark: #f1f5f9;
-  --color-text-secondary-dark: #94a3b8;
-  --color-border-dark: #334155;
-
-  /* Slate Scale for consistency */
-  --color-slate-50: #f8fafc;
-  --color-slate-100: #f1f5f9;
-  --color-slate-200: #e2e8f0;
-  --color-slate-300: #cbd5e1;
-  --color-slate-400: #94a3b8;
-  --color-slate-500: #64748b;
-  --color-slate-600: #475569;
-  --color-slate-700: #334155;
-  --color-slate-800: #1e293b;
-  --color-slate-900: #0f172a;
-
-  /* Sky Scale for primary variations */
-  --color-sky-100: #e0f2fe;
-  --color-sky-400: #38bdf8;
-  --color-sky-500: #0ea5e9;
-  --color-sky-600: #0284c7;
-
-  /* Yellow Scale for accent */
-  --color-yellow-100: #fef9c3;
-  --color-yellow-300: #fde047;
-  --color-yellow-400: #facc15;
-  --color-yellow-600: #ca8a04;
-  --color-yellow-700: #a16207;
-  --color-yellow-900: #713f12;
+  --color-background-dark: #2b1220;
+  --color-card-dark: #1a3c34;
+  --color-text-primary-dark: #ffffff;
+  --color-text-secondary-dark: #d4c5b0;
+  --color-border-dark: #5e503f;
 
   /* Typography */
-  --font-display: 'Inter', 'Montserrat', sans-serif;
+  --font-display: "Montserrat", sans-serif;
+  --font-brand: "Montserrat", sans-serif;
+
+  /* Tailwind Color Classes */
+  --color-plum*: #ac485a;
+  --color-plum-light*: #b16788;
+  --color-plum-dark*: #2b1220;
+  --color-sky-accent*: #63a5c9;
+  --color-sky-accent-light*: #7fafc9;
+  --color-earth*: #5e503f;
+  --color-oak*: #d4c5b0;
+  --color-forest*: #1a3c34;
+  --color-ash*: #f3f4f6;
 }
 
 /* Global Typography & Styles */
@@ -165,13 +161,113 @@ html {
 
 body {
   font-family: var(--font-display);
+  background-color: white;
+  color: var(--color-text-primary-light);
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-display);
   font-weight: 700;
 }
 
 .prose {
   font-family: var(--font-display);
+}
+
+/* Carousel Styles */
+.carousel-container {
+  width: 100%;
+  height: 650px;
+  overflow: hidden;
+  position: relative;
+  background-color: white;
+}
+
+.carousel-track {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+.carousel-item {
+  flex: 0 0 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+}
+
+/* Logo Styles */
+.hero-logo-img {
+  max-width: 100%;
+  height: auto;
+  max-height: 300px;
+  display: block;
+  margin: 0 auto;
+}
+
+/* Spazio Solazzo Color Utility Classes */
+/* These map to DaisyUI theme colors for easy maintenance */
+.text-plum {
+  color: var(--color-primary);
+}
+
+.text-plum-light {
+  color: #b16788;
+}
+
+.text-plum-dark {
+  color: var(--color-base-content);
+}
+
+.text-sky-accent {
+  color: var(--color-secondary);
+}
+
+.text-sky-accent-light {
+  color: var(--color-accent);
+}
+
+.text-earth {
+  color: var(--color-neutral);
+}
+
+.text-oak {
+  color: var(--color-base-300);
+}
+
+.bg-plum {
+  background-color: var(--color-primary);
+}
+
+.bg-sky-accent {
+  background-color: var(--color-secondary);
+}
+
+.bg-sky-accent-light {
+  background-color: var(--color-accent);
+}
+
+.bg-earth {
+  background-color: var(--color-neutral);
+}
+
+.border-plum {
+  border-color: var(--color-primary);
+}
+
+.border-sky-accent {
+  border-color: var(--color-secondary);
+}
+
+.hover\:bg-plum-light:hover {
+  background-color: #b16788;
+}
+
+.hover\:text-plum:hover {
+  color: var(--color-primary);
 }

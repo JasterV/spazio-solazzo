@@ -41,7 +41,7 @@ defmodule SpazioSolazzoWeb.Layouts do
     ~H"""
     <.app_header current_user={@current_user} title="Spazio Solazzo" icon="hero-sun-solid" />
 
-    <main class="bg-slate-50 dark:bg-slate-900 flex-1 relative transition-colors duration-300">
+    <main class="bg-base-100 flex-1 relative transition-colors duration-300">
       {render_slot(@inner_block)}
     </main>
 
@@ -102,7 +102,7 @@ defmodule SpazioSolazzoWeb.Layouts do
   def theme_toggle(assigns) do
     ~H"""
     <button
-      class="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 transition-colors"
+      class="p-2 rounded-full hover:bg-base-200 text-neutral transition-colors"
       phx-click={
         JS.dispatch("phx:set-theme",
           detail: %{theme: "toggle"}
@@ -125,18 +125,10 @@ defmodule SpazioSolazzoWeb.Layouts do
 
   defp app_header(assigns) do
     ~H"""
-    <header class="sticky top-0 z-50 w-full border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md px-6 py-4">
+    <header class="sticky top-0 z-50 w-full border-b border-base-200 bg-base-100 backdrop-blur-md px-6 py-4">
       <div class="mx-auto flex h-10 max-w-[1200px] items-center justify-between">
-        <.link
-          navigate="/"
-          class="flex items-center gap-3 text-slate-900 dark:text-slate-100 hover:opacity-80 transition-opacity"
-        >
-          <div class="flex items-center justify-center text-sky-500">
-            <.icon name={@icon} class="size-8" />
-          </div>
-          <h2 class="text-lg font-bold leading-tight tracking-tight text-slate-800 dark:text-slate-100">
-            {@title}
-          </h2>
+        <.link navigate="/" class="flex items-center gap-3 hover:opacity-80 transition-opacity">
+          <img src="/images/logo.png" alt="Spazio Solazzo" class="h-8" />
         </.link>
 
         <div class="flex items-center gap-4">
@@ -146,14 +138,14 @@ defmodule SpazioSolazzoWeb.Layouts do
             <div class="hidden md:flex items-center gap-3">
               <.link
                 navigate={~p"/profile"}
-                class="size-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-400 border-2 border-primary/20 hover:border-primary/40 transition-colors"
+                class="btn btn-circle btn-ghost text-primary hover:bg-accent/10"
               >
-                <.icon name="hero-user" class="size-5" />
+                <.icon name="hero-user" class="size-6" />
               </.link>
               <.link
                 href={~p"/sign-out"}
                 id="sign-out-link"
-                class="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-red-600 hover:bg-red-50 dark:hover:text-red-400 dark:hover:bg-red-950/30 rounded-lg transition-colors border border-slate-300 dark:border-slate-600 hover:border-red-300 dark:hover:border-red-800"
+                class="btn btn-ghost btn-sm text-error hover:bg-error/10"
               >
                 Sign Out
               </.link>
@@ -161,17 +153,13 @@ defmodule SpazioSolazzoWeb.Layouts do
             <%!-- Mobile menu button --%>
             <button
               phx-click={JS.toggle(to: "#mobile-menu")}
-              class="md:hidden p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              class="btn btn-ghost btn-sm md:hidden text-neutral"
               id="mobile-menu-button"
             >
-              <.icon name="hero-bars-3" class="size-6 text-slate-600 dark:text-slate-400" />
+              <.icon name="hero-bars-3" class="size-6" />
             </button>
           <% else %>
-            <.link
-              navigate={~p"/sign-in"}
-              id="sign-in-link"
-              class="px-4 py-2 text-sm font-medium text-white bg-sky-500 hover:bg-sky-600 rounded-lg transition-colors shadow-sm"
-            >
+            <.link navigate={~p"/sign-in"} id="sign-in-link" class="btn btn-secondary btn-sm">
               Sign In
             </.link>
           <% end %>
@@ -181,21 +169,21 @@ defmodule SpazioSolazzoWeb.Layouts do
       <%= if @current_user do %>
         <div
           id="mobile-menu"
-          class="md:hidden absolute top-full right-0 left-0 mt-2 mx-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-lg overflow-hidden"
+          class="md:hidden absolute top-full right-0 left-0 mt-2 mx-6 bg-base-100 border border-base-200 rounded-xl shadow-lg overflow-hidden"
           style="display: none;"
         >
-          <div class="flex flex-col">
+          <div class="menu">
             <.link
               navigate={~p"/profile"}
               phx-click={JS.hide(to: "#mobile-menu")}
-              class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+              class="flex items-center gap-3 px-4 py-3 text-sm font-medium hover:bg-accent/10 text-neutral transition-colors"
             >
-              <.icon name="hero-user" class="size-5 text-slate-500 dark:text-slate-400" /> Profile
+              <.icon name="hero-user" class="size-5 text-primary" /> Profile
             </.link>
             <.link
               href={~p"/sign-out"}
               id="mobile-sign-out-link"
-              class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors border-t border-slate-200 dark:border-slate-800"
+              class="flex items-center gap-3 px-4 py-3 text-sm font-medium hover:bg-error/10 text-error transition-colors border-t border-base-200"
             >
               <.icon name="hero-arrow-right-on-rectangle" class="size-5" /> Sign Out
             </.link>
@@ -212,30 +200,30 @@ defmodule SpazioSolazzoWeb.Layouts do
     assigns = assign(assigns, :current_year, current_year)
 
     ~H"""
-    <footer class="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-12 px-6 transition-colors duration-300">
-      <div class="mx-auto max-w-[1200px] flex flex-col md:flex-row justify-between gap-8">
+    <footer class="footer border-t border-base-200 bg-base-100 py-12 px-6">
+      <div class="mx-auto max-w-[1200px] w-full flex flex-col md:flex-row justify-between gap-8">
         <div class="flex flex-col gap-4 max-w-sm">
-          <div class="flex items-center gap-3 text-slate-900 dark:text-slate-100">
-            <div class="flex items-center justify-center size-6 bg-sky-500 rounded text-white">
-              <.icon name="hero-squares-2x2" class="size-4" />
-            </div>
-            <h2 class="text-base font-bold">Spazio Solazzo</h2>
+          <div class="flex items-center gap-3">
+            <img src="/images/logo.png" alt="Spazio Solazzo" class="h-6" />
           </div>
-          <p class="text-sm text-slate-500 dark:text-slate-400">
+          <p class="text-sm text-neutral">
             A community-driven space dedicated to work, creativity, and connection.
+          </p>
+          <p class="text-xs text-neutral">
+            © {@current_year} Spazio Solazzo. All rights reserved.
           </p>
         </div>
 
-        <div class="flex gap-16 flex-wrap">
+        <div class="flex gap-16 flex-wrap md:justify-end">
           <div>
-            <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider mb-4">
+            <h3 class="text-sm font-bold text-base-content uppercase tracking-wider mb-4">
               Spaces
             </h3>
             <ul class="flex flex-col gap-3">
               <li>
                 <a
                   href="/coworking"
-                  class="text-sm text-slate-500 dark:text-slate-400 hover:text-sky-500 transition-colors"
+                  class="text-sm text-neutral hover:text-secondary transition-colors"
                 >
                   Coworking
                 </a>
@@ -243,7 +231,7 @@ defmodule SpazioSolazzoWeb.Layouts do
               <li>
                 <a
                   href="/meeting"
-                  class="text-sm text-slate-500 dark:text-slate-400 hover:text-sky-500 transition-colors"
+                  class="text-sm text-neutral hover:text-secondary transition-colors"
                 >
                   Meeting Room
                 </a>
@@ -251,7 +239,7 @@ defmodule SpazioSolazzoWeb.Layouts do
               <li>
                 <a
                   href="/music"
-                  class="text-sm text-slate-500 dark:text-slate-400 hover:text-sky-500 transition-colors"
+                  class="text-sm text-neutral hover:text-secondary transition-colors"
                 >
                   Music Room
                 </a>
@@ -260,7 +248,7 @@ defmodule SpazioSolazzoWeb.Layouts do
           </div>
 
           <div>
-            <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider mb-4">
+            <h3 class="text-sm font-bold text-base-content uppercase tracking-wider mb-4">
               Community
             </h3>
             <ul class="flex flex-col gap-3">
@@ -269,7 +257,7 @@ defmodule SpazioSolazzoWeb.Layouts do
                   href="https://caravanseraipalermo.it/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="text-sm text-slate-500 dark:text-slate-400 hover:text-sky-500 transition-colors"
+                  class="text-sm text-neutral hover:text-secondary transition-colors"
                 >
                   Caravanserai Palermo
                 </a>
@@ -279,7 +267,7 @@ defmodule SpazioSolazzoWeb.Layouts do
                   href="https://mojocohouse.com/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="text-sm text-slate-500 dark:text-slate-400 hover:text-sky-500 transition-colors"
+                  class="text-sm text-neutral hover:text-secondary transition-colors"
                 >
                   Mojo Cohouse
                 </a>
@@ -289,7 +277,7 @@ defmodule SpazioSolazzoWeb.Layouts do
                   href="https://jaster.xyz"
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="text-sm text-slate-500 dark:text-slate-400 hover:text-sky-500 transition-colors"
+                  class="text-sm text-neutral hover:text-secondary transition-colors"
                 >
                   Author's Blog
                 </a>
@@ -297,12 +285,6 @@ defmodule SpazioSolazzoWeb.Layouts do
             </ul>
           </div>
         </div>
-      </div>
-
-      <div class="mx-auto max-w-[1200px] mt-12 pt-8 border-t border-slate-100 dark:border-slate-800 text-center md:text-left">
-        <p class="text-xs text-slate-500">
-          © {@current_year} Spazio Solazzo. All rights reserved.
-        </p>
       </div>
     </footer>
     """

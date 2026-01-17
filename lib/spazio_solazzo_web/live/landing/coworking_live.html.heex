@@ -38,19 +38,19 @@
     />
   </.features_section>
 
-  <section class="py-20 px-6 bg-white dark:bg-slate-900" id="interactive-floor-plan">
+  <section class="py-20 px-6 bg-base-100" id="interactive-floor-plan">
     <div class="mx-auto max-w-[1200px]">
       <div class="text-center mb-12">
-        <h2 class="text-3xl font-bold text-slate-900 dark:text-white mb-4">
+        <h2 class="text-3xl font-bold text-base-content mb-4">
           Interactive Floor Plan
         </h2>
-        <p class="text-slate-600 dark:text-slate-400 max-w-lg mx-auto">
+        <p class="text-neutral max-w-lg mx-auto">
           Select any desk to customize your booking details on the next page, where availability is confirmed.
         </p>
       </div>
-      <div class="bg-slate-50 dark:bg-slate-800/50 rounded-3xl p-8 md:p-12 border border-slate-200 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none relative overflow-hidden">
+      <div class="bg-base-200 rounded-3xl p-8 md:p-12 border border-base-300 shadow-xl relative overflow-hidden">
         <div class="absolute top-6 right-6 opacity-10 pointer-events-none select-none">
-          <.icon name="hero-building-office-2" class="w-32 h-32 text-sky-500" />
+          <.icon name="hero-building-office-2" class="w-32 h-32 text-secondary" />
         </div>
         <div class="flex flex-col items-center gap-10">
           <div class="grid grid-cols-2 md:grid-cols-4 gap-6 w-full max-w-3xl">
@@ -59,13 +59,13 @@
               navigate={~p"/book/asset/#{asset.id}"}
               class="group relative flex flex-col items-center gap-3 cursor-pointer"
             >
-              <div class="w-full aspect-[4/3] rounded-xl bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 group-hover:border-sky-500 dark:group-hover:border-teal-500 group-hover:shadow-lg group-hover:shadow-sky-500/20 dark:group-hover:shadow-teal-500/20 transition-all duration-300 flex items-center justify-center relative">
+              <div class="w-full aspect-[4/3] rounded-xl bg-base-100 border-2 border-base-200 group-hover:border-secondary group-hover:shadow-lg group-hover:shadow-secondary/20 transition-all duration-300 flex items-center justify-center relative">
                 <.icon
                   name="hero-computer-desktop"
-                  class="w-12 h-12 text-slate-300 group-hover:text-sky-500 dark:group-hover:text-teal-500 transition-colors"
+                  class="w-12 h-12 text-base-300 group-hover:text-secondary transition-colors"
                 />
               </div>
-              <span class="text-sm font-bold text-slate-500 group-hover:text-sky-500 dark:group-hover:text-teal-500 transition-colors">
+              <span class="text-sm font-bold text-neutral group-hover:text-secondary transition-colors">
                 {asset.name}
               </span>
             </.link>
