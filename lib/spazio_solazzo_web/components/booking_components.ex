@@ -26,12 +26,12 @@ defmodule SpazioSolazzoWeb.BookingComponents do
         <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
           <div
             id={"#{@id}-container"}
-            class="relative transform overflow-hidden rounded-3xl bg-white dark:bg-gray-800 px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-sm sm:p-6"
+            class="relative transform overflow-hidden rounded-3xl bg-base-100 px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-sm sm:p-6"
           >
             <div>
-              <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-teal-100 dark:bg-teal-900/30">
+              <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-success/10">
                 <svg
-                  class="h-6 w-6 text-teal-600 dark:text-teal-400"
+                  class="h-6 w-6 text-success"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -45,11 +45,11 @@ defmodule SpazioSolazzoWeb.BookingComponents do
                 </svg>
               </div>
               <div class="mt-3 text-center sm:mt-5">
-                <h3 class="text-lg font-semibold leading-6 text-gray-900 dark:text-white">
+                <h3 class="text-lg font-semibold leading-6 text-base-content">
                   Booking Successful!
                 </h3>
                 <div class="mt-2">
-                  <p class="text-sm text-gray-500 dark:text-gray-400">
+                  <p class="text-sm text-neutral">
                     Your booking has been confirmed. You will receive a confirmation email shortly.
                   </p>
                 </div>
@@ -59,7 +59,7 @@ defmodule SpazioSolazzoWeb.BookingComponents do
               <button
                 phx-click={@on_close}
                 type="button"
-                class="inline-flex w-full justify-center rounded-2xl bg-teal-600 px-3 py-3 text-sm font-semibold text-white shadow-lg hover:bg-teal-700 hover:shadow-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-600 transition-all"
+                class="btn btn-success w-full rounded-2xl text-white shadow-lg hover:shadow-xl transition-all"
               >
                 Got it!
               </button>
@@ -86,25 +86,24 @@ defmodule SpazioSolazzoWeb.BookingComponents do
       class={[
         "group w-full flex items-center justify-between p-4 rounded-xl border-2 transition-all duration-200",
         if(@booked,
-          do:
-            "border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-700 cursor-not-allowed opacity-75",
+          do: "border-base-300 bg-base-200 cursor-not-allowed opacity-75",
           else:
-            "border-sky-500/40 hover:border-sky-500 bg-transparent hover:bg-sky-500/5 dark:hover:bg-sky-500/10 cursor-pointer"
+            "border-secondary/40 hover:border-secondary bg-transparent hover:bg-secondary/5 cursor-pointer"
         )
       ]}
     >
       <span class={[
         "text-lg font-bold transition-colors",
         if(@booked,
-          do: "text-slate-500 dark:text-slate-400",
-          else: "text-slate-900 dark:text-white group-hover:text-sky-500"
+          do: "text-neutral",
+          else: "text-base-content group-hover:text-secondary"
         )
       ]}>
         {CalendarExt.format_time_range(@time_slot)}
       </span>
       <span class={[
         "text-xs font-medium",
-        if(@booked, do: "text-slate-500", else: "text-sky-500")
+        if(@booked, do: "text-neutral", else: "text-secondary")
       ]}>
         {if @booked, do: "Booked", else: "Available"}
       </span>

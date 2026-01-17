@@ -57,86 +57,68 @@ defmodule SpazioSolazzoWeb.PageComponents do
     ~H"""
     <div
       id={@id}
-      class="group relative overflow-hidden rounded-2xl bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-800 hover:border-sky-500/50 transition-all duration-300"
+      class="card group relative overflow-hidden rounded-3xl bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-500"
     >
       <div class={[
         "flex flex-col h-full",
         @image_position == :left && "md:flex-row",
         @image_position == :right && "md:flex-row-reverse"
       ]}>
-        <div class="md:w-2/5 relative h-64 md:h-auto overflow-hidden">
+        <div class="md:w-1/2 relative h-80 md:h-auto overflow-hidden">
           <div
             class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
             style={"background-image: url('#{@image_url}');"}
           >
           </div>
-          <div class="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent md:hidden">
-          </div>
-          <div class="absolute bottom-4 left-4 md:hidden">
-            <span class={[
-              "text-white text-xs font-bold px-2 py-1 rounded uppercase tracking-wider",
-              @primary_label_variant == :primary && "bg-sky-500",
-              @primary_label_variant == :secondary && "bg-slate-600",
-              @primary_label_variant == :accent && "bg-yellow-400 text-slate-900"
-            ]}>
-              {@primary_label}
-            </span>
-          </div>
         </div>
 
-        <div class="flex-1 p-6 md:p-8 flex flex-col justify-center">
-          <div class="flex items-center justify-between mb-2">
+        <div class="card-body flex-1 p-10 md:p-16 flex flex-col justify-center">
+          <div class="flex items-center justify-between mb-6">
             <span class={[
-              "hidden md:inline-block text-xs font-bold px-2 py-1 rounded uppercase tracking-wider mb-2",
-              @primary_label_variant == :primary &&
-                "text-sky-500 bg-sky-100 dark:bg-sky-900/20",
-              @primary_label_variant == :secondary &&
-                "text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800",
-              @primary_label_variant == :accent &&
-                "text-yellow-700 dark:text-yellow-400 bg-yellow-100 dark:bg-yellow-900/20"
+              "badge badge-outline font-bold uppercase tracking-[0.2em]",
+              @primary_label_variant == :primary && "badge-primary",
+              @primary_label_variant == :secondary && "badge-secondary",
+              @primary_label_variant == :accent && "badge-accent"
             ]}>
               {@primary_label}
             </span>
             <%= if @secondary_label do %>
-              <div class="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-sm">
+              <div class="flex items-center gap-2 text-sm font-medium text-neutral">
                 <%= if @secondary_label_icon do %>
-                  <.icon name={@secondary_label_icon} class="size-[18px]" />
+                  <.icon name={@secondary_label_icon} class="size-5 text-primary" />
                 <% end %>
                 <span>{@secondary_label}</span>
               </div>
             <% end %>
           </div>
-          <h3 class="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-3">
+          <h3 class="card-title text-3xl font-extrabold mb-4 text-base-content">
             {@title}
           </h3>
-          <p class="text-slate-600 dark:text-slate-400 mb-6 leading-relaxed">
+          <p class="mb-10 leading-relaxed text-lg font-light text-neutral">
             {@description}
             <%= if @note do %>
-              <span class={[
-                "font-medium",
-                @primary_label_variant == :accent &&
-                  "text-yellow-600 dark:text-yellow-400",
-                @primary_label_variant != :accent &&
-                  "text-slate-700 dark:text-slate-300"
-              ]}>
+              <span class="font-medium text-neutral">
                 {@note}
               </span>
             <% end %>
           </p>
 
-          <div class="flex flex-col sm:flex-row gap-4 sm:items-center justify-between mt-auto pt-6 border-t border-slate-100 dark:border-slate-800">
+          <div class="card-actions flex flex-col sm:flex-row gap-8 sm:items-center justify-between mt-auto pt-10 border-t border-base-200">
             <div class="flex flex-col">
-              <span class="text-sm text-slate-500">Starting from</span>
-              <span class="text-lg font-bold text-slate-900 dark:text-slate-100">
+              <span class="text-[11px] uppercase font-bold tracking-widest text-neutral">
+                {if @time_unit == "4 hours", do: "Access", else: "Rate"}
+              </span>
+              <span class="text-3xl font-extrabold text-base-content">
                 €{@price}
-                <span class="text-sm font-normal text-slate-500">/ {@time_unit}</span>
+                <span class="text-base font-light text-neutral">/ {@time_unit}</span>
               </span>
             </div>
             <.link
               navigate={@booking_url}
-              class="h-10 px-6 bg-sky-500 hover:bg-sky-600 text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2 group-hover:shadow-lg group-hover:shadow-sky-500/20"
+              class="btn btn-primary h-14 px-10 rounded-2xl uppercase text-xs tracking-widest"
             >
-              <.icon name="hero-calendar" class="size-5" /> Book {@asset_type}
+              <.icon name="hero-calendar" class="size-5" />
+              {"Book #{@asset_type}"}
             </.link>
           </div>
         </div>

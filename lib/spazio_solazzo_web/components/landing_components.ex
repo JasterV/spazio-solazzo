@@ -34,42 +34,33 @@ defmodule SpazioSolazzoWeb.LandingComponents do
 
   def feature_card(assigns) do
     ~H"""
-    <div class="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-lg hover:border-teal-500/30 dark:hover:border-teal-500/30 transition-all duration-300 group">
+    <div class="card bg-base-100 p-8 rounded-2xl border border-base-200 shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 group">
       <div class={[
         "w-12 h-12 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform",
         color_classes(@color)
       ]}>
         <.icon name={@icon} class="w-7 h-7" />
       </div>
-      <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-3">
+      <h3 class="text-xl font-bold text-base-content mb-3">
         {@title}
       </h3>
-      <p class="text-slate-600 dark:text-slate-400 leading-relaxed">
+      <p class="text-neutral leading-relaxed">
         {@description}
       </p>
     </div>
     """
   end
 
-  defp color_classes("sky"), do: "bg-sky-100 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400"
-
-  defp color_classes("orange"),
-    do: "bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400"
-
-  defp color_classes("yellow"),
-    do: "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400"
-
-  defp color_classes("emerald"),
-    do: "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400"
-
-  defp color_classes("indigo"),
-    do: "bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400"
-
-  defp color_classes("purple"),
-    do: "bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400"
-
-  defp color_classes(_),
-    do: "bg-slate-100 dark:bg-slate-900/30 text-slate-600 dark:text-slate-400"
+  defp color_classes("primary"), do: "bg-primary/10 text-primary"
+  defp color_classes("secondary"), do: "bg-secondary/10 text-secondary"
+  defp color_classes("accent"), do: "bg-accent/10 text-accent"
+  defp color_classes("sky"), do: "bg-secondary/10 text-secondary"
+  defp color_classes("orange"), do: "bg-primary/10 text-primary"
+  defp color_classes("yellow"), do: "bg-accent/10 text-accent"
+  defp color_classes("emerald"), do: "bg-success/10 text-success"
+  defp color_classes("indigo"), do: "bg-info/10 text-info"
+  defp color_classes("purple"), do: "bg-primary/10 text-primary"
+  defp color_classes(_), do: "bg-neutral/10 text-neutral"
 
   @doc """
   Renders a house rules section with a list of rules.
@@ -87,20 +78,20 @@ defmodule SpazioSolazzoWeb.LandingComponents do
   def house_rules(assigns) do
     ~H"""
     <section class="py-16 px-6">
-      <div class="mx-auto max-w-[1000px] bg-orange-50 dark:bg-slate-800/50 rounded-3xl p-8 md:p-12 border border-orange-100 dark:border-slate-700/50">
+      <div class="mx-auto max-w-[1000px] bg-base-200 rounded-3xl p-8 md:p-12 border border-base-300">
         <div class="flex flex-col md:flex-row gap-8 items-center justify-center">
           <div class="flex-1 md:flex-none w-full md:w-auto">
-            <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-4">
+            <h3 class="text-2xl font-bold text-base-content mb-4">
               {@title}
             </h3>
             <ul class="space-y-3">
               <li
                 :for={rule <- @rule}
-                class="flex items-start gap-3 text-slate-600 dark:text-slate-300"
+                class="flex items-start gap-3 text-neutral"
               >
                 <.icon
                   name="hero-check-circle"
-                  class="w-5 h-5 text-orange-500 dark:text-orange-400 shrink-0 mt-0.5"
+                  class="w-5 h-5 text-secondary shrink-0 mt-0.5"
                 />
                 <span>{render_slot(rule)}</span>
               </li>
@@ -138,12 +129,12 @@ defmodule SpazioSolazzoWeb.LandingComponents do
 
   def page_header(assigns) do
     ~H"""
-    <section class="relative pt-6 md:pt-10 pb-16 px-6">
+    <section class="relative pt-6 md:pt-10 pb-16 px-6 bg-base-100">
       <div class="mx-auto max-w-[1200px]">
-        <div class="mb-6 flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+        <div class="mb-6 flex items-center gap-2 text-sm text-neutral">
           <.link
             navigate={~p"/"}
-            class="hover:text-sky-500 dark:hover:text-yellow-400 transition-colors flex items-center gap-1"
+            class="hover:text-primary transition-colors flex items-center gap-1"
           >
             <.icon name="hero-arrow-left" class="w-4 h-4" /> Back to Home
           </.link>
@@ -151,41 +142,42 @@ defmodule SpazioSolazzoWeb.LandingComponents do
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
           <div class="order-2 lg:order-1 flex flex-col gap-6">
             <div>
-              <h1 class="text-4xl md:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white leading-[1.1] tracking-tight">
+              <h1 class="text-4xl md:text-5xl lg:text-6xl font-black text-base-content leading-[1.1] tracking-tight">
                 {render_slot(@title)}
               </h1>
             </div>
-            <p class="text-lg text-slate-600 dark:text-slate-300 leading-relaxed max-w-xl">
+            <p class="text-lg text-neutral leading-relaxed max-w-xl">
               {render_slot(@description)}
             </p>
             <div class="flex flex-col sm:flex-row gap-4 pt-2">
               <.link
                 navigate={@booking_path}
-                class="h-14 px-8 rounded-2xl bg-sky-500 hover:bg-sky-600 dark:bg-teal-500 dark:hover:bg-teal-600 text-white text-lg font-bold transition-all shadow-xl shadow-sky-500/30 dark:shadow-teal-500/30 flex items-center justify-center gap-3 w-full sm:w-auto hover:-translate-y-1"
+                class="btn btn-primary h-14 px-8 rounded-2xl text-lg font-bold shadow-xl w-full sm:w-auto hover:-translate-y-1"
               >
                 <span>{@booking_label}</span>
                 <.icon name="hero-arrow-right" class="w-5 h-5" />
               </.link>
-              <div class="flex items-center gap-2 text-slate-500 dark:text-slate-400 px-4 h-14 w-full sm:w-auto justify-center">
-                <span class="text-2xl font-bold text-slate-900 dark:text-white">{@price}</span>
+              <div class="flex items-center gap-2 text-neutral px-4 h-14 w-full sm:w-auto justify-center">
+                <span class="text-2xl font-bold text-base-content">{@price}</span>
                 <span class="text-sm">/ {@price_unit}</span>
               </div>
             </div>
           </div>
           <div class="order-1 lg:order-2 relative group">
-            <div class="absolute -inset-1 bg-gradient-to-r from-orange-400 to-yellow-400 rounded-3xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200">
+            <div class="absolute -inset-1 bg-gradient-to-r from-primary to-secondary rounded-3xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200">
             </div>
-            <div class="relative overflow-hidden rounded-2xl aspect-[4/3] shadow-2xl shadow-black/40">
+            <div class="relative overflow-hidden rounded-2xl aspect-[4/3] shadow-2xl">
               <.live_component
                 module={SpazioSolazzoWeb.CarouselLiveComponent}
                 id="page-header-carousel"
                 images={@images}
+                height="100%"
               />
-              <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent">
+              <div class="absolute inset-0 bg-gradient-to-t from-base-300/80 via-transparent to-transparent pointer-events-none">
               </div>
-              <div class="absolute bottom-6 left-6 right-6 flex justify-between items-end">
+              <div class="absolute bottom-6 left-6 right-6 flex justify-between items-end pointer-events-none">
                 <div>
-                  <span class="block text-yellow-400 font-bold text-sm mb-1 tracking-wide">
+                  <span class="block text-white font-bold text-sm mb-1 tracking-wide">
                     CAPACITY
                   </span>
                   <span class="text-white font-bold text-xl flex items-center gap-2">
@@ -224,13 +216,13 @@ defmodule SpazioSolazzoWeb.LandingComponents do
 
   def features_section(assigns) do
     ~H"""
-    <section class="py-20 bg-slate-50 dark:bg-slate-800/30 border-y border-slate-200 dark:border-slate-800">
+    <section class="py-20 bg-base-200 border-y border-base-300">
       <div class="mx-auto max-w-[1200px] px-6">
         <div class="text-center max-w-2xl mx-auto mb-16">
-          <h2 class="text-3xl font-bold text-slate-900 dark:text-white mb-4">
+          <h2 class="text-3xl font-bold text-base-content mb-4">
             {@title}
           </h2>
-          <p class="text-slate-600 dark:text-slate-400">
+          <p class="text-neutral">
             {@description}
           </p>
         </div>
@@ -240,7 +232,7 @@ defmodule SpazioSolazzoWeb.LandingComponents do
             icon={feature.icon}
             title={feature.title}
             description={feature.description}
-            color={Map.get(feature, :color, "sky")}
+            color={Map.get(feature, :color, "primary")}
           />
         </div>
       </div>

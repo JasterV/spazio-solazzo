@@ -77,28 +77,28 @@ defmodule SpazioSolazzoWeb.CalendarLiveComponent do
           type="button"
           phx-click="prev-month"
           phx-target={@myself}
-          class="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 transition-colors"
+          class="p-2 rounded-full hover:bg-base-200 text-neutral transition-colors"
         >
           <.icon name="hero-chevron-left" class="w-5 h-5" />
         </button>
-        <h3 class="text-lg font-semibold text-slate-900 dark:text-white">
+        <h3 class="text-lg font-semibold text-base-content">
           {Calendar.strftime(@beginning_of_month, "%B %Y")}
         </h3>
         <button
           type="button"
           phx-click="next-month"
           phx-target={@myself}
-          class="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 transition-colors"
+          class="p-2 rounded-full hover:bg-base-200 text-neutral transition-colors"
         >
           <.icon name="hero-chevron-right" class="w-5 h-5" />
         </button>
       </div>
 
-      <div class="grid grid-cols-7 text-center text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">
+      <div class="grid grid-cols-7 text-center text-sm font-medium text-neutral mb-2">
         <span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span>Su</span>
       </div>
 
-      <div class="grid grid-cols-7 gap-y-2 text-center text-slate-700 dark:text-slate-300">
+      <div class="grid grid-cols-7 gap-y-2 text-center text-base-content">
         <%= for date <- @grid do %>
           <% is_selected = Date.compare(date, @selected_date) == :eq
           is_past = Date.compare(date, @today) == :lt
@@ -115,13 +115,13 @@ defmodule SpazioSolazzoWeb.CalendarLiveComponent do
                 [
                   "p-2 rounded-full transition-colors",
                   # Styling for past dates (disabled)
-                  is_past && "cursor-not-allowed opacity-40 text-slate-400 dark:text-slate-600",
+                  is_past && "cursor-not-allowed opacity-40 text-neutral",
                   # Styling for selected date
                   is_selected &&
-                    "bg-sky-500 text-white font-bold shadow-md shadow-sky-500/30",
+                    "bg-secondary text-white font-bold shadow-md shadow-secondary/30",
                   # Styling for regular dates
                   !is_past && !is_selected &&
-                    "hover:bg-sky-500/20 dark:hover:bg-sky-500/20"
+                    "hover:bg-secondary/20"
                 ]
               }
             >
