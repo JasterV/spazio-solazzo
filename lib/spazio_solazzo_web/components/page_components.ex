@@ -118,9 +118,7 @@ defmodule SpazioSolazzoWeb.PageComponents do
               class="btn btn-primary h-14 px-10 rounded-2xl uppercase text-xs tracking-widest"
             >
               <.icon name="hero-calendar" class="size-5" />
-              {if @asset_type == "Desk",
-                do: "Book Desk",
-                else: if(@asset_type == "Room", do: "Reserve Room", else: "Book Slot")}
+              {"Book #{@asset_type}"}
             </.link>
           </div>
         </div>

@@ -5,7 +5,6 @@ defmodule SpazioSolazzoWeb.CarouselLiveComponent do
   ## Configuration Options
   - `images`: List of image URLs (required)
   - `height`: Height of the carousel (default: "650px")
-  - `rounded`: Rounded corners style (default: "none", options: "none", "2xl")
   """
   use Phoenix.LiveComponent
 
@@ -17,8 +16,7 @@ defmodule SpazioSolazzoWeb.CarouselLiveComponent do
      socket
      |> assign(assigns)
      |> assign_new(:carousel_index, fn -> 0 end)
-     |> assign_new(:height, fn -> "650px" end)
-     |> assign_new(:rounded, fn -> "none" end)}
+     |> assign_new(:height, fn -> "650px" end)}
   end
 
   @impl true

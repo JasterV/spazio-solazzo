@@ -172,7 +172,6 @@ defmodule SpazioSolazzoWeb.LandingComponents do
                 id="page-header-carousel"
                 images={@images}
                 height="100%"
-                rounded="none"
               />
               <div class="absolute inset-0 bg-gradient-to-t from-base-300/80 via-transparent to-transparent pointer-events-none">
               </div>
