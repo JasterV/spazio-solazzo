@@ -15,6 +15,7 @@ defmodule SpazioSolazzoWeb.AuthCallbackLive do
       |> assign(:email, nil)
       |> assign(:existing_user?, false)
       |> assign(:token, nil)
+      |> assign(:form, to_form(%{}))
 
     {:ok, socket}
   end
@@ -46,10 +47,17 @@ defmodule SpazioSolazzoWeb.AuthCallbackLive do
             _ -> false
           end
 
+        form_params = %{
+          "name" => "",
+          "phone_number" => "",
+          "remember_me" => "false"
+        }
+
         socket
         |> assign(:token, token)
         |> assign(:email, email)
         |> assign(:existing_user?, existing_user?)
+        |> assign(:form, to_form(form_params))
 
       {:error, _reason} ->
         socket
@@ -59,23 +67,20 @@ defmodule SpazioSolazzoWeb.AuthCallbackLive do
   end
 
   @impl true
-  def handle_event("sign_in", args, %{assigns: %{token: token}} = socket) do
-    remember_me = Map.get(args, "remember_me") == "on"
+  def handle_event("sign_in", user_params, %{assigns: %{token: token}} = socket) do
+    remember_me = user_params["remember_me"] == "true"
 
     {:noreply,
      redirect(socket, to: ~p"/auth/magic/sign-in?token=#{token}&remember_me=#{remember_me}")}
   end
 
   @impl true
-  def handle_event(
-        "register",
-        %{"name" => name, "phone_number" => phone_number} = args,
-        socket
-      ) do
+  def handle_event("register", user_params, socket) do
     %{token: token} = socket.assigns
-    remember_me = Map.get(args, "remember_me") == "on"
-    name = String.trim(name)
-    phone_number = String.trim(phone_number)
+
+    name = String.trim(user_params["name"] || "")
+    phone_number = String.trim(user_params["phone_number"] || "")
+    remember_me = user_params["remember_me"] == "true"
 
     url =
       if phone_number == "" do

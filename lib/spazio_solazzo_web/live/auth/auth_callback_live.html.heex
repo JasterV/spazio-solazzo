@@ -17,7 +17,7 @@
               </p>
             </div>
 
-            <form id="sign-in-form" phx-submit="sign_in" class="space-y-5">
+            <.form :let={f} for={@form} id="sign-in-form" phx-submit="sign_in" class="space-y-5">
               <div class="flex items-center gap-3 p-4 bg-secondary/5 rounded-xl border border-base-200">
                 <div class="flex-shrink-0">
                   <.icon name="hero-envelope" class="size-5 text-secondary" />
@@ -27,26 +27,21 @@
                 </span>
               </div>
 
-              <label class="flex items-start gap-3 cursor-pointer group p-3 rounded-lg hover:bg-base-200 transition-colors">
-                <input
-                  type="checkbox"
-                  name="remember_me"
-                  id="remember_me"
-                  class="checkbox checkbox-primary"
-                />
-                <span class="text-sm text-base-content leading-tight">
-                  Remember me on this device for 30 days
-                </span>
-              </label>
+              <.input
+                field={f[:remember_me]}
+                type="checkbox"
+                label="Remember me on this device for 30 days"
+                class="checkbox-primary"
+              />
 
-              <button
+              <.button
                 type="submit"
                 id="sign-in-button"
-                class="btn btn-secondary w-full rounded-xl text-white shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0"
+                class="btn btn-secondary w-full rounded-xl text-white"
               >
                 Sign In to Your Account
-              </button>
-            </form>
+              </.button>
+            </.form>
           <% else %>
             <%!-- New User Registration --%>
             <div class="text-center mb-6">
@@ -61,7 +56,13 @@
               </p>
             </div>
 
-            <form id="registration-form" phx-submit="register" class="space-y-5">
+            <.form
+              :let={f}
+              for={@form}
+              id="registration-form"
+              phx-submit="register"
+              class="space-y-5"
+            >
               <div class="flex items-center gap-3 p-4 bg-secondary/5 rounded-xl border border-base-200">
                 <div class="flex-shrink-0">
                   <.icon name="hero-envelope" class="size-5 text-secondary" />
@@ -71,72 +72,41 @@
                 </span>
               </div>
 
-              <div>
-                <label
-                  for="name"
-                  class="block text-sm font-medium text-base-content mb-2"
-                >
-                  Full Name <span class="text-error">*</span>
-                </label>
-                <div class="relative">
-                  <input
-                    type="text"
-                    name="name"
-                    id="name"
-                    required
-                    class="input input-bordered w-full pl-11 pr-4 py-3 rounded-xl focus:border-secondary !outline-none text-base-content"
-                    placeholder="John Doe"
-                  />
-                  <div class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                    <.icon name="hero-user" class="size-5 text-base-content/60" />
-                  </div>
-                </div>
-              </div>
+              <.input
+                field={f[:name]}
+                type="text"
+                label="Full Name *"
+                placeholder="John Doe"
+                required
+              />
 
               <div>
-                <label
-                  for="phone_number"
-                  class="block text-sm font-medium text-base-content mb-2"
-                >
-                  Phone Number (Optional)
-                </label>
-                <div class="relative">
-                  <input
-                    type="tel"
-                    name="phone_number"
-                    id="phone_number"
-                    class="input input-bordered w-full pl-11 pr-4 py-3 rounded-xl focus:border-secondary !outline-none text-base-content"
-                    placeholder="+39 123456789"
-                  />
-                  <div class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                    <.icon name="hero-phone" class="size-5 text-base-content/60" />
-                  </div>
-                </div>
+                <.input
+                  field={f[:phone_number]}
+                  type="tel"
+                  label="Phone Number (Optional)"
+                  placeholder="+39 123456789"
+                />
                 <p class="mt-2 text-xs text-neutral">
                   Your number will only be used to contact you personally about booking issues, never for marketing.
                 </p>
               </div>
 
-              <label class="flex items-start gap-3 cursor-pointer group p-3 rounded-lg hover:bg-base-200 transition-colors">
-                <input
-                  type="checkbox"
-                  name="remember_me"
-                  id="remember_me"
-                  class="checkbox checkbox-primary"
-                />
-                <span class="text-sm text-base-content leading-tight">
-                  Remember me on this device for 30 days
-                </span>
-              </label>
+              <.input
+                field={f[:remember_me]}
+                type="checkbox"
+                label="Remember me on this device for 30 days"
+                class="checkbox-primary"
+              />
 
-              <button
+              <.button
                 type="submit"
                 id="register-button"
-                class="btn btn-secondary w-full rounded-xl text-white shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0"
+                class="btn btn-secondary w-full rounded-xl text-white"
               >
                 Create Account
-              </button>
-            </form>
+              </.button>
+            </.form>
           <% end %>
         </div>
 

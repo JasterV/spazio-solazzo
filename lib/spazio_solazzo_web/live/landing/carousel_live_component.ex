@@ -39,43 +39,37 @@ defmodule SpazioSolazzoWeb.CarouselLiveComponent do
   def render(assigns) do
     ~H"""
     <div
-      class={[
-        "relative w-full overflow-hidden",
-        @rounded == "2xl" && "rounded-2xl",
-        @rounded == "3xl" && "rounded-3xl"
-      ]}
+      class="relative carousel w-full max-h-160"
       style={"height: #{@height};"}
     >
       <div
         class="flex h-full transition-transform duration-500 ease-in-out"
         style={"transform: translateX(-#{@carousel_index * 100}%);"}
       >
-        <div
-          :for={image <- @images}
-          class="w-full flex-shrink-0 bg-cover bg-center"
-          style={"background-image: url('#{image}');"}
-        >
+        <div :for={image <- @images} class="carousel-item w-full">
+          <img
+            src={image}
+            class="w-full object-cover"
+          />
         </div>
       </div>
 
-      <%= if length(@images) > 1 do %>
-        <button
-          phx-click="carousel_prev"
-          phx-target={@myself}
-          aria-label="Previous image"
-          class="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur-sm p-2 rounded-full text-white transition-colors"
-        >
-          <.icon name="hero-chevron-left" class="w-6 h-6" />
-        </button>
-        <button
-          phx-click="carousel_next"
-          phx-target={@myself}
-          aria-label="Next image"
-          class="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur-sm p-2 rounded-full text-white transition-colors"
-        >
-          <.icon name="hero-chevron-right" class="w-6 h-6" />
-        </button>
-      <% end %>
+      <button
+        phx-click="carousel_prev"
+        phx-target={@myself}
+        aria-label="Previous image"
+        class="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur-sm p-2 rounded-full text-white transition-colors"
+      >
+        <.icon name="hero-chevron-left" class="w-6 h-6" />
+      </button>
+      <button
+        phx-click="carousel_next"
+        phx-target={@myself}
+        aria-label="Next image"
+        class="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur-sm p-2 rounded-full text-white transition-colors"
+      >
+        <.icon name="hero-chevron-right" class="w-6 h-6" />
+      </button>
     </div>
     """
   end

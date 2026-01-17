@@ -59,28 +59,14 @@ defmodule SpazioSolazzoWeb.BookingFormLiveComponent do
             phx-target={@myself}
           >
             <div class="mt-6 space-y-4">
-              <div>
-                <label
-                  for="customer_name"
-                  class="block text-sm font-medium text-base-content mb-2"
-                >
-                  Name <span class="text-error">*</span>
-                </label>
-                <div class="relative">
-                  <input
-                    type="text"
-                    name="customer_name"
-                    id="customer_name"
-                    value={@form[:customer_name].value}
-                    required
-                    class="input input-bordered w-full pl-11 pr-4 py-3 rounded-xl focus:border-secondary !outline-none text-base-content"
-                    placeholder="Your full name"
-                  />
-                  <div class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                    <.icon name="hero-user" class="size-5 text-base-content/60" />
-                  </div>
-                </div>
-              </div>
+              <.input
+                name="customer_name"
+                id="customer_name"
+                label="Name *"
+                value={@form[:customer_name].value}
+                required
+                placeholder="Your full name"
+              />
 
               <div>
                 <label class="block text-sm font-medium text-base-content mb-2">
@@ -96,43 +82,23 @@ defmodule SpazioSolazzoWeb.BookingFormLiveComponent do
                 </div>
               </div>
 
-              <div>
-                <label
-                  for="customer_phone"
-                  class="block text-sm font-medium text-base-content mb-2"
-                >
-                  Phone (Optional)
-                </label>
-                <div class="relative">
-                  <input
-                    type="tel"
-                    name="customer_phone"
-                    id="customer_phone"
-                    value={@form[:customer_phone].value}
-                    class="input input-bordered w-full pl-11 pr-4 py-3 rounded-xl focus:border-secondary !outline-none text-base-content"
-                    placeholder="+39 123456789"
-                  />
-                  <div class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                    <.icon name="hero-phone" class="size-5 text-base-content/60" />
-                  </div>
-                </div>
-              </div>
+              <.input
+                name="customer_phone"
+                id="customer_phone"
+                label="Phone (Optional)"
+                value={@form[:customer_phone].value}
+                placeholder="+39 123456789"
+              />
 
-              <div>
-                <label
-                  for="customer_comment"
-                  class="block text-sm font-medium text-base-content mb-2"
-                >
-                  Comments (Optional)
-                </label>
-                <textarea
-                  name="customer_comment"
-                  id="customer_comment"
-                  placeholder="Any special requests or notes..."
-                  rows="4"
-                  class="textarea textarea-bordered w-full rounded-xl focus:border-secondary resize-none"
-                >{@form[:customer_comment].value}</textarea>
-              </div>
+              <.input
+                type="textarea"
+                name="customer_comment"
+                label="Comments (Optional)"
+                id="customer_comment"
+                placeholder="Any special requests or notes..."
+                value={@form[:customer_comment].value}
+                rows="4"
+              />
             </div>
 
             <div class="mt-6 p-4 bg-info/5 border border-info/20 rounded-xl">
@@ -159,7 +125,7 @@ defmodule SpazioSolazzoWeb.BookingFormLiveComponent do
               <button
                 type="button"
                 phx-click={@on_cancel}
-                class="btn btn-ghost flex-1 rounded-2xl"
+                class="btn btn-ghost btn-secondary dark:text-white flex-1 rounded-2xl"
               >
                 Cancel
               </button>

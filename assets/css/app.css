@@ -47,6 +47,11 @@
   --color-warning-content: #1a1a1a;
   --color-error: oklch(65% 0.22 25);
   --color-error-content: #ffffff;
+  --color-background-dark: #2b1220;
+  --color-card-dark: #1a3c34;
+  --color-text-primary-dark: #ffffff;
+  --color-text-secondary-dark: #d4c5b0;
+  --color-border-dark: #5e503f;
   --radius-selector: 1rem;
   --radius-field: 1rem;
   --radius-box: 1.5rem;
@@ -82,6 +87,11 @@
   --color-warning-content: oklch(20% 0.02 45);
   --color-error: oklch(58% 0.2 20);
   --color-error-content: oklch(96% 0.01 20);
+  --color-background-light: #ffffff;
+  --color-card-light: #ffffff;
+  --color-text-primary-light: #2b1220;
+  --color-text-secondary-light: #5e503f;
+  --color-border-light: #f3f4f6;
   --radius-selector: 1rem;
   --radius-field: 1rem;
   --radius-box: 1.5rem;
@@ -110,48 +120,9 @@
 
 /* New Design Color Palette - Spazio Solazzo Theme */
 @theme {
-  /* Primary - Spazio Blue from logo */
-  --color-plum: #ac485a;
-  --color-plum-light: #b16788;
-  --color-plum-dark: #2b1220;
-  --color-sky-accent: #63a5c9;
-  --color-sky-accent-light: #7fafc9;
-
-  /* Supporting Colors */
-  --color-forest: #1a3c34;
-  --color-cream: #ffffff;
-  --color-oak: #d4c5b0;
-  --color-ash: #f3f4f6;
-  --color-earth: #5e503f;
-
-  /* Light Mode Colors */
-  --color-background-light: #ffffff;
-  --color-card-light: #ffffff;
-  --color-text-primary-light: #2b1220;
-  --color-text-secondary-light: #5e503f;
-  --color-border-light: #f3f4f6;
-
-  /* Dark Mode Colors */
-  --color-background-dark: #2b1220;
-  --color-card-dark: #1a3c34;
-  --color-text-primary-dark: #ffffff;
-  --color-text-secondary-dark: #d4c5b0;
-  --color-border-dark: #5e503f;
-
   /* Typography */
   --font-display: "Montserrat", sans-serif;
   --font-brand: "Montserrat", sans-serif;
-
-  /* Tailwind Color Classes */
-  --color-plum*: #ac485a;
-  --color-plum-light*: #b16788;
-  --color-plum-dark*: #2b1220;
-  --color-sky-accent*: #63a5c9;
-  --color-sky-accent-light*: #7fafc9;
-  --color-earth*: #5e503f;
-  --color-oak*: #d4c5b0;
-  --color-forest*: #1a3c34;
-  --color-ash*: #f3f4f6;
 }
 
 /* Global Typography & Styles */
@@ -177,28 +148,6 @@ h6 {
 
 .prose {
   font-family: var(--font-display);
-}
-
-/* Carousel Styles */
-.carousel-container {
-  width: 100%;
-  height: 650px;
-  overflow: hidden;
-  position: relative;
-  background-color: white;
-}
-
-.carousel-track {
-  display: flex;
-  width: 100%;
-  height: 100%;
-}
-
-.carousel-item {
-  flex: 0 0 100%;
-  height: 100%;
-  background-size: cover;
-  background-position: center;
 }
 
 /* Logo Styles */

@@ -39,7 +39,7 @@ defmodule SpazioSolazzoWeb.Layouts do
 
   def app(assigns) do
     ~H"""
-    <.app_header current_user={@current_user} title="Spazio Solazzo" icon="hero-sun-solid" />
+    <.app_header current_user={@current_user} />
 
     <main class="bg-base-100 flex-1 relative transition-colors duration-300">
       {render_slot(@inner_block)}
@@ -116,9 +116,6 @@ defmodule SpazioSolazzoWeb.Layouts do
     """
   end
 
-  attr :title, :string, default: nil, doc: "the title shown on the top left of the header"
-  attr :icon, :string, default: nil, doc: "The icon shown on the top left of the header"
-
   attr :current_user, :map,
     default: nil,
     doc: "the current authenticated user"
@@ -138,14 +135,14 @@ defmodule SpazioSolazzoWeb.Layouts do
             <div class="hidden md:flex items-center gap-3">
               <.link
                 navigate={~p"/profile"}
-                class="btn btn-circle btn-ghost text-primary hover:bg-accent/10"
+                class="btn btn-circle btn-outline text-primary hover:bg-info/10"
               >
                 <.icon name="hero-user" class="size-6" />
               </.link>
               <.link
                 href={~p"/sign-out"}
                 id="sign-out-link"
-                class="btn btn-ghost btn-sm text-error hover:bg-error/10"
+                class="btn btn-outline btn-error btn-sm hover:text-error hover:bg-error/10"
               >
                 Sign Out
               </.link>

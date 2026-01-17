@@ -10,33 +10,20 @@
       <div class="bg-base-100 rounded-2xl shadow-2xl border border-base-200 overflow-hidden">
         <div class="p-8">
           <form phx-submit="request_magic_link" class="space-y-5">
-            <div>
-              <label
-                for="email"
-                class="block text-sm font-medium text-base-content mb-2"
-              >
-                Email Address
-              </label>
-              <div class="relative">
-                <input
-                  type="email"
-                  name="email"
-                  id="email"
-                  value={@email}
-                  required
-                  class="input input-bordered w-full pl-11 pr-4 py-3 rounded-xl focus:border-secondary !outline-none text-base-content"
-                  placeholder="you@example.com"
-                />
-                <div class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                  <.icon name="hero-envelope" class="size-5 text-base-content/60" />
-                </div>
-              </div>
-            </div>
+            <.input
+              type="email"
+              name="email"
+              id="email"
+              label="Email Address"
+              value={@email}
+              required
+              placeholder="you@example.com"
+            />
 
             <button
               type="submit"
               disabled={@loading}
-              class="btn btn-secondary w-full rounded-xl text-white shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 disabled:cursor-not-allowed disabled:transform-none"
+              class="btn btn-secondary mt-2 w-full rounded-xl text-white"
             >
               <%= if @loading do %>
                 Sending...
