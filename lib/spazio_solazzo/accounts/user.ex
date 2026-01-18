@@ -135,6 +135,16 @@ defmodule SpazioSolazzo.Accounts.User do
     end
   end
 
+  # Make sure it is loaded in all read actions
+  preparations do
+    prepare build(load: [:is_admin])
+  end
+
+  # Make sure it is loaded in all write actions
+  changes do
+    change load(:is_admin)
+  end
+
   attributes do
     uuid_primary_key :id
 
@@ -152,6 +162,17 @@ defmodule SpazioSolazzo.Accounts.User do
       allow_nil? true
       public? true
     end
+
+    attribute :role, :atom do
+      allow_nil? false
+      public? false
+      constraints one_of: [:customer, :admin]
+      default :customer
+    end
+  end
+
+  calculations do
+    calculate :is_admin, :boolean, expr(role == :admin)
   end
 
   identities do

@@ -4,7 +4,7 @@ defmodule SpazioSolazzoWeb.LandingComponents do
   """
   use Phoenix.Component
 
-  import SpazioSolazzoWeb.CoreComponents, only: [icon: 1]
+  import SpazioSolazzoWeb.CoreComponents, only: [icon: 1, back_to_link: 1]
   import Phoenix.Component
 
   use Phoenix.VerifiedRoutes,
@@ -131,14 +131,10 @@ defmodule SpazioSolazzoWeb.LandingComponents do
     ~H"""
     <section class="relative pt-6 md:pt-10 pb-16 px-6 bg-base-100">
       <div class="mx-auto max-w-[1200px]">
-        <div class="mb-6 flex items-center gap-2 text-sm text-neutral">
-          <.link
-            navigate={~p"/"}
-            class="hover:text-primary transition-colors flex items-center gap-1"
-          >
-            <.icon name="hero-arrow-left" class="w-4 h-4" /> Back to Home
-          </.link>
-        </div>
+        <.back_to_link
+          navigate={~p"/"}
+          value="Back to Home"
+        />
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
           <div class="order-2 lg:order-1 flex flex-col gap-6">
             <div>

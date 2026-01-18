@@ -1,0 +1,28 @@
+<Layouts.app flash={@flash} current_user={@current_user}>
+  <div class="mx-auto max-w-[1200px] px-6 py-12">
+    <.back_to_link
+      navigate={~p"/"}
+      value="Back to Home"
+    />
+
+    <h1 class="text-3xl text-base-content font-bold mb-8">Admin Dashboard</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <%= if @meeting_space do %>
+        <.tool_card
+          title={@meeting_space.name}
+          description="Create walk-in bookings for the space"
+          icon="hero-user-group"
+        />
+      <% end %>
+
+      <%= if @coworking_space do %>
+        <.tool_card
+          title={@coworking_space.name}
+          description="Create walk-in bookings for the space"
+          icon="hero-user-group"
+        />
+      <% end %>
+    </div>
+  </div>
+</Layouts.app>
