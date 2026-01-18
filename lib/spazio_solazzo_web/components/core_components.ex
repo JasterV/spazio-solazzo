@@ -223,7 +223,8 @@ defmodule SpazioSolazzoWeb.CoreComponents do
             checked={@checked}
             class={@class || "checkbox checkbox-sm"}
             {@rest}
-          />{@label}
+          />
+          <span class="label-text">{@label}</span>
         </span>
       </label>
       <.error :for={msg <- @errors}>{msg}</.error>

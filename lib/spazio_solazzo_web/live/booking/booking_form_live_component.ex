@@ -118,14 +118,14 @@ defmodule SpazioSolazzoWeb.BookingFormLiveComponent do
             <div class="mt-6 flex items-center gap-3">
               <button
                 type="submit"
-                class="btn btn-primary flex-1 rounded-2xl"
+                class="btn btn-secondary flex-1 rounded-2xl"
               >
                 Confirm
               </button>
               <button
                 type="button"
                 phx-click={@on_cancel}
-                class="btn btn-ghost btn-secondary dark:text-white flex-1 rounded-2xl"
+                class="btn btn-ghost btn-primary dark:text-white flex-1 rounded-2xl"
               >
                 Cancel
               </button>

@@ -135,14 +135,14 @@ defmodule SpazioSolazzoWeb.Layouts do
             <div class="hidden md:flex items-center gap-3">
               <.link
                 navigate={~p"/profile"}
-                class="btn btn-circle btn-outline text-primary hover:bg-info/10"
+                class="btn btn-circle btn-outline text-secondary hover:bg-info/10"
               >
                 <.icon name="hero-user" class="size-6" />
               </.link>
               <.link
                 href={~p"/sign-out"}
                 id="sign-out-link"
-                class="btn btn-outline btn-error btn-sm hover:text-error hover:bg-error/10"
+                class="btn btn-outline btn-primary btn-sm "
               >
                 Sign Out
               </.link>
