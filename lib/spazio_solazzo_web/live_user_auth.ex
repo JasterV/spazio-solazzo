@@ -36,4 +36,14 @@ defmodule SpazioSolazzoWeb.LiveUserAuth do
       {:cont, assign(socket, :current_user, nil)}
     end
   end
+
+  def on_mount(:live_admin_required, _params, _session, socket) do
+    case socket.assigns[:current_user] do
+      %{is_admin: true} ->
+        {:cont, socket}
+
+      _ ->
+        {:halt, Phoenix.LiveView.redirect(socket, to: ~p"/")}
+    end
+  end
 end

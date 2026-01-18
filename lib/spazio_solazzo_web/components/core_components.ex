@@ -32,6 +32,26 @@ defmodule SpazioSolazzoWeb.CoreComponents do
   alias Phoenix.LiveView.JS
 
   @doc """
+  Renders a back-to navigation link
+  """
+
+  attr :navigate, :string
+  attr :value, :string
+  attr :rest, :global, doc: "the arbitrary HTML attributes to add to the flash container"
+
+  def back_to_link(assigns) do
+    ~H"""
+    <.link
+      class="mb-6 text-sm font-medium text-neutral hover:text-secondary transition-colors inline-flex items-center gap-2"
+      navigate={@navigate}
+      {@rest}
+    >
+      <.icon name="hero-arrow-left" class="w-5 h-5" />{@value}
+    </.link>
+    """
+  end
+
+  @doc """
   Renders flash notices.
 
   ## Examples
@@ -223,7 +243,8 @@ defmodule SpazioSolazzoWeb.CoreComponents do
             checked={@checked}
             class={@class || "checkbox checkbox-sm"}
             {@rest}
-          />{@label}
+          />
+          <span class="label-text">{@label}</span>
         </span>
       </label>
       <.error :for={msg <- @errors}>{msg}</.error>

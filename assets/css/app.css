@@ -220,3 +220,8 @@ h6 {
 .hover\:text-plum:hover {
   color: var(--color-primary);
 }
+
+/* Fix label-text color in dark mode */
+.label-text {
+  color: var(--color-base-content);
+}

@@ -1,5 +1,12 @@
 <Layouts.app flash={@flash} current_user={@current_user}>
   <div class="mx-auto max-w-[800px] px-6 py-12">
+    <div class="mb-10">
+      <.back_to_link
+        navigate={~p"/"}
+        value="Back to Home"
+      />
+    </div>
+
     <div class="mb-10 text-center">
       <h1 class="text-4xl font-black text-base-content tracking-tight">
         User Profile
@@ -71,7 +78,7 @@
           <div class="mt-8 pt-8 border-t border-base-200 flex justify-end">
             <button
               type="submit"
-              class="btn btn-primary rounded-xl shadow-lg cursor-pointer"
+              class="btn btn-secondary rounded-xl shadow-lg cursor-pointer"
             >
               Save Changes
             </button>
@@ -165,7 +172,7 @@
           <button
             type="button"
             phx-click="hide_delete_modal"
-            class="btn btn-ghost rounded-xl cursor-pointer"
+            class="btn btn-ghost text-base-content rounded-xl cursor-pointer"
           >
             Cancel
           </button>
