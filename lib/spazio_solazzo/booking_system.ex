@@ -125,6 +125,30 @@ defmodule SpazioSolazzo.BookingSystem do
     end
   end
 
+  def get_slot_booking_counts(space_id, date, start_time, end_time) do
+    with {:ok, all_bookings} <- list_booking_requests(space_id, nil, date) do
+      overlapping_bookings =
+        Enum.filter(all_bookings, fn booking ->
+          times_overlap?(
+            booking.start_time,
+            booking.end_time,
+            start_time,
+            end_time
+          )
+        end)
+
+      pending_count =
+        overlapping_bookings
+        |> Enum.count(&(&1.state == :requested))
+
+      approved_count =
+        overlapping_bookings
+        |> Enum.count(&(&1.state == :accepted))
+
+      {:ok, %{pending: pending_count, approved: approved_count}}
+    end
+  end
+
   defp times_overlap?(start1, end1, start2, end2) do
     Time.compare(start1, end2) == :lt and Time.compare(start2, end1) == :lt
   end

@@ -1,6 +1,7 @@
-defmodule SpazioSolazzo.BookingSystem.Booking.CancellationWorker do
+defmodule SpazioSolazzo.BookingSystem.Booking.RequestCreatedEmailWorker do
   @moduledoc """
-  Sends cancellation notification emails to administrators when a customer cancels a booking.
+  Sends booking request confirmation emails to customers and notification emails to administrators.
+  Triggered when a new booking request is created.
   """
 
   use Oban.Worker, queue: :booking_email, max_attempts: 3
@@ -10,28 +11,36 @@ defmodule SpazioSolazzo.BookingSystem.Booking.CancellationWorker do
   @impl Oban.Worker
   def perform(%Oban.Job{
         args: %{
+          "booking_id" => booking_id,
           "customer_name" => customer_name,
           "customer_email" => customer_email,
           "customer_phone" => customer_phone,
+          "customer_comment" => customer_comment,
           "space_name" => space_name,
           "date" => date,
           "start_time" => start_time,
-          "end_time" => end_time,
-          "cancellation_reason" => cancellation_reason
+          "end_time" => end_time
         }
       }) do
-    %{
+    email_data = %{
+      booking_id: booking_id,
       customer_name: customer_name,
       customer_email: customer_email,
       customer_phone: customer_phone,
+      customer_comment: customer_comment,
       space_name: space_name,
       date: date,
       start_time: start_time,
       end_time: end_time,
-      cancellation_reason: cancellation_reason,
       admin_email: admin_email()
     }
-    |> Email.cancelled_admin()
+
+    email_data
+    |> Email.user_booking_request_confirmation()
+    |> SpazioSolazzo.Mailer.deliver!()
+
+    email_data
+    |> Email.admin_incoming_booking_request()
     |> SpazioSolazzo.Mailer.deliver!()
 
     :ok

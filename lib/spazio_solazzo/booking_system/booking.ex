@@ -14,9 +14,9 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
   require Ash.Query
 
   alias SpazioSolazzo.BookingSystem.Booking.{
-    NewRequestWorker,
-    DecisionWorker,
-    CancellationWorker
+    AdminActionEmailWorker,
+    RequestCreatedEmailWorker,
+    UserCancellationEmailWorker
   }
 
   postgres do
@@ -172,7 +172,7 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
                  start_time: booking.start_time,
                  end_time: booking.end_time
                }
-               |> NewRequestWorker.new()
+               |> RequestCreatedEmailWorker.new()
                |> Oban.insert!()
 
                {:ok, booking}
@@ -196,10 +196,9 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
                  date: Calendar.strftime(booking.date, "%A, %B %d"),
                  start_time: booking.start_time,
                  end_time: booking.end_time,
-                 decision: "accepted",
-                 rejection_reason: nil
+                 action: "accepted"
                }
-               |> DecisionWorker.new()
+               |> AdminActionEmailWorker.new()
                |> Oban.insert!()
 
                {:ok, booking}
@@ -222,7 +221,6 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
                booking = Ash.load!(booking, [:space])
 
                %{
-                 booking_id: booking.id,
                  customer_name: booking.customer_name,
                  customer_email: booking.customer_email,
                  customer_phone: booking.customer_phone,
@@ -230,10 +228,10 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
                  date: Calendar.strftime(booking.date, "%A, %B %d"),
                  start_time: booking.start_time,
                  end_time: booking.end_time,
-                 decision: "rejected",
+                 action: "rejected",
                  rejection_reason: booking.rejection_reason
                }
-               |> DecisionWorker.new()
+               |> AdminActionEmailWorker.new()
                |> Oban.insert!()
 
                {:ok, booking}
@@ -265,7 +263,7 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
                  end_time: booking.end_time,
                  cancellation_reason: booking.cancellation_reason
                }
-               |> CancellationWorker.new()
+               |> UserCancellationEmailWorker.new()
                |> Oban.insert!()
 
                {:ok, booking}
