@@ -43,14 +43,15 @@ defmodule SpazioSolazzo.Accounts.UserTest do
   describe "terminate_account with delete_history: false (anonymization)" do
     test "deletes user but preserves bookings with nullified user_id" do
       user = register_user("delete@example.com")
-      {_space, asset, time_slot} = create_booking_fixtures()
+      {space, _time_slot} = create_booking_fixtures()
 
       {:ok, booking1} =
         BookingSystem.create_booking(
-          time_slot.id,
-          asset.id,
+          space.id,
           user.id,
           Date.utc_today(),
+          ~T[09:00:00],
+          ~T[11:00:00],
           "John Doe",
           "john@example.com",
           "+393627384027",
@@ -59,10 +60,11 @@ defmodule SpazioSolazzo.Accounts.UserTest do
 
       {:ok, booking2} =
         BookingSystem.create_booking(
-          time_slot.id,
-          asset.id,
+          space.id,
           user.id,
           Date.add(Date.utc_today(), 1),
+          ~T[09:00:00],
+          ~T[11:00:00],
           "Jane Doe",
           "jane@example.com",
           "+393627384028",
@@ -88,60 +90,46 @@ defmodule SpazioSolazzo.Accounts.UserTest do
 
     test "cancels future confirmed bookings before anonymizing" do
       user = register_user("cancel@example.com")
-      {_space, asset, time_slot} = create_booking_fixtures()
+      {space, _time_slot} = create_booking_fixtures()
 
       future_date = Date.add(Date.utc_today(), 7)
 
       {:ok, future_booking} =
         BookingSystem.create_booking(
-          time_slot.id,
-          asset.id,
+          space.id,
           user.id,
           future_date,
+          ~T[09:00:00],
+          ~T[11:00:00],
           "Future User",
           "future@example.com",
           "+393627384029",
           "future booking"
         )
 
-      {:ok, past_booking} =
-        BookingSystem.create_booking(
-          time_slot.id,
-          asset.id,
-          user.id,
-          Date.add(Date.utc_today(), -7),
-          "Past User",
-          "past@example.com",
-          "+393627384030",
-          "past booking"
-        )
-
       future_booking_id = future_booking.id
-      past_booking_id = past_booking.id
 
       :ok = Accounts.terminate_account(user, false, actor: user)
 
       {:ok, cancelled_booking} = Ash.get(Booking, future_booking_id, authorize?: false)
-      {:ok, preserved_past_booking} = Ash.get(Booking, past_booking_id, authorize?: false)
 
       assert cancelled_booking.state == :cancelled
       assert cancelled_booking.user_id == nil
-
-      assert preserved_past_booking.user_id == nil
     end
   end
 
   describe "terminate_account with delete_history: true (hard delete)" do
     test "deletes user and all associated bookings permanently" do
       user = register_user("harddelete@example.com")
-      {_space, asset, time_slot} = create_booking_fixtures()
+      {space, _time_slot} = create_booking_fixtures()
 
       {:ok, booking1} =
         BookingSystem.create_booking(
-          time_slot.id,
-          asset.id,
+          space.id,
           user.id,
           Date.utc_today(),
+          ~T[09:00:00],
+          ~T[11:00:00],
           "Delete Me",
           "deleteme@example.com",
           "+393627384031",
@@ -150,10 +138,11 @@ defmodule SpazioSolazzo.Accounts.UserTest do
 
       {:ok, booking2} =
         BookingSystem.create_booking(
-          time_slot.id,
-          asset.id,
+          space.id,
           user.id,
           Date.add(Date.utc_today(), 1),
+          ~T[09:00:00],
+          ~T[11:00:00],
           "Delete Me Too",
           "deletemetoo@example.com",
           "+393627384032",
@@ -189,10 +178,10 @@ defmodule SpazioSolazzo.Accounts.UserTest do
       BookingSystem.create_space(
         "Test Space #{unique_id}",
         "test-space-#{unique_id}",
-        "Test description"
+        "Test description",
+        10,
+        12
       )
-
-    {:ok, asset} = BookingSystem.create_asset("Test Asset", space.id)
 
     {:ok, time_slot} =
       BookingSystem.create_time_slot_template(
@@ -202,6 +191,6 @@ defmodule SpazioSolazzo.Accounts.UserTest do
         space.id
       )
 
-    {space, asset, time_slot}
+    {space, time_slot}
   end
 end

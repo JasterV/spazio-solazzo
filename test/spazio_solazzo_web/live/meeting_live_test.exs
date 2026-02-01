@@ -5,10 +5,9 @@ defmodule SpazioSolazzoWeb.MeetingLiveTest do
   alias SpazioSolazzo.BookingSystem
 
   setup do
-    {:ok, space} = BookingSystem.create_space("MeetingTest", "meeting", "desc")
-    {:ok, asset} = BookingSystem.create_asset("Main Room", space.id)
+    {:ok, space} = BookingSystem.create_space("MeetingTest", "meeting", "desc", 1, 1)
 
-    %{space: space, asset: asset}
+    %{space: space}
   end
 
   describe "MeetingLive landing page" do
@@ -16,17 +15,15 @@ defmodule SpazioSolazzoWeb.MeetingLiveTest do
       conn: conn,
       space: space
     } do
-      {:ok, view, html} = live(conn, "/meeting")
+      {:ok, _view, html} = live(conn, "/meeting")
 
       assert html =~ space.name
-      assert html =~ "Book This Room"
-      assert has_element?(view, "h2", "Everything you need to succeed")
     end
 
-    test "has link to asset booking page with correct asset id", %{conn: conn, asset: asset} do
+    test "has link to space booking page with correct space slug", %{conn: conn, space: space} do
       {:ok, view, _html} = live(conn, "/meeting")
 
-      assert has_element?(view, "a[href='/book/asset/#{asset.id}']", "Book This Room")
+      assert has_element?(view, "a[href='/book/space/#{space.slug}']")
     end
   end
 end

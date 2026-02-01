@@ -1,22 +1,21 @@
 defmodule SpazioSolazzo.BookingSystem do
   @moduledoc """
-  Manages bookings, spaces, assets and time slots for the booking system.
+  Manages bookings, spaces, and time slots for the booking system.
   """
 
   use Ash.Domain,
     otp_app: :spazio_solazzo
 
+  require Ash.Query
+  alias SpazioSolazzo.BookingSystem.Space
+
   resources do
     resource SpazioSolazzo.BookingSystem.Space do
       define :get_space_by_slug, action: :read, get_by: [:slug]
-      define :create_space, action: :create, args: [:name, :slug, :description]
-    end
 
-    resource SpazioSolazzo.BookingSystem.Asset do
-      define :get_asset_by_id, action: :read, get_by: [:id]
-      define :get_asset_by_space_id, action: :read, get_by: [:space_id]
-      define :get_space_assets, action: :get_space_assets, args: [:space_id]
-      define :create_asset, action: :create, args: [:name, :space_id]
+      define :create_space,
+        action: :create,
+        args: [:name, :slug, :description, :public_capacity, :real_capacity]
     end
 
     resource SpazioSolazzo.BookingSystem.TimeSlotTemplate do
@@ -30,26 +29,103 @@ defmodule SpazioSolazzo.BookingSystem do
     end
 
     resource SpazioSolazzo.BookingSystem.Booking do
-      define :list_active_asset_bookings_by_date,
-        action: :list_active_asset_bookings_by_date,
-        args: [:asset_id, :date]
+      define :list_accepted_space_bookings_by_date,
+        action: :list_accepted_space_bookings_by_date,
+        args: [:space_id, :date]
+
+      define :list_booking_requests,
+        action: :list_booking_requests,
+        args: [:space_id, :email, :date]
 
       define :create_booking,
         action: :create,
         args: [
-          :time_slot_template_id,
-          :asset_id,
+          :space_id,
           :user_id,
           :date,
+          :start_time,
+          :end_time,
           :customer_name,
           :customer_email,
           :customer_phone,
           :customer_comment
         ]
 
-      define :confirm_booking, action: :confirm_booking, args: []
-      define :cancel_booking, action: :cancel, args: []
+      define :approve_booking, action: :approve, args: []
+      define :reject_booking, action: :reject, args: [:reason]
+      define :cancel_booking, action: :cancel, args: [:reason]
       define :delete_booking, action: :destroy, args: []
     end
+  end
+
+  def request_booking(space_id, user_id, date, start_time, end_time, customer_details) do
+    create_booking(
+      space_id,
+      user_id,
+      date,
+      start_time,
+      end_time,
+      customer_details.name,
+      customer_details.email,
+      customer_details[:phone],
+      customer_details[:comment]
+    )
+  end
+
+  def create_walk_in(space_id, customer_details, start_datetime, end_datetime) do
+    date = DateTime.to_date(start_datetime)
+    start_time = DateTime.to_time(start_datetime)
+    end_time = DateTime.to_time(end_datetime)
+
+    case create_booking(
+           space_id,
+           nil,
+           date,
+           start_time,
+           end_time,
+           customer_details.name,
+           customer_details.email,
+           customer_details[:phone],
+           customer_details[:comment]
+         ) do
+      {:ok, booking} ->
+        approve_booking!(booking)
+        {:ok, booking}
+
+      error ->
+        error
+    end
+  end
+
+  def check_availability(space_id, date, start_time, end_time) do
+    with {:ok, space} <- Ash.get(Space, space_id),
+         {:ok, bookings} <- list_accepted_space_bookings_by_date(space_id, date) do
+      overlapping_bookings =
+        Enum.filter(bookings, fn booking ->
+          times_overlap?(
+            booking.start_time,
+            booking.end_time,
+            start_time,
+            end_time
+          )
+        end)
+
+      current_count = length(overlapping_bookings)
+
+      cond do
+        current_count >= space.real_capacity ->
+          {:ok, :over_real_capacity}
+
+        current_count >= space.public_capacity ->
+          {:ok, :over_public_capacity}
+
+        true ->
+          {:ok, :available}
+      end
+    end
+  end
+
+  defp times_overlap?(start1, end1, start2, end2) do
+    Time.compare(start1, end2) == :lt and Time.compare(start2, end1) == :lt
   end
 end

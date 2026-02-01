@@ -1,4 +1,4 @@
-<h1 class="text-orange">🔔 New Booking Received</h1>
+<h1 class="text-orange">🔔 New Booking Request</h1>
 
 <div style="margin-bottom: 20px;">
   <p><strong>Customer:</strong> {@customer_name}</p>
@@ -7,11 +7,12 @@
   <%= if @customer_phone && String.trim(@customer_phone) != "" do %>
     <p><strong>Phone:</strong> <a href={"tel:#{@customer_phone}"}>{@customer_phone}</a></p>
   <% else %>
-    <p><strong>Phone:</strong> <a href="#">N/A</a></p>
+    <p><strong>Phone:</strong> N/A</p>
   <% end %>
 </div>
 
 <.details_list>
+  <.detail_item label="Space">{@space_name}</.detail_item>
   <.detail_item label="Date">{@date}</.detail_item>
   <.detail_item label="Time">{@start_time} - {@end_time}</.detail_item>
 </.details_list>
@@ -21,7 +22,7 @@
 
   <%= if @customer_comment && String.trim(@customer_comment) != "" do %>
     <div style="background-color: #fffaf0; border-left: 4px solid #ed8936; padding: 15px; color: #2d3748; font-size: 16px; font-weight: 500;">
-      “{@customer_comment}”
+      "{@customer_comment}"
     </div>
   <% else %>
     <div style="background-color: #f7fafc; padding: 12px; border-radius: 4px; color: #718096; font-style: italic; border: 1px dashed #cbd5e0;">
@@ -32,13 +33,9 @@
 
 <hr class="divider" />
 
-<h3 style="color: #5C6BC0; text-align: center;">Admin Actions</h3>
-<p class="text-center">Please confirm arrival or cancel the booking.</p>
+<h3 style="color: #5C6BC0; text-align: center;">Action Required</h3>
+<p class="text-center">Please review and manage this request in the admin dashboard.</p>
 
-<.email_button href={@confirm_url} variant={:primary}>
-  Confirm Arrival
-</.email_button>
-
-<.email_button href={@cancel_url} variant={:danger}>
-  Cancel Booking
+<.email_button href={@dashboard_url} variant={:primary}>
+  Manage Request
 </.email_button>

@@ -26,7 +26,6 @@ defmodule SpazioSolazzoWeb.Router do
     pipe_through :browser
 
     get "/bookings/confirm", BookingController, :confirm
-    get "/bookings/cancel", BookingController, :cancel
     get "/sign-out", AuthController, :sign_out
     get "/auth/magic/sign-in", AuthController, :magic_sign_in
     get "/auth/failure", AuthController, :auth_failure
@@ -53,7 +52,8 @@ defmodule SpazioSolazzoWeb.Router do
       on_mount: [
         {SpazioSolazzoWeb.LiveUserAuth, :live_user_required}
       ] do
-      live "/book/asset/:asset_id", AssetBookingLive
+      live "/book/space/:space_slug", SpaceBookingLive
+      live "/bookings/cancel", BookingCancellationLive
       live "/profile", ProfileLive
     end
 

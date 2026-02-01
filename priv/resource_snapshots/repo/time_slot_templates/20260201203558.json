@@ -21,7 +21,31 @@
       "references": null,
       "scale": null,
       "size": null,
-      "source": "name",
+      "source": "start_time",
+      "type": "time"
+    },
+    {
+      "allow_nil?": false,
+      "default": "nil",
+      "generated?": false,
+      "precision": null,
+      "primary_key?": false,
+      "references": null,
+      "scale": null,
+      "size": null,
+      "source": "end_time",
+      "type": "time"
+    },
+    {
+      "allow_nil?": false,
+      "default": "nil",
+      "generated?": false,
+      "precision": null,
+      "primary_key?": false,
+      "references": null,
+      "scale": null,
+      "size": null,
+      "source": "day_of_week",
       "type": "text"
     },
     {
@@ -43,7 +67,7 @@
           "global": null,
           "strategy": null
         },
-        "name": "assets_space_id_fkey",
+        "name": "time_slot_templates_space_id_fkey",
         "on_delete": null,
         "on_update": null,
         "primary_key?": true,
@@ -61,27 +85,8 @@
   "custom_indexes": [],
   "custom_statements": [],
   "has_create_action": true,
-  "hash": "9FAD08E854AEBC8A2C7C7466BBC5254CAFB16C2A860034688C3C1142E183052C",
-  "identities": [
-    {
-      "all_tenants?": false,
-      "base_filter": null,
-      "index_name": "assets_unique_name_per_space_index",
-      "keys": [
-        {
-          "type": "atom",
-          "value": "name"
-        },
-        {
-          "type": "atom",
-          "value": "space_id"
-        }
-      ],
-      "name": "unique_name_per_space",
-      "nils_distinct?": true,
-      "where": null
-    }
-  ],
+  "hash": "E90087CB07EEC08732A24BCFC5114E66CCF992BDAE093E32565BDB922781F3FF",
+  "identities": [],
   "multitenancy": {
     "attribute": null,
     "global": null,
@@ -89,5 +94,5 @@
   },
   "repo": "Elixir.SpazioSolazzo.Repo",
   "schema": null,
-  "table": "assets"
+  "table": "time_slot_templates"
 }

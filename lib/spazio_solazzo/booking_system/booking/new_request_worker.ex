@@ -1,9 +1,10 @@
-defmodule SpazioSolazzo.BookingSystem.Booking.EmailWorker do
+defmodule SpazioSolazzo.BookingSystem.Booking.NewRequestWorker do
   @moduledoc """
-  Sends booking confirmation emails to customers and notification emails to administrators.
+  Sends booking request confirmation emails to customers and notification emails to administrators.
+  Triggered when a new booking request is created.
   """
 
-  use Oban.Worker, queue: :booking_email, max_attempts: 1
+  use Oban.Worker, queue: :booking_email, max_attempts: 3
 
   alias SpazioSolazzo.BookingSystem.Booking.Email
 
@@ -15,6 +16,7 @@ defmodule SpazioSolazzo.BookingSystem.Booking.EmailWorker do
           "customer_email" => customer_email,
           "customer_phone" => customer_phone,
           "customer_comment" => customer_comment,
+          "space_name" => space_name,
           "date" => date,
           "start_time" => start_time,
           "end_time" => end_time
@@ -26,6 +28,7 @@ defmodule SpazioSolazzo.BookingSystem.Booking.EmailWorker do
       customer_email: customer_email,
       customer_phone: customer_phone,
       customer_comment: customer_comment,
+      space_name: space_name,
       date: date,
       start_time: start_time,
       end_time: end_time,
@@ -33,11 +36,11 @@ defmodule SpazioSolazzo.BookingSystem.Booking.EmailWorker do
     }
 
     email_data
-    |> Email.customer_confirmation()
+    |> Email.request_received_user()
     |> SpazioSolazzo.Mailer.deliver!()
 
     email_data
-    |> Email.admin_notification()
+    |> Email.new_request_admin()
     |> SpazioSolazzo.Mailer.deliver!()
 
     :ok

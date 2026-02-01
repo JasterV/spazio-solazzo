@@ -1,4 +1,4 @@
-defmodule SpazioSolazzo.Repo.Migrations.SetupResources do
+defmodule SpazioSolazzo.Repo.Migrations.CreateBaseResources do
   @moduledoc """
   Updates resources based on their most recent snapshots.
 
@@ -12,7 +12,8 @@ defmodule SpazioSolazzo.Repo.Migrations.SetupResources do
       add :id, :uuid, null: false, default: fragment("gen_random_uuid()"), primary_key: true
       add :email, :citext, null: false
       add :name, :text, null: false
-      add :phone_number, :text, null: false
+      add :phone_number, :text
+      add :role, :text, null: false, default: "customer"
     end
 
     create unique_index(:users, [:email], name: "users_unique_email_index")
@@ -59,6 +60,8 @@ defmodule SpazioSolazzo.Repo.Migrations.SetupResources do
       add :name, :text, null: false
       add :description, :text, null: false
       add :slug, :text, null: false
+      add :public_capacity, :bigint, null: false
+      add :real_capacity, :bigint, null: false
     end
 
     create unique_index(:spaces, [:name], name: "spaces_unique_name_index")
@@ -72,9 +75,11 @@ defmodule SpazioSolazzo.Repo.Migrations.SetupResources do
       add :customer_email, :text, null: false
       add :start_time, :time, null: false
       add :end_time, :time, null: false
-      add :customer_phone, :text, null: false
+      add :customer_phone, :text
       add :customer_comment, :text
-      add :state, :text, null: false, default: "reserved"
+      add :cancellation_reason, :text
+      add :rejection_reason, :text
+      add :state, :text, null: false, default: "requested"
 
       add :inserted_at, :utc_datetime_usec,
         null: false,
@@ -84,86 +89,33 @@ defmodule SpazioSolazzo.Repo.Migrations.SetupResources do
         null: false,
         default: fragment("(now() AT TIME ZONE 'utc')")
 
-      add :asset_id, :uuid
-      add :time_slot_template_id, :uuid
-      add :user_id, :uuid
-    end
-
-    create table(:assets, primary_key: false) do
-      add :id, :uuid, null: false, default: fragment("gen_random_uuid()"), primary_key: true
-    end
-
-    alter table(:bookings) do
-      modify :asset_id,
-             references(:assets,
-               column: :id,
-               name: "bookings_asset_id_fkey",
-               type: :uuid,
-               prefix: "public"
-             )
-
-      modify :time_slot_template_id,
-             references(:time_slot_templates,
-               column: :id,
-               name: "bookings_time_slot_template_id_fkey",
-               type: :uuid,
-               prefix: "public"
-             )
-
-      modify :user_id,
-             references(:users,
-               column: :id,
-               name: "bookings_user_id_fkey",
-               type: :uuid,
-               prefix: "public",
-               on_delete: :nilify_all
-             )
-    end
-
-    create index(:bookings, [:user_id])
-
-    alter table(:assets) do
-      add :name, :text, null: false
-
       add :space_id,
           references(:spaces,
             column: :id,
-            name: "assets_space_id_fkey",
+            name: "bookings_space_id_fkey",
             type: :uuid,
             prefix: "public"
           ), null: false
+
+      add :user_id,
+          references(:users,
+            column: :id,
+            name: "bookings_user_id_fkey",
+            type: :uuid,
+            prefix: "public",
+            on_delete: :nilify_all
+          )
     end
 
-    create unique_index(:assets, [:name, :space_id], name: "assets_unique_name_per_space_index")
+    create index(:bookings, [:user_id])
   end
 
   def down do
-    drop_if_exists unique_index(:assets, [:name, :space_id],
-                     name: "assets_unique_name_per_space_index"
-                   )
-
-    drop constraint(:assets, "assets_space_id_fkey")
-
-    alter table(:assets) do
-      remove :space_id
-      remove :name
-    end
-
     drop_if_exists index(:bookings, [:user_id])
 
-    drop constraint(:bookings, "bookings_asset_id_fkey")
-
-    drop constraint(:bookings, "bookings_time_slot_template_id_fkey")
+    drop constraint(:bookings, "bookings_space_id_fkey")
 
     drop constraint(:bookings, "bookings_user_id_fkey")
-
-    alter table(:bookings) do
-      modify :user_id, :uuid
-      modify :time_slot_template_id, :uuid
-      modify :asset_id, :uuid
-    end
-
-    drop table(:assets)
 
     drop table(:bookings)
 
@@ -172,6 +124,8 @@ defmodule SpazioSolazzo.Repo.Migrations.SetupResources do
     drop_if_exists unique_index(:spaces, [:name], name: "spaces_unique_name_index")
 
     alter table(:spaces) do
+      remove :real_capacity
+      remove :public_capacity
       remove :slug
       remove :description
       remove :name

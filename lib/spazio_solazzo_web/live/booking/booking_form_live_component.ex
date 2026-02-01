@@ -8,9 +8,12 @@ defmodule SpazioSolazzoWeb.BookingFormLiveComponent do
   alias SpazioSolazzo.CalendarExt
 
   def update(assigns, socket) do
+    current_user = assigns.current_user
+
     initial_data = %{
-      "customer_name" => assigns.current_user.name,
-      "customer_phone" => assigns.current_user.phone_number || "",
+      "customer_name" => (current_user && current_user.name) || "",
+      "customer_email" => (current_user && current_user.email) || "",
+      "customer_phone" => (current_user && current_user.phone_number) || "",
       "customer_comment" => ""
     }
 
@@ -29,6 +32,7 @@ defmodule SpazioSolazzoWeb.BookingFormLiveComponent do
   def handle_event("submit_booking", params, socket) do
     booking_data = %{
       customer_name: params["customer_name"] || "",
+      customer_email: params["customer_email"],
       customer_phone: params["customer_phone"] || "",
       customer_comment: params["customer_comment"] || ""
     }
@@ -44,13 +48,33 @@ defmodule SpazioSolazzoWeb.BookingFormLiveComponent do
         <:title>Complete Your Booking</:title>
         <:subtitle>
           <%= if @selected_time_slot do %>
-            {@asset.name} | {CalendarExt.format_time_range(@selected_time_slot)} on {CalendarExt.format_date(
+            {@space.name} | {CalendarExt.format_time_range(@selected_time_slot)} on {CalendarExt.format_date(
               @selected_date
             )}
           <% end %>
         </:subtitle>
 
         <div>
+          <%= if @slot_availability == :over_public_capacity do %>
+            <div class="mb-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-400 rounded">
+              <div class="flex gap-3">
+                <div class="flex-shrink-0">
+                  <.icon
+                    name="hero-exclamation-triangle"
+                    class="size-5 text-yellow-600 dark:text-yellow-400"
+                  />
+                </div>
+                <div>
+                  <p class="text-sm font-semibold text-yellow-800 dark:text-yellow-300">
+                    High Demand Time Slot
+                  </p>
+                  <p class="text-sm text-yellow-700 dark:text-yellow-400 mt-1">
+                    This time slot is popular. Your request will be subject to admin approval based on availability.
+                  </p>
+                </div>
+              </div>
+            </div>
+          <% end %>
           <.form
             for={@form}
             id="booking-form"
@@ -68,19 +92,31 @@ defmodule SpazioSolazzoWeb.BookingFormLiveComponent do
                 placeholder="Your full name"
               />
 
-              <div>
-                <label class="block text-sm font-medium text-base-content mb-2">
-                  Email
-                </label>
-                <div class="flex items-center gap-3 p-4 bg-secondary/5 rounded-xl border border-base-200">
-                  <div class="flex-shrink-0">
-                    <.icon name="hero-envelope" class="size-5 text-secondary" />
+              <%= if @current_user do %>
+                <div>
+                  <label class="block text-sm font-medium text-base-content mb-2">
+                    Email
+                  </label>
+                  <div class="flex items-center gap-3 p-4 bg-secondary/5 rounded-xl border border-base-200">
+                    <div class="flex-shrink-0">
+                      <.icon name="hero-envelope" class="size-5 text-secondary" />
+                    </div>
+                    <span class="text-sm font-medium text-base-content truncate">
+                      {@current_user.email}
+                    </span>
                   </div>
-                  <span class="text-sm font-medium text-base-content truncate">
-                    {@current_user.email}
-                  </span>
                 </div>
-              </div>
+              <% else %>
+                <.input
+                  name="customer_email"
+                  id="customer_email"
+                  type="email"
+                  label="Email *"
+                  value={@form[:customer_email].value}
+                  required
+                  placeholder="your@email.com"
+                />
+              <% end %>
 
               <.input
                 name="customer_phone"

@@ -1,18 +1,26 @@
-<h1 class="text-orange">🎉 Booking Confirmed!</h1>
+<h1 class="text-orange">🎉 Booking Request Approved!</h1>
 
 <p>Hello <strong><%= @customer_name %></strong>,</p>
-<p>Thank you for choosing Spazio Solazzo! Your booking has been successfully confirmed.</p>
+<p>
+  Great news! Your booking request has been approved. We look forward to seeing you at Spazio Solazzo!
+</p>
 
 <.details_list>
   <.detail_item label="Date">{@date}</.detail_item>
   <.detail_item label="Time">{@start_time} - {@end_time}</.detail_item>
+  <.detail_item label="Space">{@space_name}</.detail_item>
   <.detail_item label="Email">{@customer_email}</.detail_item>
   <.detail_item label="Phone">{@customer_phone || "N/A"}</.detail_item>
-  <.detail_item label="Note">{@customer_comment || "N/A"}</.detail_item>
 </.details_list>
 
+<div style="background-color: #f0fdf4; border-left: 4px solid #22c55e; padding: 15px; margin: 20px 0; color: #2d3748;">
+  <p style="margin: 0; font-weight: 500;">
+    ✅ Your booking is confirmed! Please arrive on time.
+  </p>
+</div>
+
 <p class="text-center">
-  If you need to manage or cancel this booking, please use the link below:
+  If you need to cancel this booking, please use the link below:
 </p>
 
 <.email_button href={@cancel_url} variant={:danger}>

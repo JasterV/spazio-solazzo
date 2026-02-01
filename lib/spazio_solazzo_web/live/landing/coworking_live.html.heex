@@ -1,11 +1,15 @@
 <Layouts.app flash={@flash} current_user={@current_user}>
   <.page_header
-    booking_path="#interactive-floor-plan"
-    booking_label="Explore Desks & Book"
+    booking_path={~p"/book/space/#{@space.slug}"}
+    booking_label="Book Space"
     price="€25"
     price_unit="day"
-    capacity="5 Desks"
-    images={@images}
+    capacity={@space.public_capacity}
+    images={[
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuDmh_AkVuUoICqpHk1NdLuLdi0xQBOC8Hy9PrsSNz956igHFRhbNGsB8k0vSLe2U2NW1sxRVZm_dwR27Q4Db_f21XbYkLtfiRYob-j4ran1rTBB0bQAz4QLFSO1yL_cPhDIpAyvC069mDQ33-ckZgZ_yvFsIK_-_0Jj2NEOnDie684uaR7vKuiBWlsr-JmAsPzUp7Aik7Qbzozune348nBz1bvWkBNMCpMO3JV8hrYBo1i6JlUiGSuP3-5fWXKt8dKhxPUN-amjLFgh",
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuCh5O9cz1ruQFH0Pq3MzC_1HsWrLPHbWlfYEdB2dmPi0YDn2L23R5hseUZmb19XlEju1n4a24oD6pH5qiG4SvIemrD45PfKwvNlckpOG59IYz5WYrHzroq7L4Uq9Hxl0PTzU5m8R5k625w_MrdZKidyfM6OnzNJfM5J3XftFI5A9J7wD_BDHRKxq8gxAukUCesuYX8lGm3AhQAZQTjaUY5yeobjt-NCSrlfTzxmcUmibJSTnKZuwx-li4QtFr0wQrzHVLUZYiAhA251",
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuCanfiWzXqH3fBrE6U3phirIFZo5bgKG1aa8wnXCRC12yOXkcgnGUTRhxppIk61QUdQWF9KuFAtjhDEI9AACV-pM7yXyPKbOKognCARD-qbffFtCwGLidcLkoprLnNAW12C7TeRL6gOEBas3RI7jCf30JmzMmSqCjMx3lixgrOr6qlpbHZA4Eog_P41y5zXtn9Nqlq2eB6c7RYhiOIJzXVpMmfLR_qf0HTmOnx2poDbqKcLDcCM-p4S6aAwLxC-GYBmvEfWQ4meToCL"
+    ]}
   >
     <:title>{@space.name}</:title>
     <:description>
@@ -37,43 +41,6 @@
       color="purple"
     />
   </.features_section>
-
-  <section class="py-20 px-6 bg-base-100" id="interactive-floor-plan">
-    <div class="mx-auto max-w-[1200px]">
-      <div class="text-center mb-12">
-        <h2 class="text-3xl font-bold text-base-content mb-4">
-          Interactive Floor Plan
-        </h2>
-        <p class="text-neutral max-w-lg mx-auto">
-          Select any desk to customize your booking details on the next page, where availability is confirmed.
-        </p>
-      </div>
-      <div class="bg-base-200 rounded-3xl p-8 md:p-12 border border-base-300 shadow-xl relative overflow-hidden">
-        <div class="absolute top-6 right-6 opacity-10 pointer-events-none select-none">
-          <.icon name="hero-building-office-2" class="w-32 h-32 text-secondary" />
-        </div>
-        <div class="flex flex-col items-center gap-10">
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-6 w-full max-w-3xl">
-            <.link
-              :for={asset <- @assets}
-              navigate={~p"/book/asset/#{asset.id}"}
-              class="group relative flex flex-col items-center gap-3 cursor-pointer"
-            >
-              <div class="w-full aspect-[4/3] rounded-xl bg-base-100 border-2 border-base-200 group-hover:border-secondary group-hover:shadow-lg group-hover:shadow-secondary/20 transition-all duration-300 flex items-center justify-center relative">
-                <.icon
-                  name="hero-computer-desktop"
-                  class="w-12 h-12 text-base-300 group-hover:text-secondary transition-colors"
-                />
-              </div>
-              <span class="text-sm font-bold text-neutral group-hover:text-secondary transition-colors">
-                {asset.name}
-              </span>
-            </.link>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
 
   <.house_rules title="Coworking House Rules">
     <:rule>Please keep phone calls to the dedicated booths.</:rule>

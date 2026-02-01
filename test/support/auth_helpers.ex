@@ -27,6 +27,28 @@ defmodule SpazioSolazzo.AuthHelpers do
   end
 
   @doc """
+  Creates a user and logs them into the connection.
+
+  Useful for tests that need an authenticated connection.
+
+  ## Parameters
+
+    - `conn` - The test connection
+    - `email` - User's email address
+    - `name` - Optional user's full name (defaults to "Test User")
+    - `phone_number` - Optional phone number (defaults to nil)
+
+  ## Examples
+
+      conn = register_and_log_in_user(conn, "test@example.com", "Test User", "+1234567890")
+      conn = register_and_log_in_user(conn, "user@example.com")
+  """
+  def register_and_log_in_user(conn, email, name \\ "Test User", phone_number \\ nil) do
+    user = register_user(email, name, phone_number)
+    log_in_user(conn, user)
+  end
+
+  @doc """
   Creates a user via magic link authentication without attaching to a connection.
 
   Useful for tests that need a user object but don't need an authenticated connection.

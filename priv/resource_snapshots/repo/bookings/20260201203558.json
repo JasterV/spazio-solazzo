@@ -73,7 +73,7 @@
       "type": "time"
     },
     {
-      "allow_nil?": false,
+      "allow_nil?": true,
       "default": "nil",
       "generated?": false,
       "precision": null,
@@ -97,8 +97,32 @@
       "type": "text"
     },
     {
+      "allow_nil?": true,
+      "default": "nil",
+      "generated?": false,
+      "precision": null,
+      "primary_key?": false,
+      "references": null,
+      "scale": null,
+      "size": null,
+      "source": "cancellation_reason",
+      "type": "text"
+    },
+    {
+      "allow_nil?": true,
+      "default": "nil",
+      "generated?": false,
+      "precision": null,
+      "primary_key?": false,
+      "references": null,
+      "scale": null,
+      "size": null,
+      "source": "rejection_reason",
+      "type": "text"
+    },
+    {
       "allow_nil?": false,
-      "default": "\"reserved\"",
+      "default": "\"requested\"",
       "generated?": false,
       "precision": null,
       "primary_key?": false,
@@ -133,7 +157,7 @@
       "type": "utc_datetime_usec"
     },
     {
-      "allow_nil?": true,
+      "allow_nil?": false,
       "default": "nil",
       "generated?": false,
       "precision": null,
@@ -151,47 +175,16 @@
           "global": null,
           "strategy": null
         },
-        "name": "bookings_asset_id_fkey",
+        "name": "bookings_space_id_fkey",
         "on_delete": null,
         "on_update": null,
         "primary_key?": true,
         "schema": "public",
-        "table": "assets"
+        "table": "spaces"
       },
       "scale": null,
       "size": null,
-      "source": "asset_id",
-      "type": "uuid"
-    },
-    {
-      "allow_nil?": true,
-      "default": "nil",
-      "generated?": false,
-      "precision": null,
-      "primary_key?": false,
-      "references": {
-        "deferrable": false,
-        "destination_attribute": "id",
-        "destination_attribute_default": null,
-        "destination_attribute_generated": null,
-        "index?": false,
-        "match_type": null,
-        "match_with": null,
-        "multitenancy": {
-          "attribute": null,
-          "global": null,
-          "strategy": null
-        },
-        "name": "bookings_time_slot_template_id_fkey",
-        "on_delete": null,
-        "on_update": null,
-        "primary_key?": true,
-        "schema": "public",
-        "table": "time_slot_templates"
-      },
-      "scale": null,
-      "size": null,
-      "source": "time_slot_template_id",
+      "source": "space_id",
       "type": "uuid"
     },
     {
@@ -231,7 +224,7 @@
   "custom_indexes": [],
   "custom_statements": [],
   "has_create_action": true,
-  "hash": "D4E1D8A61AAAA83530EF07DE6BB15175AE052ADE62D06E538C222576218F0289",
+  "hash": "0EFE49884DF5DC66BF3F1E125132A2F3E18DD66AC732121184A93707260C5225",
   "identities": [],
   "multitenancy": {
     "attribute": null,

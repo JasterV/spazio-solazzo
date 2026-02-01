@@ -47,6 +47,30 @@
       "size": null,
       "source": "slug",
       "type": "text"
+    },
+    {
+      "allow_nil?": false,
+      "default": "nil",
+      "generated?": false,
+      "precision": null,
+      "primary_key?": false,
+      "references": null,
+      "scale": null,
+      "size": null,
+      "source": "public_capacity",
+      "type": "bigint"
+    },
+    {
+      "allow_nil?": false,
+      "default": "nil",
+      "generated?": false,
+      "precision": null,
+      "primary_key?": false,
+      "references": null,
+      "scale": null,
+      "size": null,
+      "source": "real_capacity",
+      "type": "bigint"
     }
   ],
   "base_filter": null,
@@ -54,7 +78,7 @@
   "custom_indexes": [],
   "custom_statements": [],
   "has_create_action": true,
-  "hash": "29965B10015A4BDE39A648F85CE4FDB39DDFC21E0CB18903C7F9677E11B11D21",
+  "hash": "8C04048A6F7E0263FAA5078E0561DF61F4F7858EACAEB62A63F41D3A11DB3317",
   "identities": [
     {
       "all_tenants?": false,

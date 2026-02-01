@@ -20,6 +20,18 @@ defmodule SpazioSolazzo.BookingSystem.TimeSlotTemplate do
 
     create :create do
       accept [:start_time, :end_time, :space_id, :day_of_week]
+
+      validate fn changeset, _ctx ->
+        start_time = Ash.Changeset.get_attribute(changeset, :start_time)
+        end_time = Ash.Changeset.get_attribute(changeset, :end_time)
+
+        if start_time && end_time && Time.compare(end_time, start_time) != :gt do
+          {:error, field: :end_time, message: "must be after start time"}
+        else
+          :ok
+        end
+      end
+
       change {Changes.PreventCreationOverlap, []}
     end
 

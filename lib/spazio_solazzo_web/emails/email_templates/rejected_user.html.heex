@@ -1,0 +1,37 @@
+<h1 style="color: #dc3545;">❌ Booking Request Not Approved</h1>
+
+<p>Hello <strong><%= @customer_name %></strong>,</p>
+<p>We regret to inform you that your booking request could not be approved at this time.</p>
+
+<.details_list>
+  <.detail_item label="Date">{@date}</.detail_item>
+  <.detail_item label="Time">{@start_time} - {@end_time}</.detail_item>
+  <.detail_item label="Space">{@space_name}</.detail_item>
+</.details_list>
+
+<div style="background-color: #fff5f5; border-left: 4px solid #dc3545; padding: 15px; margin: 20px 0; color: #2d3748;">
+  <h3 style="color: #dc3545; margin-top: 0; font-size: 16px;">Reason for Rejection:</h3>
+  <p style="margin: 0; font-weight: 500;">
+    {@rejection_reason}
+  </p>
+</div>
+
+<p>
+  We apologize for any inconvenience. If you have any questions or would like to discuss alternative options, please don't hesitate to contact us.
+</p>
+
+<hr class="divider" />
+
+<div style="background-color: #f8fafc; border-radius: 8px; padding: 20px; text-align: center; margin-top: 30px;">
+  <h3 style="color: #2d3748; margin-top: 0;">Get in Touch</h3>
+  <p style="color: #4a5568; font-size: 14px; margin-bottom: 15px;">
+    Our Front Office is here to help you find the best solution.
+  </p>
+
+  <a
+    href={"tel:#{@front_office_phone_number}"}
+    style="display: inline-block; background-color: #edf2f7; color: #2d3748; padding: 10px 20px; border-radius: 50px; text-decoration: none; font-weight: bold; font-size: 18px; border: 1px solid #cbd5e0;"
+  >
+    📞 {@front_office_phone_number}
+  </a>
+</div>

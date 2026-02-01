@@ -2,15 +2,15 @@
   "attributes": [
     {
       "allow_nil?": false,
-      "default": "fragment(\"gen_random_uuid()\")",
+      "default": "nil",
       "generated?": false,
       "precision": null,
       "primary_key?": true,
       "references": null,
       "scale": null,
       "size": null,
-      "source": "id",
-      "type": "uuid"
+      "source": "jti",
+      "type": "text"
     },
     {
       "allow_nil?": false,
@@ -21,8 +21,8 @@
       "references": null,
       "scale": null,
       "size": null,
-      "source": "email",
-      "type": "citext"
+      "source": "subject",
+      "type": "text"
     },
     {
       "allow_nil?": false,
@@ -33,7 +33,19 @@
       "references": null,
       "scale": null,
       "size": null,
-      "source": "name",
+      "source": "expires_at",
+      "type": "utc_datetime"
+    },
+    {
+      "allow_nil?": false,
+      "default": "nil",
+      "generated?": false,
+      "precision": null,
+      "primary_key?": false,
+      "references": null,
+      "scale": null,
+      "size": null,
+      "source": "purpose",
       "type": "text"
     },
     {
@@ -45,20 +57,32 @@
       "references": null,
       "scale": null,
       "size": null,
-      "source": "phone_number",
-      "type": "text"
+      "source": "extra_data",
+      "type": "map"
     },
     {
       "allow_nil?": false,
-      "default": "\"customer\"",
+      "default": "fragment(\"(now() AT TIME ZONE 'utc')\")",
       "generated?": false,
       "precision": null,
       "primary_key?": false,
       "references": null,
       "scale": null,
       "size": null,
-      "source": "role",
-      "type": "text"
+      "source": "created_at",
+      "type": "utc_datetime_usec"
+    },
+    {
+      "allow_nil?": false,
+      "default": "fragment(\"(now() AT TIME ZONE 'utc')\")",
+      "generated?": false,
+      "precision": null,
+      "primary_key?": false,
+      "references": null,
+      "scale": null,
+      "size": null,
+      "source": "updated_at",
+      "type": "utc_datetime_usec"
     }
   ],
   "base_filter": null,
@@ -66,23 +90,8 @@
   "custom_indexes": [],
   "custom_statements": [],
   "has_create_action": true,
-  "hash": "0B279BA9251EA91451BB80DF86AF81ECCA5395011864BE01BE1C369420AD9C18",
-  "identities": [
-    {
-      "all_tenants?": false,
-      "base_filter": null,
-      "index_name": "users_unique_email_index",
-      "keys": [
-        {
-          "type": "atom",
-          "value": "email"
-        }
-      ],
-      "name": "unique_email",
-      "nils_distinct?": true,
-      "where": null
-    }
-  ],
+  "hash": "A243D17701FAFD73D4B00DECBADC36EDBD6E58479228892FFEC235CA2A1119A4",
+  "identities": [],
   "multitenancy": {
     "attribute": null,
     "global": null,
@@ -90,5 +99,5 @@
   },
   "repo": "Elixir.SpazioSolazzo.Repo",
   "schema": null,
-  "table": "users"
+  "table": "tokens"
 }

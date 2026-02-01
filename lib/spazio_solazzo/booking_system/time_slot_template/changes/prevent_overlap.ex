@@ -18,28 +18,33 @@ defmodule SpazioSolazzo.BookingSystem.TimeSlotTemplate.Changes.PreventCreationOv
     end_time = Ash.Changeset.get_attribute(changeset, :end_time)
     day_of_week = Ash.Changeset.get_attribute(changeset, :day_of_week)
 
-    overlapping =
-      TimeSlotTemplate
-      |> Ash.Query.filter(space_id == ^space_id)
-      |> Ash.Query.filter(day_of_week == ^day_of_week)
-      |> Ash.Query.filter(start_time < ^end_time and end_time > ^start_time)
-      |> Ash.read()
+    # Skip overlap check if essential attributes are missing
+    if is_nil(space_id) or is_nil(start_time) or is_nil(end_time) or is_nil(day_of_week) do
+      changeset
+    else
+      overlapping =
+        TimeSlotTemplate
+        |> Ash.Query.filter(space_id == ^space_id)
+        |> Ash.Query.filter(day_of_week == ^day_of_week)
+        |> Ash.Query.filter(start_time < ^end_time and end_time > ^start_time)
+        |> Ash.read()
 
-    case overlapping do
-      {:ok, []} ->
-        changeset
+      case overlapping do
+        {:ok, []} ->
+          changeset
 
-      {:ok, _} ->
-        Changeset.add_error(changeset,
-          field: :base,
-          message: "time slot overlaps with existing template for this space and day"
-        )
+        {:ok, _} ->
+          Changeset.add_error(changeset,
+            field: :base,
+            message: "overlaps with existing time slot"
+          )
 
-      {:error, err} ->
-        Changeset.add_error(changeset,
-          field: :base,
-          message: "failed to validate overlap: #{inspect(err)}"
-        )
+        {:error, err} ->
+          Changeset.add_error(changeset,
+            field: :base,
+            message: "failed to validate overlap: #{inspect(err)}"
+          )
+      end
     end
   end
 end

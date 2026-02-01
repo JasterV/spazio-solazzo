@@ -1,62 +1,49 @@
 <Layouts.app flash={@flash} current_user={@current_user}>
   <.page_header
-    booking_path={~p"/book/asset/#{@asset.id}"}
-    price="€25"
+    booking_path={~p"/book/space/#{@space.slug}"}
+    booking_label="Book Space"
+    price="€50"
     price_unit="hour"
-    capacity="Up to 5 People"
-    images={@images}
+    capacity={@space.public_capacity}
+    images={[
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuD1wkxK48dk7i5XYX6JL-O1egrsdLjcmOg7N4EB76QtUvhzR7lZQadprIT9rLPsroUjazftFRpp_z26wb8lHaUW9XyucGlKG3qG40oT5iaKWwqVI1drNKJDJgVBkmNjw4u_D5vig_C1pf6bgGZnPaOV2tnnmlexxHJIDQYZzfg1GGwgywBvpGLz_u2_jvkbyMo3_m5roM09PjonFEfGIHxjm0vClW1DAOX45IrT87A85OdAXEu2EPyB8oW9WzmolOn4DFj22vKWSbVD",
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuB3fJu4mgZaw8GP1OC2SjquJZJmnRlY_OHD4fO4AAd_KHd5BYnW1i0egrskoEfK_uCdK4pQu5kMf8pF9h_KXE0wYQAROnTBTJ4YmBpHui9nv8wz44VENo2p-lA3rW8xhQhiYzlAhHJlhgOdZluVp9eYvsZxGM76QkDXMcBQz1Ka5ZfRMNgddo1RS76IPaxbQIvpOh_55uW87bAiGAvhcE8GrIi2ugpiJ64Rdou1uZLD1bPWxUvyLtpTFFLr2vfVjq7OpVYiGnLaGstS",
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuBVY6j_kvSUC0trHVnwvszpxZa58CpY0sGTF6m6lPQJkFlN-GnK1ofNaSn8PU1JnmPPAl7B196LoYq4SfawlDFrg2ADKKr65cOE0jq2L9w-cXrkPxE4poylrIeKX8zP1JsIS5obvU5_HAG074RjeYSWFsV5Z7wQF0ktZlYL6m462hsl-xdLQWQiBLZOHNsBf6jrZieUst9dKUlec6hzWOqcbIXuugBJW5fklJmMti9CDQynn1XZ5I5gZYEL47tW2Ku9u_zEEpfqmEKF"
+    ]}
   >
     <:title>{@space.name}</:title>
     <:description>
-      A relaxed, creative space for jamming, practice sessions, or just unwinding with instruments. A casual vibe, not a soundproof studio, perfect for connecting through music.
+      A professionally designed music rehearsal and recording space in the heart of Palermo. Perfect for bands, solo artists, and content creators.
     </:description>
   </.page_header>
 
   <.features_section
-    title="Jam, Practice, Create"
-    description="The Music Room is equipped with essentials for a good session. It's not a pro studio, but it has soul and everything you need to start playing."
+    title="Professional Audio Environment"
+    description="State-of-the-art equipment and acoustically treated space for your creative sessions."
   >
     <:feature
-      icon="hero-musical-note"
-      title="House Instruments"
-      description="Includes a digital piano, acoustic guitar, and a basic drum kit ready for your use."
-      color="sky"
-    />
-    <:feature
       icon="hero-speaker-wave"
-      title="PA System"
-      description="Two active speakers and a simple 4-channel mixer to plug in vocals or keyboards."
-      color="orange"
-    />
-    <:feature
-      icon="hero-home"
-      title="Relaxed Vibe"
-      description="Comfortable seating, warm lighting, and rugs creates a cozy atmosphere for creative flow."
-      color="yellow"
+      title="Premium Sound System"
+      description="High-end monitors, professional mixing console, and complete PA system ready to use."
+      color="violet"
     />
     <:feature
       icon="hero-microphone"
-      title="Basic Mics"
-      description="Two Shure SM58 microphones with stands available for vocals or acoustic instruments."
-      color="emerald"
-    />
-    <:feature
-      icon="hero-speaker-x-mark"
-      title="Not Soundproof"
-      description="Please note this is a community space. Some sound bleed occurs; keep volumes reasonable."
-      color="indigo"
+      title="Recording Ready"
+      description="Multi-track recording capability with professional condenser microphones and interfaces."
+      color="pink"
     />
     <:feature
       icon="hero-musical-note"
-      title="Bring Your Gear"
-      description="Feel free to bring your own amps, pedals, or specific instruments to dial in your tone."
-      color="purple"
+      title="Full Backline"
+      description="Drum kit, bass and guitar amplifiers, keyboards - everything you need to play."
+      color="orange"
     />
   </.features_section>
 
-  <.house_rules title="Jam Session Rules">
-    <:rule>Reset instruments to their original places.</:rule>
-    <:rule>No drinks on top of the piano or amps.</:rule>
-    <:rule>Be mindful of volume for our coworking neighbors.</:rule>
+  <.house_rules title="Music Studio Guidelines">
+    <:rule>Respect noise level limits and time slots.</:rule>
+    <:rule>Handle equipment with care and return items to their places.</:rule>
+    <:rule>Clean up after your session.</:rule>
   </.house_rules>
 </Layouts.app>

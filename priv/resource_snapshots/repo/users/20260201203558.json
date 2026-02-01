@@ -37,7 +37,7 @@
       "type": "text"
     },
     {
-      "allow_nil?": false,
+      "allow_nil?": true,
       "default": "nil",
       "generated?": false,
       "precision": null,
@@ -47,6 +47,18 @@
       "size": null,
       "source": "phone_number",
       "type": "text"
+    },
+    {
+      "allow_nil?": false,
+      "default": "\"customer\"",
+      "generated?": false,
+      "precision": null,
+      "primary_key?": false,
+      "references": null,
+      "scale": null,
+      "size": null,
+      "source": "role",
+      "type": "text"
     }
   ],
   "base_filter": null,
@@ -54,7 +66,7 @@
   "custom_indexes": [],
   "custom_statements": [],
   "has_create_action": true,
-  "hash": "57A4F6BB98AF78EE399E42DAC6AAD95429A43D3A110B792DD6A05735591A5C62",
+  "hash": "C0CABA03FB9BA869F1460B25693E0222AB1CE8B59A15BB0E343DAB3F4F3949E4",
   "identities": [
     {
       "all_tenants?": false,

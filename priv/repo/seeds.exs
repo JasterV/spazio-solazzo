@@ -17,44 +17,41 @@ case BookingSystem.Space |> Ash.read() do
     :ok
 end
 
-# Create Coworking Space
+# Create Coworking Space (public_capacity: 10, real_capacity: 12)
 coworking =
-  BookingSystem.create_space!("Arcipelago", "coworking", "Flexible desk spaces for remote work")
+  BookingSystem.create_space!(
+    "Arcipelago",
+    "coworking",
+    "Flexible desk spaces for remote work",
+    10,
+    12
+  )
 
 IO.puts("✓ Created Coworking space")
 
-# Create Meeting Room Space
+# Create Meeting Room Space (public_capacity: 1, real_capacity: 1)
 meeting =
   BookingSystem.create_space!(
     "Media room",
     "meeting",
-    "Private conference room for your meetings"
+    "Private conference room for your meetings",
+    1,
+    1
   )
 
 IO.puts("✓ Created Meeting Room space")
 
-# Create Music Studio Space
-music = BookingSystem.create_space!("Hall", "music", "Tailored for band rehearsals.")
+# Create Music Studio Space (public_capacity: 1, real_capacity: 2)
+music =
+  BookingSystem.create_space!(
+    "Hall",
+    "music",
+    "Tailored for band rehearsals.",
+    1,
+    2
+  )
 
 IO.puts("✓ Created Music Studio space")
-
-# Create Coworking Tables (Assets)
-tables =
-  for i <- 1..5 do
-    BookingSystem.create_asset!("Table #{i}", coworking.id)
-  end
-
-IO.puts("✓ Created #{length(tables)} coworking tables")
-
-# Create Meeting Room Asset
-BookingSystem.create_asset!("Main Conference Room", meeting.id)
-
-IO.puts("✓ Created meeting room asset")
-
-# Create Music Studio Asset
-BookingSystem.create_asset!("Recording Studio", music.id)
-
-IO.puts("✓ Created music studio asset")
 
 # Create Coworking Time Slot Templates for each weekday
 coworking_slots = [
