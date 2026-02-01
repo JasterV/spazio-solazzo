@@ -19,6 +19,7 @@ defmodule SpazioSolazzoWeb.SpaceBookingLive do
           Phoenix.PubSub.subscribe(SpazioSolazzo.PubSub, "booking:created")
           Phoenix.PubSub.subscribe(SpazioSolazzo.PubSub, "booking:approved")
           Phoenix.PubSub.subscribe(SpazioSolazzo.PubSub, "booking:cancelled")
+          Phoenix.PubSub.subscribe(SpazioSolazzo.PubSub, "booking:rejected")
         end
 
         {:ok,
@@ -32,9 +33,11 @@ defmodule SpazioSolazzoWeb.SpaceBookingLive do
            show_success_modal: false,
            time_slots: time_slots,
            current_scope: nil,
-           slot_availability: %{}
+           slot_availability: %{},
+           slot_booking_counts: %{}
          )
-         |> compute_slot_availability()}
+         |> compute_slot_availability()
+         |> compute_slot_booking_counts()}
 
       {:error, _error} ->
         {:ok,
@@ -111,7 +114,8 @@ defmodule SpazioSolazzoWeb.SpaceBookingLive do
        time_slots: time_slots,
        bookings: bookings
      )
-     |> compute_slot_availability()}
+     |> compute_slot_availability()
+     |> compute_slot_booking_counts()}
   end
 
   def handle_info(
@@ -123,7 +127,8 @@ defmodule SpazioSolazzoWeb.SpaceBookingLive do
     {:noreply,
      socket
      |> assign(bookings: bookings)
-     |> compute_slot_availability()}
+     |> compute_slot_availability()
+     |> compute_slot_booking_counts()}
   end
 
   def handle_info(_msg, socket) do
@@ -147,5 +152,24 @@ defmodule SpazioSolazzoWeb.SpaceBookingLive do
       |> Map.new()
 
     assign(socket, slot_availability: slot_availability)
+  end
+
+  defp compute_slot_booking_counts(socket) do
+    slot_booking_counts =
+      socket.assigns.time_slots
+      |> Enum.map(fn time_slot ->
+        {:ok, counts} =
+          BookingSystem.get_slot_booking_counts(
+            socket.assigns.space.id,
+            socket.assigns.selected_date,
+            time_slot.start_time,
+            time_slot.end_time
+          )
+
+        {time_slot.id, counts}
+      end)
+      |> Map.new()
+
+    assign(socket, slot_booking_counts: slot_booking_counts)
   end
 end

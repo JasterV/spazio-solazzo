@@ -46,6 +46,7 @@
             <% else %>
               <%= for time_slot <- @time_slots do %>
                 <% availability = Map.get(@slot_availability, time_slot.id, :available) %>
+                <% counts = Map.get(@slot_booking_counts, time_slot.id, %{pending: 0, approved: 0}) %>
                 <%= if availability != :over_real_capacity do %>
                   <button
                     phx-click="select_slot"
@@ -61,7 +62,7 @@
                     ]}
                   >
                     <div class="flex items-center justify-between">
-                      <div>
+                      <div class="flex-1">
                         <div class="text-lg font-semibold text-slate-900 dark:text-white">
                           {Calendar.strftime(time_slot.start_time, "%H:%M")} - {Calendar.strftime(
                             time_slot.end_time,
@@ -77,6 +78,20 @@
                             High Demand - Join Waitlist
                           </div>
                         <% end %>
+                        <div class="flex gap-3 mt-2 text-xs text-slate-600 dark:text-slate-400">
+                          <%= if counts.pending > 0 do %>
+                            <span class="flex items-center gap-1">
+                              <.icon name="hero-clock" class="w-3.5 h-3.5" />
+                              {counts.pending} pending
+                            </span>
+                          <% end %>
+                          <%= if counts.approved > 0 do %>
+                            <span class="flex items-center gap-1">
+                              <.icon name="hero-check-circle" class="w-3.5 h-3.5" />
+                              {counts.approved} booked
+                            </span>
+                          <% end %>
+                        </div>
                       </div>
                       <.icon
                         name="hero-arrow-right"
