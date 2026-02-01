@@ -1,0 +1,481 @@
+<Layouts.app flash={@flash} current_user={@current_user}>
+  <main class="flex-grow px-4 py-8 md:px-8">
+    <div class="max-w-6xl mx-auto flex flex-col gap-8">
+      <%!-- Header with back button --%>
+      <div class="flex items-center gap-4">
+        <.link
+          navigate="/admin/dashboard"
+          class="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-primary dark:text-slate-400 dark:hover:text-primary transition-colors"
+        >
+          <.icon name="hero-arrow-left" class="w-5 h-5" /> Back to Dashboard
+        </.link>
+      </div>
+
+      <%!-- Title and stats --%>
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div class="flex flex-col gap-2">
+          <h1 class="text-slate-900 dark:text-white tracking-tight text-3xl md:text-4xl font-extrabold">
+            Manage Bookings
+          </h1>
+          <p class="text-slate-600 dark:text-slate-400 text-base font-normal max-w-2xl">
+            Review reservations and booking history. Pending requests require approval.
+          </p>
+        </div>
+        <div class="flex gap-4">
+          <div class="bg-white dark:bg-slate-800 px-5 py-3 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col items-start min-w-[140px]">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
+              Pending
+            </span>
+            <span class="text-2xl font-bold text-primary">{length(@pending_bookings)}</span>
+          </div>
+        </div>
+      </div>
+
+      <%!-- Filters --%>
+      <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+        <form
+          phx-change="filter_bookings"
+          class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end"
+        >
+          <div class="col-span-1 md:col-span-4 flex flex-col gap-1.5">
+            <label class="text-sm font-semibold text-slate-900 dark:text-slate-200 ml-1">
+              Customer Email
+            </label>
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">
+                <.icon name="hero-magnifying-glass" class="w-5 h-5" />
+              </span>
+              <input
+                name="email"
+                value={@filter_email}
+                class="w-full h-12 pl-10 pr-4 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all placeholder:text-slate-400"
+                placeholder="Search by email..."
+                type="text"
+              />
+            </div>
+          </div>
+
+          <div class="col-span-1 md:col-span-3 flex flex-col gap-1.5">
+            <label class="text-sm font-semibold text-slate-900 dark:text-slate-200 ml-1">
+              Space
+            </label>
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none">
+                <.icon name="hero-map-pin" class="w-5 h-5" />
+              </span>
+              <select
+                name="space_id"
+                class="w-full h-12 pl-10 pr-10 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none appearance-none cursor-pointer"
+              >
+                <option value="">All Spaces</option>
+                <%= for space <- @spaces do %>
+                  <option value={space.id} selected={@filter_space_id == space.id}>
+                    {space.name}
+                  </option>
+                <% end %>
+              </select>
+              <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none">
+                <.icon name="hero-chevron-down" class="w-5 h-5" />
+              </span>
+            </div>
+          </div>
+
+          <div class="col-span-1 md:col-span-3 flex flex-col gap-1.5">
+            <label class="text-sm font-semibold text-slate-900 dark:text-slate-200 ml-1">
+              Date
+            </label>
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none">
+                <.icon name="hero-calendar" class="w-5 h-5" />
+              </span>
+              <input
+                name="date"
+                value={if @filter_date, do: Date.to_iso8601(@filter_date), else: ""}
+                class="w-full h-12 pl-10 pr-4 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none cursor-pointer"
+                type="date"
+              />
+            </div>
+          </div>
+
+          <div class="col-span-1 md:col-span-2">
+            <button
+              type="button"
+              phx-click="clear_filters"
+              class="w-full h-12 bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-100 text-white dark:text-slate-900 font-bold rounded-xl transition-colors flex items-center justify-center gap-2"
+            >
+              <span>Clear Filters</span>
+              <.icon name="hero-x-mark" class="w-4 h-4" />
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <%!-- Pending Bookings Table --%>
+      <%= if @pending_bookings != [] do %>
+        <div>
+          <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-4">Pending Requests</h2>
+          <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+                <thead class="bg-slate-50 dark:bg-slate-900">
+                  <tr>
+                    <th class="px-6 py-3 text-left text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider w-[4%]">
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                      Space
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                      Date
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                      Time
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                      Customer
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th class="px-6 py-3 text-center text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider min-w-[240px]">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+                  <%= for booking <- @pending_bookings do %>
+                    <% is_expanded = MapSet.member?(@expanded_booking_ids, booking.id) %>
+                    <tr class={["group", if(is_expanded, do: "expanded", else: "")]}>
+                      <td class="px-3 py-4 whitespace-nowrap align-top">
+                        <button
+                          phx-click="toggle_expand"
+                          phx-value-booking_id={booking.id}
+                          class="flex items-center justify-center size-7 rounded-full text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                        >
+                          <.icon
+                            name="hero-chevron-down"
+                            class={[
+                              "w-4 h-4 transition-transform",
+                              if(is_expanded, do: "rotate-180", else: "")
+                            ]}
+                          />
+                        </button>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center gap-3">
+                          <div class="size-8 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+                            <.icon name="hero-building-office" class="w-4 h-4" />
+                          </div>
+                          <div>
+                            <p class="font-medium text-slate-900 dark:text-white">
+                              {booking.space.name}
+                            </p>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <p class="text-sm text-slate-900 dark:text-slate-200">
+                          {Calendar.strftime(booking.date, "%b %d, %Y")}
+                        </p>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <p class="text-sm text-slate-900 dark:text-slate-200">
+                          {Calendar.strftime(booking.start_time, "%H:%M")} - {Calendar.strftime(
+                            booking.end_time,
+                            "%H:%M"
+                          )}
+                        </p>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <div>
+                          <p class="font-medium text-slate-900 dark:text-white">
+                            {booking.customer_name}
+                          </p>
+                          <p class="text-xs text-slate-600 dark:text-slate-400">
+                            {booking.customer_email}
+                          </p>
+                        </div>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <span class={[
+                          status_badge_classes(booking.state),
+                          "text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1 w-fit"
+                        ]}>
+                          <.icon name={status_icon(booking.state)} class="w-3.5 h-3.5" />
+                          {status_label(booking.state)}
+                        </span>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <div class="flex justify-center gap-3">
+                          <button
+                            phx-click="show_reject_modal"
+                            phx-value-booking_id={booking.id}
+                            class="flex items-center justify-center px-4 py-2 rounded-lg border border-red-200 dark:border-red-900 text-red-600 dark:text-red-400 bg-white dark:bg-transparent hover:bg-red-50 dark:hover:bg-red-900/20 font-bold text-sm transition-colors"
+                          >
+                            Reject
+                          </button>
+                          <button
+                            phx-click="approve_booking"
+                            phx-value-booking_id={booking.id}
+                            class="flex items-center justify-center px-4 py-2 rounded-lg bg-primary hover:bg-primary-hover text-white font-bold text-sm transition-colors shadow-sm"
+                          >
+                            Confirm
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                    <%= if is_expanded do %>
+                      <tr class="bg-slate-50 dark:bg-slate-900/50">
+                        <td class="px-3 py-2"></td>
+                        <td
+                          class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400"
+                          colspan="6"
+                        >
+                          <div class="flex flex-col gap-2">
+                            <p>
+                              <strong class="font-semibold text-slate-900 dark:text-white">
+                                Phone:
+                              </strong>
+                              <%= if booking.customer_phone do %>
+                                {booking.customer_phone}
+                              <% else %>
+                                <span class="italic text-slate-400">Not provided</span>
+                              <% end %>
+                            </p>
+                            <p>
+                              <strong class="font-semibold text-slate-900 dark:text-white">
+                                Note:
+                              </strong>
+                              <%= if booking.customer_comment do %>
+                                {booking.customer_comment}
+                              <% else %>
+                                <span class="italic text-slate-400">Not provided</span>
+                              <% end %>
+                            </p>
+                          </div>
+                        </td>
+                      </tr>
+                    <% end %>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      <% end %>
+
+      <%!-- Past Bookings Table --%>
+      <%= if @past_bookings != [] do %>
+        <div>
+          <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-4">Booking History</h2>
+          <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+                <thead class="bg-slate-50 dark:bg-slate-900">
+                  <tr>
+                    <th class="px-6 py-3 text-left text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider w-[4%]">
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                      Space
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                      Date
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                      Time
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                      Customer
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                      Status
+                    </th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+                  <%= for booking <- @past_bookings do %>
+                    <% is_expanded = MapSet.member?(@expanded_booking_ids, booking.id) %>
+                    <tr class={["group", if(is_expanded, do: "expanded", else: "")]}>
+                      <td class="px-3 py-4 whitespace-nowrap align-top">
+                        <button
+                          phx-click="toggle_expand"
+                          phx-value-booking_id={booking.id}
+                          class="flex items-center justify-center size-7 rounded-full text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                        >
+                          <.icon
+                            name="hero-chevron-down"
+                            class={[
+                              "w-4 h-4 transition-transform",
+                              if(is_expanded, do: "rotate-180", else: "")
+                            ]}
+                          />
+                        </button>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center gap-3">
+                          <div class="size-8 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+                            <.icon name="hero-building-office" class="w-4 h-4" />
+                          </div>
+                          <div>
+                            <p class="font-medium text-slate-900 dark:text-white">
+                              {booking.space.name}
+                            </p>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <p class="text-sm text-slate-900 dark:text-slate-200">
+                          {Calendar.strftime(booking.date, "%b %d, %Y")}
+                        </p>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <p class="text-sm text-slate-900 dark:text-slate-200">
+                          {Calendar.strftime(booking.start_time, "%H:%M")} - {Calendar.strftime(
+                            booking.end_time,
+                            "%H:%M"
+                          )}
+                        </p>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <div>
+                          <p class="font-medium text-slate-900 dark:text-white">
+                            {booking.customer_name}
+                          </p>
+                          <p class="text-xs text-slate-600 dark:text-slate-400">
+                            {booking.customer_email}
+                          </p>
+                        </div>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <span class={[
+                          status_badge_classes(booking.state),
+                          "text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1 w-fit"
+                        ]}>
+                          <.icon name={status_icon(booking.state)} class="w-3.5 h-3.5" />
+                          {status_label(booking.state)}
+                        </span>
+                      </td>
+                    </tr>
+                    <%= if is_expanded do %>
+                      <tr class="bg-slate-50 dark:bg-slate-900/50">
+                        <td class="px-3 py-2"></td>
+                        <td
+                          class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400"
+                          colspan="5"
+                        >
+                          <div class="flex flex-col gap-2">
+                            <p>
+                              <strong class="font-semibold text-slate-900 dark:text-white">
+                                Phone:
+                              </strong>
+                              <%= if booking.customer_phone do %>
+                                {booking.customer_phone}
+                              <% else %>
+                                <span class="italic text-slate-400">Not provided</span>
+                              <% end %>
+                            </p>
+                            <p>
+                              <strong class="font-semibold text-slate-900 dark:text-white">
+                                Note:
+                              </strong>
+                              <%= if booking.customer_comment do %>
+                                {booking.customer_comment}
+                              <% else %>
+                                <span class="italic text-slate-400">Not provided</span>
+                              <% end %>
+                            </p>
+                            <%= if booking.state == :rejected do %>
+                              <p>
+                                <strong class="font-semibold text-slate-900 dark:text-white">
+                                  Rejection Reason:
+                                </strong>
+                                <%= if booking.rejection_reason do %>
+                                  {booking.rejection_reason}
+                                <% else %>
+                                  <span class="italic text-slate-400">Not provided</span>
+                                <% end %>
+                              </p>
+                            <% end %>
+                            <%= if booking.state == :cancelled do %>
+                              <p>
+                                <strong class="font-semibold text-slate-900 dark:text-white">
+                                  Cancellation Reason:
+                                </strong>
+                                <%= if booking.cancellation_reason do %>
+                                  {booking.cancellation_reason}
+                                <% else %>
+                                  <span class="italic text-slate-400">Not provided</span>
+                                <% end %>
+                              </p>
+                            <% end %>
+                          </div>
+                        </td>
+                      </tr>
+                    <% end %>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      <% end %>
+
+      <%= if @pending_bookings == [] && @past_bookings == [] do %>
+        <div class="text-center py-12 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+          <.icon name="hero-inbox" class="w-16 h-16 text-slate-400 mx-auto mb-4" />
+          <p class="text-slate-500 dark:text-slate-400 text-lg">No bookings found</p>
+        </div>
+      <% end %>
+    </div>
+  </main>
+
+  <%!-- Reject Modal --%>
+  <%= if @show_reject_modal do %>
+    <div
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+      phx-click="hide_reject_modal"
+    >
+      <div
+        class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-md w-full p-8"
+        phx-click="stop_propagation"
+      >
+        <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-4">Reject Booking</h3>
+
+        <p class="text-slate-600 dark:text-slate-400 mb-6">
+          Please provide a reason for rejecting this booking request. The customer will receive this reason in their email.
+        </p>
+
+        <form phx-submit="confirm_reject">
+          <div class="mb-6">
+            <label class="block text-sm font-semibold text-slate-900 dark:text-white mb-2">
+              Rejection Reason <span class="text-red-500">*</span>
+            </label>
+            <textarea
+              phx-change="update_rejection_reason"
+              name="reason"
+              rows="4"
+              required
+              placeholder="e.g., Space under maintenance, Fully booked, etc."
+              class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
+            >{@rejection_reason}</textarea>
+          </div>
+
+          <div class="flex gap-3">
+            <button
+              type="button"
+              phx-click="hide_reject_modal"
+              class="flex-1 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 px-6 py-3 rounded-xl font-semibold hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="flex-1 bg-red-500 text-white px-6 py-3 rounded-xl font-semibold hover:bg-red-600 transition-colors"
+            >
+              Confirm Rejection
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  <% end %>
+</Layouts.app>

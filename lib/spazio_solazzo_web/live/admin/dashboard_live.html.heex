@@ -1,328 +1,103 @@
 <Layouts.app flash={@flash} current_user={@current_user}>
-  <div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-8 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-7xl mx-auto">
-      <div class="text-center mb-8">
-        <h1 class="text-4xl font-bold text-slate-900 mb-2">Admin Dashboard</h1>
-        <p class="text-lg text-slate-600">Manage booking requests and walk-in customers</p>
+  <main class="flex-grow px-4 py-8 md:px-8">
+    <div class="max-w-6xl mx-auto">
+      <div class="mb-12 text-center">
+        <h1 class="text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight mb-4">
+          Admin Dashboard
+        </h1>
+        <p class="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
+          Welcome to Spazio Solazzo management center. Choose a tool below to get started.
+        </p>
       </div>
 
-      <%!-- Tab Navigation --%>
-      <div class="bg-white rounded-t-2xl shadow-lg">
-        <div class="border-b border-slate-200">
-          <nav class="flex space-x-8 px-8 pt-6" aria-label="Tabs">
-            <button
-              phx-click="switch_tab"
-              phx-value-tab="requests"
-              class={[
-                "pb-4 px-1 border-b-2 font-semibold text-sm transition-colors",
-                if(@active_tab == :requests,
-                  do: "border-orange-500 text-orange-600",
-                  else:
-                    "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
-                )
-              ]}
-            >
-              Booking Requests
-              <%= if length(@requests) > 0 do %>
-                <span class="ml-2 bg-orange-100 text-orange-800 py-0.5 px-2.5 rounded-full text-xs font-medium">
-                  {length(@requests)}
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <%!-- Booking Management Tool Card --%>
+        <.link
+          navigate="/admin/bookings"
+          class="group bg-white dark:bg-slate-800 rounded-3xl p-8 border-2 border-slate-200 dark:border-slate-700 shadow-xl shadow-slate-200/50 dark:shadow-none hover:border-primary dark:hover:border-primary transition-all duration-300 hover:scale-[1.02]"
+        >
+          <div class="flex flex-col h-full">
+            <div class="flex items-start justify-between mb-6">
+              <div class="size-16 rounded-2xl bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <.icon name="hero-clipboard-document-list" class="w-8 h-8" />
+              </div>
+              <%= if @pending_requests_count > 0 do %>
+                <span class="bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-200 text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1">
+                  <.icon name="hero-clock" class="w-3.5 h-3.5" />
+                  {@pending_requests_count} pending
                 </span>
               <% end %>
-            </button>
-
-            <button
-              phx-click="switch_tab"
-              phx-value-tab="walk_in"
-              class={[
-                "pb-4 px-1 border-b-2 font-semibold text-sm transition-colors",
-                if(@active_tab == :walk_in,
-                  do: "border-orange-500 text-orange-600",
-                  else:
-                    "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
-                )
-              ]}
-            >
-              Walk-in / Custom
-            </button>
-          </nav>
-        </div>
-
-        <div class="p-8">
-          <%= if @active_tab == :requests do %>
-            <%!-- Request Manager Tab --%>
-            <div class="space-y-6">
-              <%!-- Filters --%>
-              <form phx-change="filter_requests" class="bg-slate-50 rounded-xl p-6">
-                <h3 class="text-lg font-semibold text-slate-900 mb-4">Filter Requests</h3>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-2">Space</label>
-                    <select
-                      name="space_id"
-                      class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                    >
-                      <option value="">All Spaces</option>
-                      <%= for space <- @spaces do %>
-                        <option value={space.id} selected={@filter_space_id == space.id}>
-                          {space.name}
-                        </option>
-                      <% end %>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-2">Email</label>
-                    <input
-                      type="email"
-                      name="email"
-                      value={@filter_email || ""}
-                      placeholder="customer@example.com"
-                      class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-2">Date</label>
-                    <input
-                      type="date"
-                      name="date"
-                      value={if @filter_date, do: Date.to_iso8601(@filter_date), else: ""}
-                      class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                    />
-                  </div>
-                </div>
-              </form>
-
-              <%!-- Requests List --%>
-              <%= if @requests == [] do %>
-                <div class="text-center py-12 bg-slate-50 rounded-xl">
-                  <p class="text-slate-500 text-lg">No pending requests</p>
-                </div>
-              <% else %>
-                <div class="space-y-4">
-                  <%= for request <- @requests do %>
-                    <div class="bg-white border border-slate-200 rounded-xl p-6 hover:shadow-md transition-shadow">
-                      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                          <h4 class="text-lg font-semibold text-slate-900 mb-3">
-                            {request.customer_name}
-                          </h4>
-                          <div class="space-y-2 text-sm text-slate-600">
-                            <p>
-                              <strong>Email:</strong>
-                              <a
-                                href={"mailto:#{request.customer_email}"}
-                                class="text-orange-600 hover:underline"
-                              >
-                                {request.customer_email}
-                              </a>
-                            </p>
-                            <%= if request.customer_phone do %>
-                              <p>
-                                <strong>Phone:</strong>
-                                <a
-                                  href={"tel:#{request.customer_phone}"}
-                                  class="text-orange-600 hover:underline"
-                                >
-                                  {request.customer_phone}
-                                </a>
-                              </p>
-                            <% end %>
-                            <p>
-                              <strong>Space:</strong>
-                              {request.space.name}
-                            </p>
-                            <p>
-                              <strong>Date:</strong>
-                              {Calendar.strftime(request.date, "%A, %B %d, %Y")}
-                            </p>
-                            <p>
-                              <strong>Time:</strong>
-                              {request.start_time} - {request.end_time}
-                            </p>
-                            <%= if request.customer_comment do %>
-                              <div class="mt-3 p-3 bg-orange-50 rounded-lg">
-                                <p class="text-sm font-medium text-slate-700">Comment:</p>
-                                <p class="text-sm text-slate-600 italic">
-                                  {request.customer_comment}
-                                </p>
-                              </div>
-                            <% end %>
-                          </div>
-                        </div>
-
-                        <div class="flex flex-col justify-center space-y-3">
-                          <button
-                            phx-click="approve_booking"
-                            phx-value-booking_id={request.id}
-                            class="w-full bg-green-500 text-white px-6 py-3 rounded-xl font-semibold hover:bg-green-600 transition-colors"
-                          >
-                            Approve
-                          </button>
-                          <button
-                            phx-click="show_reject_modal"
-                            phx-value-booking_id={request.id}
-                            class="w-full bg-red-500 text-white px-6 py-3 rounded-xl font-semibold hover:bg-red-600 transition-colors"
-                          >
-                            Reject
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  <% end %>
-                </div>
-              <% end %>
             </div>
-          <% else %>
-            <%!-- Walk-in Tab --%>
-            <div>
-              <h3 class="text-2xl font-bold text-slate-900 mb-6">Create Walk-in Booking</h3>
 
-              <form phx-change="update_walk_in_form" phx-submit="create_walk_in" class="space-y-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label class="block text-sm font-semibold text-slate-900 mb-2">
-                      Space <span class="text-red-500">*</span>
-                    </label>
-                    <select
-                      name="space_id"
-                      required
-                      class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500"
-                    >
-                      <option value="">Select a space</option>
-                      <%= for space <- @spaces do %>
-                        <option value={space.id}>{space.name}</option>
-                      <% end %>
-                    </select>
-                  </div>
+            <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-3 group-hover:text-primary dark:group-hover:text-primary transition-colors">
+              Booking Management
+            </h2>
 
-                  <div>
-                    <label class="block text-sm font-semibold text-slate-900 mb-2">
-                      Customer Name <span class="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      name="customer_name"
-                      required
-                      placeholder="John Doe"
-                      class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500"
-                    />
-                  </div>
+            <p class="text-slate-600 dark:text-slate-400 mb-6 flex-grow">
+              Review and manage pending booking requests. Approve or reject reservations and view booking history.
+            </p>
 
-                  <div>
-                    <label class="block text-sm font-semibold text-slate-900 mb-2">
-                      Email <span class="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="email"
-                      name="customer_email"
-                      required
-                      placeholder="john@example.com"
-                      class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label class="block text-sm font-semibold text-slate-900 mb-2">Phone</label>
-                    <input
-                      type="tel"
-                      name="customer_phone"
-                      placeholder="+39 123 456 7890"
-                      class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label class="block text-sm font-semibold text-slate-900 mb-2">
-                      Start Date & Time <span class="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="datetime-local"
-                      name="start_datetime"
-                      required
-                      class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label class="block text-sm font-semibold text-slate-900 mb-2">
-                      End Date & Time <span class="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="datetime-local"
-                      name="end_datetime"
-                      required
-                      class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label class="block text-sm font-semibold text-slate-900 mb-2">Comment</label>
-                  <textarea
-                    name="customer_comment"
-                    rows="3"
-                    placeholder="Any additional notes..."
-                    class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  ></textarea>
-                </div>
-
-                <button
-                  type="submit"
-                  class="w-full md:w-auto bg-orange-500 text-white px-8 py-3 rounded-xl font-semibold hover:bg-orange-600 transition-colors"
-                >
-                  Create Walk-in Booking
-                </button>
-              </form>
+            <div class="flex items-center text-primary dark:text-primary-hover font-semibold group-hover:gap-3 transition-all">
+              <span>Open Tool</span>
+              <.icon
+                name="hero-arrow-right"
+                class="w-5 h-5 group-hover:translate-x-1 transition-transform"
+              />
             </div>
-          <% end %>
+          </div>
+        </.link>
+
+        <%!-- Walk-in Booking Tool Card --%>
+        <.link
+          navigate="/admin/walk-in"
+          class="group bg-white dark:bg-slate-800 rounded-3xl p-8 border-2 border-slate-200 dark:border-slate-700 shadow-xl shadow-slate-200/50 dark:shadow-none hover:border-sky-500 dark:hover:border-sky-400 transition-all duration-300 hover:scale-[1.02]"
+        >
+          <div class="flex flex-col h-full">
+            <div class="flex items-start justify-between mb-6">
+              <div class="size-16 rounded-2xl bg-sky-100 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <.icon name="hero-user-plus" class="w-8 h-8" />
+              </div>
+              <span class="bg-sky-100 dark:bg-sky-900/40 text-sky-800 dark:text-sky-200 text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1">
+                <.icon name="hero-building-office-2" class="w-3.5 h-3.5" /> Coworking Only
+              </span>
+            </div>
+
+            <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-3 group-hover:text-sky-500 dark:group-hover:text-sky-400 transition-colors">
+              Walk-in Booking
+            </h2>
+
+            <p class="text-slate-600 dark:text-slate-400 mb-6 flex-grow">
+              Create instant bookings for walk-in customers at the coworking space. View real-time availability calendar.
+            </p>
+
+            <div class="flex items-center text-sky-500 dark:text-sky-400 font-semibold group-hover:gap-3 transition-all">
+              <span>Open Tool</span>
+              <.icon
+                name="hero-arrow-right"
+                class="w-5 h-5 group-hover:translate-x-1 transition-transform"
+              />
+            </div>
+          </div>
+        </.link>
+      </div>
+
+      <div class="mt-12 p-6 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700">
+        <div class="flex items-start gap-4">
+          <div class="shrink-0 text-slate-400 dark:text-slate-500">
+            <.icon name="hero-information-circle" class="w-6 h-6" />
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-slate-900 dark:text-white mb-1">
+              Quick Tips
+            </h3>
+            <ul class="text-sm text-slate-600 dark:text-slate-400 space-y-1">
+              <li>• Booking requests require approval before confirmation</li>
+              <li>• Walk-in bookings are instantly approved for coworking space</li>
+              <li>• All bookings are paid upon customer arrival at reception</li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-
-  <%!-- Reject Modal --%>
-  <%= if @show_reject_modal do %>
-    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8">
-        <h3 class="text-2xl font-bold text-slate-900 mb-4">Reject Booking</h3>
-
-        <p class="text-slate-600 mb-6">
-          Please provide a reason for rejecting this booking request. The customer will receive this reason in their email.
-        </p>
-
-        <form phx-submit="confirm_reject">
-          <div class="mb-6">
-            <label class="block text-sm font-semibold text-slate-900 mb-2">
-              Rejection Reason <span class="text-red-500">*</span>
-            </label>
-            <textarea
-              phx-change="update_rejection_reason"
-              name="reason"
-              rows="4"
-              required
-              placeholder="e.g., Space under maintenance, Fully booked, etc."
-              class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500"
-            >{@rejection_reason}</textarea>
-          </div>
-
-          <div class="flex gap-3">
-            <button
-              type="button"
-              phx-click="hide_reject_modal"
-              class="flex-1 bg-slate-200 text-slate-700 px-6 py-3 rounded-xl font-semibold hover:bg-slate-300 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              class="flex-1 bg-red-500 text-white px-6 py-3 rounded-xl font-semibold hover:bg-red-600 transition-colors"
-            >
-              Confirm Rejection
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  <% end %>
+  </main>
 </Layouts.app>

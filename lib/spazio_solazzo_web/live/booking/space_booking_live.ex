@@ -69,18 +69,16 @@ defmodule SpazioSolazzoWeb.SpaceBookingLive do
     current_user = socket.assigns.current_user
 
     result =
-      BookingSystem.request_booking(
+      BookingSystem.create_booking(
         socket.assigns.space.id,
         current_user && current_user.id,
         socket.assigns.selected_date,
         socket.assigns.selected_time_slot.start_time,
         socket.assigns.selected_time_slot.end_time,
-        %{
-          name: booking_data.customer_name,
-          email: (current_user && current_user.email) || booking_data.customer_email,
-          phone: booking_data.customer_phone,
-          comment: booking_data.customer_comment
-        }
+        booking_data.customer_name,
+        (current_user && current_user.email) || booking_data.customer_email,
+        booking_data.customer_phone,
+        booking_data.customer_comment
       )
 
     case result do

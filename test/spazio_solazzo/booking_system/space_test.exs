@@ -116,4 +116,312 @@ defmodule SpazioSolazzo.BookingSystem.SpaceTest do
       assert space1.id != space2.id
     end
   end
+
+  describe "check_availability/4" do
+    setup do
+      {:ok, space} =
+        BookingSystem.create_space(
+          "Availability Test Space",
+          "availability-test",
+          "Test description",
+          2,
+          3
+        )
+
+      %{space: space}
+    end
+
+    test "returns :available when no bookings exist", %{space: space} do
+      date = Date.utc_today()
+      start_time = ~T[09:00:00]
+      end_time = ~T[10:00:00]
+
+      assert {:ok, :available} =
+               BookingSystem.check_availability(space.id, date, start_time, end_time)
+    end
+
+    test "returns :available when under public capacity", %{space: space} do
+      date = Date.add(Date.utc_today(), 1)
+      start_time = ~T[09:00:00]
+      end_time = ~T[10:00:00]
+
+      BookingSystem.create_walk_in(
+        space.id,
+        DateTime.new!(date, start_time, "Etc/UTC"),
+        DateTime.new!(date, end_time, "Etc/UTC"),
+        "Customer 1",
+        "customer1@example.com",
+        nil,
+        nil
+      )
+
+      assert {:ok, :available} =
+               BookingSystem.check_availability(space.id, date, start_time, end_time)
+    end
+
+    test "returns :over_public_capacity when at public capacity but under real capacity", %{
+      space: space
+    } do
+      date = Date.add(Date.utc_today(), 1)
+      start_time = ~T[09:00:00]
+      end_time = ~T[10:00:00]
+
+      BookingSystem.create_walk_in(
+        space.id,
+        DateTime.new!(date, start_time, "Etc/UTC"),
+        DateTime.new!(date, end_time, "Etc/UTC"),
+        "Customer 1",
+        "customer1@example.com",
+        nil,
+        nil
+      )
+
+      BookingSystem.create_walk_in(
+        space.id,
+        DateTime.new!(date, start_time, "Etc/UTC"),
+        DateTime.new!(date, end_time, "Etc/UTC"),
+        "Customer 2",
+        "customer2@example.com",
+        nil,
+        nil
+      )
+
+      assert {:ok, :over_public_capacity} =
+               BookingSystem.check_availability(space.id, date, start_time, end_time)
+    end
+
+    test "returns :over_real_capacity when at real capacity", %{space: space} do
+      date = Date.add(Date.utc_today(), 1)
+      start_time = ~T[09:00:00]
+      end_time = ~T[10:00:00]
+
+      for i <- 1..3 do
+        BookingSystem.create_walk_in(
+          space.id,
+          DateTime.new!(date, start_time, "Etc/UTC"),
+          DateTime.new!(date, end_time, "Etc/UTC"),
+          "Customer #{i}",
+          "customer#{i}@example.com",
+          nil,
+          nil
+        )
+      end
+
+      assert {:ok, :over_real_capacity} =
+               BookingSystem.check_availability(space.id, date, start_time, end_time)
+    end
+
+    test "only counts overlapping bookings", %{space: space} do
+      date = Date.utc_today()
+      start_time = ~T[09:00:00]
+      end_time = ~T[10:00:00]
+
+      BookingSystem.create_walk_in(
+        space.id,
+        DateTime.new!(date, ~T[08:00:00], "Etc/UTC"),
+        DateTime.new!(date, ~T[09:00:00], "Etc/UTC"),
+        "Customer 1",
+        "customer1@example.com",
+        nil,
+        nil
+      )
+
+      BookingSystem.create_walk_in(
+        space.id,
+        DateTime.new!(date, ~T[10:00:00], "Etc/UTC"),
+        DateTime.new!(date, ~T[11:00:00], "Etc/UTC"),
+        "Customer 2",
+        "customer2@example.com",
+        nil,
+        nil
+      )
+
+      assert {:ok, :available} =
+               BookingSystem.check_availability(space.id, date, start_time, end_time)
+    end
+
+    test "counts partial overlaps", %{space: space} do
+      date = Date.add(Date.utc_today(), 1)
+      start_time = ~T[09:00:00]
+      end_time = ~T[10:00:00]
+
+      BookingSystem.create_walk_in(
+        space.id,
+        DateTime.new!(date, ~T[08:30:00], "Etc/UTC"),
+        DateTime.new!(date, ~T[09:30:00], "Etc/UTC"),
+        "Customer 1",
+        "customer1@example.com",
+        nil,
+        nil
+      )
+
+      BookingSystem.create_walk_in(
+        space.id,
+        DateTime.new!(date, ~T[09:30:00], "Etc/UTC"),
+        DateTime.new!(date, ~T[10:30:00], "Etc/UTC"),
+        "Customer 2",
+        "customer2@example.com",
+        nil,
+        nil
+      )
+
+      assert {:ok, :over_public_capacity} =
+               BookingSystem.check_availability(space.id, date, start_time, end_time)
+    end
+
+    test "does not count pending bookings", %{space: space} do
+      date = Date.add(Date.utc_today(), 1)
+      start_time = ~T[09:00:00]
+      end_time = ~T[10:00:00]
+
+      BookingSystem.create_booking(
+        space.id,
+        nil,
+        date,
+        start_time,
+        end_time,
+        "Customer 1",
+        "customer1@example.com",
+        nil,
+        nil
+      )
+
+      BookingSystem.create_booking(
+        space.id,
+        nil,
+        date,
+        start_time,
+        end_time,
+        "Customer 2",
+        "customer2@example.com",
+        nil,
+        nil
+      )
+
+      assert {:ok, :available} =
+               BookingSystem.check_availability(space.id, date, start_time, end_time)
+    end
+
+    test "does not count cancelled bookings", %{space: space} do
+      date = Date.add(Date.utc_today(), 1)
+      start_time = ~T[09:00:00]
+      end_time = ~T[10:00:00]
+
+      {:ok, booking1} =
+        BookingSystem.create_walk_in(
+          space.id,
+          DateTime.new!(date, start_time, "Etc/UTC"),
+          DateTime.new!(date, end_time, "Etc/UTC"),
+          "Customer 1",
+          "customer1@example.com",
+          nil,
+          nil
+        )
+
+      {:ok, _} =
+        BookingSystem.create_walk_in(
+          space.id,
+          DateTime.new!(date, start_time, "Etc/UTC"),
+          DateTime.new!(date, end_time, "Etc/UTC"),
+          "Customer 2",
+          "customer2@example.com",
+          nil,
+          nil
+        )
+
+      BookingSystem.cancel_booking(booking1, "User requested cancellation")
+
+      assert {:ok, :available} =
+               BookingSystem.check_availability(space.id, date, start_time, end_time)
+    end
+
+    test "does not count rejected bookings", %{space: space} do
+      date = Date.add(Date.utc_today(), 1)
+      start_time = ~T[09:00:00]
+      end_time = ~T[10:00:00]
+
+      {:ok, booking1} =
+        BookingSystem.create_booking(
+          space.id,
+          nil,
+          date,
+          start_time,
+          end_time,
+          "Customer 1",
+          "customer1@example.com",
+          nil,
+          nil
+        )
+
+      {:ok, _} =
+        BookingSystem.create_booking(
+          space.id,
+          nil,
+          date,
+          start_time,
+          end_time,
+          "Customer 2",
+          "customer2@example.com",
+          nil,
+          nil
+        )
+
+      BookingSystem.reject_booking(booking1, "Space not available")
+
+      assert {:ok, :available} =
+               BookingSystem.check_availability(space.id, date, start_time, end_time)
+    end
+
+    test "filters by date correctly", %{space: space} do
+      date1 = Date.utc_today()
+      date2 = Date.add(Date.utc_today(), 1)
+      start_time = ~T[09:00:00]
+      end_time = ~T[10:00:00]
+
+      for i <- 1..3 do
+        BookingSystem.create_walk_in(
+          space.id,
+          DateTime.new!(date1, start_time, "Etc/UTC"),
+          DateTime.new!(date1, end_time, "Etc/UTC"),
+          "Customer #{i}",
+          "customer#{i}@example.com",
+          nil,
+          nil
+        )
+      end
+
+      assert {:ok, :available} =
+               BookingSystem.check_availability(space.id, date2, start_time, end_time)
+    end
+
+    test "filters by space correctly", %{space: space} do
+      {:ok, other_space} =
+        BookingSystem.create_space(
+          "Other Space",
+          "other-space",
+          "Another test space",
+          2,
+          3
+        )
+
+      date = Date.add(Date.utc_today(), 1)
+      start_time = ~T[09:00:00]
+      end_time = ~T[10:00:00]
+
+      for i <- 1..3 do
+        BookingSystem.create_walk_in(
+          other_space.id,
+          DateTime.new!(date, start_time, "Etc/UTC"),
+          DateTime.new!(date, end_time, "Etc/UTC"),
+          "Customer #{i}",
+          "customer#{i}@example.com",
+          nil,
+          nil
+        )
+      end
+
+      assert {:ok, :available} =
+               BookingSystem.check_availability(space.id, date, start_time, end_time)
+    end
+  end
 end

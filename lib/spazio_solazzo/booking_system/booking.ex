@@ -79,6 +79,11 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
       end
     end
 
+    read :count_pending_requests do
+      filter expr(state == :requested)
+    end
+
+
     create :create do
       argument :space_id, :uuid, allow_nil?: false
       argument :user_id, :uuid, allow_nil?: true
@@ -179,6 +184,82 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
              end)
     end
 
+    create :create_walk_in do
+      argument :space_id, :uuid, allow_nil?: false
+      argument :start_datetime, :datetime, allow_nil?: false
+      argument :end_datetime, :datetime, allow_nil?: false
+      argument :customer_name, :string, allow_nil?: false
+      argument :customer_email, :string, allow_nil?: false
+      argument :customer_phone, :string, allow_nil?: true
+      argument :customer_comment, :string, allow_nil?: true
+
+      change manage_relationship(:space_id, :space, type: :append_and_remove)
+
+      validate fn changeset, _ctx ->
+        start_datetime = Ash.Changeset.get_argument(changeset, :start_datetime)
+        now = DateTime.utc_now()
+
+        if start_datetime && DateTime.compare(start_datetime, now) == :lt do
+          {:error, field: :start_datetime, message: "cannot be in the past"}
+        else
+          :ok
+        end
+      end
+
+      validate fn changeset, _ctx ->
+        start_datetime = Ash.Changeset.get_argument(changeset, :start_datetime)
+        end_datetime = Ash.Changeset.get_argument(changeset, :end_datetime)
+
+        if start_datetime && end_datetime &&
+             DateTime.compare(end_datetime, start_datetime) != :gt do
+          {:error, field: :end_datetime, message: "must be after start datetime"}
+        else
+          :ok
+        end
+      end
+
+      validate fn changeset, _ctx ->
+        email = Ash.Changeset.get_argument(changeset, :customer_email)
+
+        if email && !String.match?(email, ~r/^[^\s@]+@[^\s@]+\.[^\s@]+$/) do
+          {:error, field: :customer_email, message: "must be a valid email"}
+        else
+          :ok
+        end
+      end
+
+      change fn changeset, _ctx ->
+        start_datetime = Ash.Changeset.get_argument(changeset, :start_datetime)
+        end_datetime = Ash.Changeset.get_argument(changeset, :end_datetime)
+
+        date = DateTime.to_date(start_datetime)
+        start_time = DateTime.to_time(start_datetime)
+        end_time = DateTime.to_time(end_datetime)
+
+        changeset
+        |> Ash.Changeset.force_change_attribute(:date, date)
+        |> Ash.Changeset.force_change_attribute(:start_time, start_time)
+        |> Ash.Changeset.force_change_attribute(:end_time, end_time)
+        |> Ash.Changeset.force_change_attribute(:state, :accepted)
+        |> Ash.Changeset.force_change_attribute(
+          :customer_name,
+          Ash.Changeset.get_argument(changeset, :customer_name)
+        )
+        |> Ash.Changeset.force_change_attribute(
+          :customer_email,
+          Ash.Changeset.get_argument(changeset, :customer_email)
+        )
+        |> Ash.Changeset.force_change_attribute(
+          :customer_phone,
+          Ash.Changeset.get_argument(changeset, :customer_phone)
+        )
+        |> Ash.Changeset.force_change_attribute(
+          :customer_comment,
+          Ash.Changeset.get_argument(changeset, :customer_comment)
+        )
+      end
+    end
+
     update :approve do
       accept []
       require_atomic? false
@@ -274,10 +355,54 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
       description "Delete a booking record"
       primary? true
     end
+
+    action :get_slot_booking_counts, :map do
+      argument :space_id, :uuid, allow_nil?: true
+      argument :date, :date, allow_nil?: false
+      argument :start_time, :time, allow_nil?: false
+      argument :end_time, :time, allow_nil?: false
+
+      run fn input, _context ->
+        space_id = input.arguments.space_id
+        date = input.arguments.date
+        start_time = input.arguments.start_time
+        end_time = input.arguments.end_time
+
+        query =
+          __MODULE__
+          |> Ash.Query.filter(date == ^date)
+          |> Ash.Query.filter(state == :requested or state == :accepted)
+
+        query =
+          if space_id do
+            Ash.Query.filter(query, space_id == ^space_id)
+          else
+            query
+          end
+
+        case Ash.read(query) do
+          {:ok, bookings} ->
+            # Filter overlapping bookings
+            overlapping_bookings =
+              Enum.filter(bookings, fn booking ->
+                Time.compare(booking.start_time, end_time) == :lt and
+                  Time.compare(start_time, booking.end_time) == :lt
+              end)
+
+            pending_count = Enum.count(overlapping_bookings, &(&1.state == :requested))
+            approved_count = Enum.count(overlapping_bookings, &(&1.state == :accepted))
+
+            {:ok, %{pending: pending_count, approved: approved_count}}
+
+          error ->
+            error
+        end
+      end
+    end
   end
 
   policies do
-    policy action([:cancel, :approve, :reject]) do
+    policy action([:cancel, :approve, :reject, :get_slot_booking_counts]) do
       authorize_if always()
     end
 

@@ -61,6 +61,8 @@ defmodule SpazioSolazzoWeb.Router do
         {SpazioSolazzoWeb.LiveUserAuth, :live_admin_required}
       ] do
       live "/admin/dashboard", Admin.DashboardLive
+      live "/admin/bookings", Admin.BookingManagementLive
+      live "/admin/walk-in", Admin.WalkInLive
     end
   end
 

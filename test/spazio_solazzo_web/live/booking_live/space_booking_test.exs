@@ -5,6 +5,21 @@ defmodule SpazioSolazzoWeb.BookingLive.SpaceBookingTest do
 
   alias SpazioSolazzo.BookingSystem
 
+  # Helper to convert old map-based call to new signature
+  defp request_booking(space_id, user_id, date, start_time, end_time, customer_details) do
+    BookingSystem.create_booking(
+      space_id,
+      user_id,
+      date,
+      start_time,
+      end_time,
+      customer_details.name,
+      customer_details.email,
+      customer_details[:phone],
+      customer_details[:comment]
+    )
+  end
+
   setup %{conn: conn} do
     {:ok, space} =
       BookingSystem.create_space(
@@ -212,7 +227,7 @@ defmodule SpazioSolazzoWeb.BookingLive.SpaceBookingTest do
     } do
       for i <- 1..2 do
         {:ok, booking} =
-          BookingSystem.request_booking(
+          request_booking(
             space.id,
             nil,
             today,
@@ -232,7 +247,7 @@ defmodule SpazioSolazzoWeb.BookingLive.SpaceBookingTest do
     test "hides slots over real capacity", %{conn: conn, space: space, today: today} do
       for i <- 1..3 do
         {:ok, booking} =
-          BookingSystem.request_booking(
+          request_booking(
             space.id,
             nil,
             today,
@@ -298,7 +313,7 @@ defmodule SpazioSolazzoWeb.BookingLive.SpaceBookingTest do
     } do
       for i <- 1..2 do
         {:ok, booking} =
-          BookingSystem.request_booking(
+          request_booking(
             space.id,
             nil,
             today,
@@ -436,7 +451,7 @@ defmodule SpazioSolazzoWeb.BookingLive.SpaceBookingTest do
       assert initial_html =~ "Available - Request Booking"
 
       {:ok, booking} =
-        BookingSystem.request_booking(
+        request_booking(
           space.id,
           nil,
           today,
@@ -451,7 +466,7 @@ defmodule SpazioSolazzoWeb.BookingLive.SpaceBookingTest do
       assert html =~ "Available - Request Booking"
 
       {:ok, booking2} =
-        BookingSystem.request_booking(
+        request_booking(
           space.id,
           nil,
           today,
@@ -468,7 +483,7 @@ defmodule SpazioSolazzoWeb.BookingLive.SpaceBookingTest do
 
     test "updates when booking is cancelled", %{conn: conn, space: space, today: today} do
       {:ok, booking1} =
-        BookingSystem.request_booking(
+        request_booking(
           space.id,
           nil,
           today,
@@ -480,7 +495,7 @@ defmodule SpazioSolazzoWeb.BookingLive.SpaceBookingTest do
       {:ok, _} = BookingSystem.approve_booking(booking1.id)
 
       {:ok, booking2} =
-        BookingSystem.request_booking(
+        request_booking(
           space.id,
           nil,
           today,
@@ -624,7 +639,7 @@ defmodule SpazioSolazzoWeb.BookingLive.SpaceBookingTest do
         )
 
       {:ok, booking} =
-        BookingSystem.request_booking(
+        request_booking(
           small_space.id,
           nil,
           today,

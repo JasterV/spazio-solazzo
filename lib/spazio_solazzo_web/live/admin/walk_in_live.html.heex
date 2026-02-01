@@ -1,0 +1,285 @@
+<Layouts.app flash={@flash} current_user={@current_user}>
+  <main class="flex-1">
+    <section class="mx-auto max-w-[1000px] px-6 py-10">
+      <%!-- Header with back button --%>
+      <div class="mb-6">
+        <.link
+          navigate="/admin/dashboard"
+          class="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-primary dark:text-slate-400 dark:hover:text-primary transition-colors"
+        >
+          <.icon name="hero-arrow-left" class="w-5 h-5" /> Back to Dashboard
+        </.link>
+      </div>
+
+      <%!-- Title --%>
+      <div class="mb-10 flex flex-col items-center md:items-start text-center md:text-left">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary dark:text-primary-hover dark:bg-primary/20 text-xs font-bold mb-4 border border-primary/20">
+          <.icon name="hero-building-office-2" class="w-4 h-4" />
+          <span>Coworking Space Only</span>
+        </div>
+        <h1 class="text-3xl md:text-4xl font-black text-slate-900 dark:text-white tracking-tight mb-3">
+          New Coworking Walk-in Booking
+        </h1>
+        <p class="text-slate-600 dark:text-slate-400 max-w-2xl text-lg">
+          Follow the steps below to create a new guided reservation for the coworking area.
+        </p>
+      </div>
+
+      <div class="space-y-8">
+        <%!-- Step 1: Date & Time --%>
+        <article class="bg-white dark:bg-slate-800 rounded-3xl p-6 md:p-8 border border-slate-200 dark:border-slate-700 shadow-xl shadow-slate-200/50 dark:shadow-none transition-all hover:border-primary/50 dark:hover:border-primary/50 group">
+          <header class="flex flex-col md:flex-row md:items-center gap-4 mb-8 pb-6 border-b border-slate-100 dark:border-slate-700/50">
+            <div class="size-12 rounded-2xl bg-primary text-white flex items-center justify-center text-xl font-bold shadow-lg shadow-primary/30 group-hover:scale-110 transition-transform duration-300">
+              1
+            </div>
+            <div>
+              <h2 class="text-xl font-bold text-slate-900 dark:text-white">
+                Select Date & Time
+              </h2>
+              <p class="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1">
+                Check availability on the calendar and set your booking range.
+              </p>
+            </div>
+          </header>
+
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <%!-- Calendar --%>
+            <div class="lg:col-span-2">
+              <.live_component
+                module={SpazioSolazzoWeb.Admin.AdminCalendarComponent}
+                id="walk-in-calendar"
+                space_id={@coworking_space.id}
+              />
+            </div>
+
+            <%!-- Selected dates and time inputs --%>
+            <div class="flex flex-col gap-6 lg:border-l border-slate-100 dark:border-slate-700 lg:pl-8">
+              <%!-- Selected interval --%>
+              <div>
+                <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-4">
+                  Selected Interval
+                </h3>
+                <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 flex flex-col gap-2">
+                  <div class="flex items-center justify-between">
+                    <span class="text-xs text-slate-500 dark:text-slate-400">
+                      Start Date
+                    </span>
+                    <span class="text-sm font-bold text-slate-900 dark:text-white">
+                      <%= if @start_date || @selected_date do %>
+                        {Calendar.strftime(@start_date || @selected_date, "%b %d, %Y")}
+                      <% else %>
+                        <span class="text-slate-400">Not selected</span>
+                      <% end %>
+                    </span>
+                  </div>
+                  <div class="w-full h-px bg-slate-200 dark:bg-slate-700"></div>
+                  <div class="flex items-center justify-between">
+                    <span class="text-xs text-slate-500 dark:text-slate-400">
+                      End Date
+                    </span>
+                    <span class="text-sm font-bold text-slate-900 dark:text-white">
+                      <%= if @end_date || @selected_date do %>
+                        {Calendar.strftime(@end_date || @selected_date, "%b %d, %Y")}
+                      <% else %>
+                        <span class="text-slate-400">Not selected</span>
+                      <% end %>
+                    </span>
+                  </div>
+                  <div class="mt-2 text-xs font-medium text-primary dark:text-secondary flex items-center gap-1">
+                    <.icon
+                      name={
+                        if @multi_day_mode && @end_date,
+                          do: "hero-calendar-days",
+                          else: "hero-calendar"
+                      }
+                      class="w-4 h-4"
+                    />
+                    <span>
+                      <%= if @multi_day_mode && @start_date && @end_date do %>
+                        {days_selected(@selected_date, @start_date, @end_date)} Days total
+                      <% else %>
+                        Single Day
+                      <% end %>
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <%!-- Daily schedule --%>
+              <div>
+                <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-4">
+                  Daily Schedule
+                </h3>
+
+                <%= if @multi_day_mode && @start_date && @end_date do %>
+                  <%!-- Multi-day mode: Show info card --%>
+                  <div class="w-full bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700 rounded-xl p-5 flex flex-col items-center text-center">
+                    <div class="size-10 bg-primary/10 dark:bg-primary/20 text-primary rounded-full flex items-center justify-center mb-3">
+                      <.icon name="hero-calendar-days" class="w-5 h-5" />
+                    </div>
+                    <p class="text-sm font-bold text-slate-900 dark:text-slate-100">
+                      Full day booking applied for the selected range
+                    </p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                      Start and end time inputs are disabled for multiday selections.
+                    </p>
+                  </div>
+                <% else %>
+                  <%!-- Single-day mode: Show time inputs --%>
+                  <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 flex flex-col gap-4">
+                    <div class="relative">
+                      <label
+                        class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-2"
+                        for="start-time"
+                      >
+                        Start Time
+                      </label>
+                      <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 pointer-events-none">
+                          <.icon name="hero-clock" class="w-4 h-4" />
+                        </span>
+                        <input
+                          id="start-time"
+                          type="time"
+                          value={Calendar.strftime(@start_time, "%H:%M")}
+                          phx-change="update_start_time"
+                          class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white text-sm rounded-xl pl-10 pr-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary transition-all shadow-sm"
+                        />
+                      </div>
+                    </div>
+
+                    <div class="relative">
+                      <label
+                        class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-2"
+                        for="end-time"
+                      >
+                        End Time
+                      </label>
+                      <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 pointer-events-none">
+                          <.icon name="hero-clock" class="w-4 h-4" />
+                        </span>
+                        <input
+                          id="end-time"
+                          type="time"
+                          value={Calendar.strftime(@end_time, "%H:%M")}
+                          phx-change="update_end_time"
+                          class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white text-sm rounded-xl pl-10 pr-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary transition-all shadow-sm"
+                        />
+                      </div>
+                    </div>
+
+                    <%= if @time_slot_warning do %>
+                      <div class="mt-2 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 flex items-start gap-3">
+                        <span class="text-red-600 dark:text-red-400 shrink-0">
+                          <.icon name="hero-exclamation-triangle" class="w-5 h-5" />
+                        </span>
+                        <div>
+                          <p class="text-sm font-bold text-red-900 dark:text-red-100 leading-tight">
+                            {@time_slot_warning}
+                          </p>
+                        </div>
+                      </div>
+                    <% end %>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <%!-- Step 2: Customer Details --%>
+        <article class="bg-white dark:bg-slate-800 rounded-3xl p-6 md:p-8 border border-slate-200 dark:border-slate-700 shadow-xl shadow-slate-200/50 dark:shadow-none transition-all hover:border-primary/50 dark:hover:border-primary/50 group">
+          <header class="flex flex-col md:flex-row md:items-center gap-4 mb-8 pb-6 border-b border-slate-100 dark:border-slate-700/50">
+            <div class="size-12 rounded-2xl bg-primary text-white flex items-center justify-center text-xl font-bold shadow-lg shadow-primary/30 group-hover:scale-110 transition-transform duration-300">
+              2
+            </div>
+            <div>
+              <h2 class="text-xl font-bold text-slate-900 dark:text-white">
+                Customer Details
+              </h2>
+              <p class="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1">
+                Enter the customer's contact information to complete the booking.
+              </p>
+            </div>
+          </header>
+
+          <div class="space-y-4 max-w-2xl">
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                <.icon name="hero-user" class="w-5 h-5" />
+              </span>
+              <input
+                value={@customer_name}
+                phx-change="update_customer_name"
+                class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-sm rounded-xl pl-10 pr-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary transition-all placeholder:text-slate-400"
+                placeholder="Customer Name"
+                type="text"
+              />
+            </div>
+
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                <.icon name="hero-envelope" class="w-5 h-5" />
+              </span>
+              <input
+                value={@customer_email}
+                phx-change="update_customer_email"
+                class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-sm rounded-xl pl-10 pr-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary transition-all placeholder:text-slate-400"
+                placeholder="customer@example.com"
+                type="email"
+              />
+            </div>
+
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                <.icon name="hero-phone" class="w-5 h-5" />
+              </span>
+              <input
+                value={@customer_phone}
+                phx-change="update_customer_phone"
+                class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-sm rounded-xl pl-10 pr-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary transition-all placeholder:text-slate-400"
+                placeholder="Customer Phone Number (Optional)"
+                type="tel"
+              />
+            </div>
+
+            <div class="relative">
+              <textarea
+                value={@customer_comment}
+                phx-change="update_customer_comment"
+                rows="3"
+                class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-sm rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary transition-all placeholder:text-slate-400"
+                placeholder="Additional notes or comments (Optional)"
+              ></textarea>
+            </div>
+          </div>
+        </article>
+
+        <%!-- Submit button --%>
+        <div class="sticky bottom-6 z-20">
+          <div class="bg-slate-900 dark:bg-primary rounded-2xl p-4 md:p-6 shadow-2xl border border-slate-800 dark:border-slate-600 flex flex-col sm:flex-row justify-between items-center gap-4 backdrop-blur-xl bg-opacity-95 dark:bg-opacity-95">
+            <div class="flex items-center gap-4">
+              <div class="bg-yellow-500/20 p-2 rounded-full hidden sm:block">
+                <.icon name="hero-currency-dollar" class="w-5 h-5 text-yellow-500" />
+              </div>
+              <div>
+                <p class="text-white font-bold">Ready to book?</p>
+                <p class="text-xs text-slate-300 dark:text-slate-200">
+                  Payment collected upon arrival.
+                </p>
+              </div>
+            </div>
+            <button
+              phx-click="create_booking"
+              class="w-full sm:w-auto flex items-center justify-center gap-2 overflow-hidden rounded-xl h-11 px-8 bg-yellow-500 hover:bg-yellow-400 transition-colors text-slate-900 text-sm font-bold shadow-lg shadow-yellow-500/20"
+            >
+              <span>Confirm Booking</span>
+              <.icon name="hero-arrow-right" class="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</Layouts.app>
