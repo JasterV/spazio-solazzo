@@ -56,6 +56,13 @@ defmodule SpazioSolazzoWeb.Router do
       live "/book/asset/:asset_id", AssetBookingLive
       live "/profile", ProfileLive
     end
+
+    ash_authentication_live_session :admin_routes,
+      on_mount: [
+        {SpazioSolazzoWeb.LiveUserAuth, :live_admin_required}
+      ] do
+      live "/admin/dashboard", Admin.DashboardLive
+    end
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
