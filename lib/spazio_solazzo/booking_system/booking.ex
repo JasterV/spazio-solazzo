@@ -60,25 +60,22 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
       filter expr(state == :requested or state == :accepted)
 
       prepare fn query, _ctx ->
-        query
-        |> then(fn q ->
-          case Ash.Query.get_argument(q, :space_id) do
-            nil -> q
-            space_id -> Ash.Query.filter(q, space_id == ^space_id)
+        query =
+          case Ash.Query.get_argument(query, :space_id) do
+            nil -> query
+            space_id -> Ash.Query.filter(query, space_id == ^space_id)
           end
-        end)
-        |> then(fn q ->
-          case Ash.Query.get_argument(q, :email) do
-            nil -> q
-            email -> Ash.Query.filter(q, customer_email == ^email)
+
+        query =
+          case Ash.Query.get_argument(query, :email) do
+            nil -> query
+            email -> Ash.Query.filter(query, customer_email == ^email)
           end
-        end)
-        |> then(fn q ->
-          case Ash.Query.get_argument(q, :date) do
-            nil -> q
-            date -> Ash.Query.filter(q, date == ^date)
-          end
-        end)
+
+        case Ash.Query.get_argument(query, :date) do
+          nil -> query
+          date -> Ash.Query.filter(query, date == ^date)
+        end
       end
     end
 

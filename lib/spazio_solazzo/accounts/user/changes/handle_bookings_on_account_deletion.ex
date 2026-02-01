@@ -16,16 +16,11 @@ defmodule SpazioSolazzo.Accounts.User.Changes.HandleBookingsOnAccountDeletion do
       user = changeset.data
       delete_history = Ash.Changeset.get_argument(changeset, :delete_history)
 
-      future_bookings =
-        Booking
-        |> Ash.Query.filter(
-          user_id == ^user.id and state in [:requested, :accepted] and date >= ^Date.utc_today()
-        )
-        |> Ash.read!()
-
-      Enum.each(future_bookings, fn booking ->
-        BookingSystem.cancel_booking!(booking, "Account deleted by user")
-      end)
+      Booking
+      |> Ash.Query.filter(
+        user_id == ^user.id and state in [:requested, :accepted] and date >= ^Date.utc_today()
+      )
+      |> BookingSystem.cancel_booking!("Account deleted by user")
 
       if delete_history do
         Booking
