@@ -25,7 +25,6 @@ defmodule SpazioSolazzoWeb.Router do
   scope "/", SpazioSolazzoWeb do
     pipe_through :browser
 
-    get "/bookings/confirm", BookingController, :confirm
     get "/sign-out", AuthController, :sign_out
     get "/auth/magic/sign-in", AuthController, :magic_sign_in
     get "/auth/failure", AuthController, :auth_failure
