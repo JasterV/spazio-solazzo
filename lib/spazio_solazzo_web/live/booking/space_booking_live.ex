@@ -2,7 +2,7 @@ defmodule SpazioSolazzoWeb.SpaceBookingLive do
   use SpazioSolazzoWeb, :live_view
 
   alias SpazioSolazzo.BookingSystem
-  require Ash.Query
+  import SpazioSolazzoWeb.BookingComponents
 
   def mount(%{"space_slug" => space_slug}, _session, socket) do
     case BookingSystem.get_space_by_slug(space_slug) do
@@ -27,8 +27,7 @@ defmodule SpazioSolazzoWeb.SpaceBookingLive do
            selected_time_slot: nil,
            show_booking_modal: false,
            show_success_modal: false,
-           time_slots: time_slots,
-           current_scope: nil
+           time_slots: time_slots
          )}
 
       {:error, _error} ->
@@ -68,12 +67,12 @@ defmodule SpazioSolazzoWeb.SpaceBookingLive do
     result =
       BookingSystem.create_booking(
         socket.assigns.space.id,
-        current_user && current_user.id,
+        current_user.id,
         socket.assigns.selected_date,
         socket.assigns.selected_time_slot.start_time,
         socket.assigns.selected_time_slot.end_time,
         booking_data.customer_name,
-        (current_user && current_user.email) || booking_data.customer_email,
+        current_user.email,
         booking_data.customer_phone,
         booking_data.customer_comment
       )
@@ -87,19 +86,6 @@ defmodule SpazioSolazzoWeb.SpaceBookingLive do
            show_success_modal: true
          )}
 
-      {:error, %Ash.Error.Invalid{errors: errors}} ->
-        error_message =
-          Enum.map_join(errors, ", ", fn
-            %{field: :date, message: msg} -> msg
-            %{message: msg} -> msg
-            _error -> "Invalid booking request"
-          end)
-
-        {:noreply,
-         socket
-         |> assign(show_booking_modal: false)
-         |> put_flash(:error, error_message)}
-
       {:error, _error} ->
         {:noreply,
          socket
@@ -109,8 +95,8 @@ defmodule SpazioSolazzoWeb.SpaceBookingLive do
   end
 
   def handle_info({:date_selected, date}, socket) do
-    current_user = socket.assigns[:current_user]
-    time_slots = load_time_slots_with_stats(socket.assigns.space, date, current_user)
+    time_slots =
+      load_time_slots_with_stats(socket.assigns.space, date, socket.assigns.current_user)
 
     {:noreply,
      socket
@@ -124,8 +110,8 @@ defmodule SpazioSolazzoWeb.SpaceBookingLive do
         %{topic: "booking:" <> _event, payload: %{data: %{space_id: space_id, date: date}}},
         %{assigns: %{space: %{id: space_id}, selected_date: date}} = socket
       ) do
-    current_user = socket.assigns[:current_user]
-    time_slots = load_time_slots_with_stats(socket.assigns.space, date, current_user)
+    time_slots =
+      load_time_slots_with_stats(socket.assigns.space, date, socket.assigns.current_user)
 
     {:noreply,
      socket
@@ -137,15 +123,15 @@ defmodule SpazioSolazzoWeb.SpaceBookingLive do
   end
 
   defp load_time_slots_with_stats(space, date, current_user) do
-    {:ok, time_slots} = BookingSystem.get_space_time_slots_by_date(space.id, date)
-
-    Ash.load!(time_slots,
-      booking_stats: %{
-        date: date,
-        space_id: space.id,
-        capacity: space.capacity,
-        user_id: current_user && current_user.id
-      }
+    BookingSystem.get_space_time_slots_by_date!(space.id, date,
+      load: [
+        booking_stats: %{
+          date: date,
+          space_id: space.id,
+          capacity: space.capacity,
+          user_id: current_user.id
+        }
+      ]
     )
   end
 end

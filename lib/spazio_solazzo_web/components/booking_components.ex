@@ -3,110 +3,95 @@ defmodule SpazioSolazzoWeb.BookingComponents do
   Reusable components for the booking flow.
   """
   use Phoenix.Component
-  alias SpazioSolazzo.CalendarExt
 
-  attr :id, :string, required: true
-  attr :show, :boolean, default: false
-  attr :on_close, :any, required: true
-
-  @doc """
-  Success modal displayed when a booking is completed.
-  """
-  def booking_confirmation_modal(assigns) do
-    ~H"""
-    <div
-      :if={@show}
-      id={@id}
-      class="relative z-50"
-      role="dialog"
-      aria-modal="true"
-    >
-      <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
-      <div class="fixed inset-0 z-10 overflow-y-auto">
-        <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-          <div
-            id={"#{@id}-container"}
-            class="relative transform overflow-hidden rounded-3xl bg-base-100 px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-sm sm:p-6"
-          >
-            <div>
-              <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-success/10">
-                <svg
-                  class="h-6 w-6 text-success"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-              </div>
-              <div class="mt-3 text-center sm:mt-5">
-                <h3 class="text-lg font-semibold leading-6 text-base-content">
-                  Booking Successful!
-                </h3>
-                <div class="mt-2">
-                  <p class="text-sm text-neutral">
-                    Your booking has been confirmed. You will receive a confirmation email shortly.
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div class="mt-5 sm:mt-6">
-              <button
-                phx-click={@on_close}
-                type="button"
-                class="btn btn-success w-full rounded-2xl text-white shadow-lg hover:shadow-xl transition-all"
-              >
-                Got it!
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    """
-  end
+  import SpazioSolazzoWeb.CoreComponents, only: [icon: 1]
 
   attr :time_slot, :map, required: true
-  attr :booked, :boolean, required: true
 
   @doc """
-  Renders time slot buttons in different sizes showing availability status.
+  Renders a detailed time slot card showing availability status and booking counts.
   """
-  def time_slot(assigns) do
+  def time_slot_card(assigns) do
+    assigns =
+      assigns
+      |> assign(:availability, assigns.time_slot.booking_stats.availability_status)
+      |> assign(:requested_count, assigns.time_slot.booking_stats.requested_count)
+      |> assign(:accepted_count, assigns.time_slot.booking_stats.accepted_count)
+      |> assign(:user_has_booking, assigns.time_slot.booking_stats.user_has_booking)
+
     ~H"""
     <button
-      phx-click={unless @booked, do: "select_slot"}
+      phx-click={if @user_has_booking, do: nil, else: "select_slot"}
       phx-value-time_slot_id={@time_slot.id}
-      disabled={@booked}
+      disabled={@user_has_booking}
       class={[
-        "group w-full flex items-center justify-between p-4 rounded-xl border-2 transition-all duration-200",
-        if(@booked,
-          do: "border-base-300 bg-base-200 cursor-not-allowed opacity-75",
+        "w-full p-4 rounded-xl border-2 transition-all duration-200 text-left",
+        if(@user_has_booking,
+          do:
+            "border-slate-200 bg-slate-100 cursor-not-allowed opacity-60 dark:bg-slate-700/50 dark:border-slate-600",
           else:
-            "border-secondary/40 hover:border-secondary bg-transparent hover:bg-secondary/5 cursor-pointer"
+            if(@availability == :available,
+              do:
+                "border-green-200 bg-green-50 hover:border-green-500 hover:shadow-lg cursor-pointer dark:bg-green-900/20 dark:border-green-800 dark:hover:border-green-600",
+              else:
+                "border-yellow-200 bg-yellow-50 hover:border-yellow-500 hover:shadow-lg cursor-pointer dark:bg-yellow-900/20 dark:border-yellow-800 dark:hover:border-yellow-600"
+            )
         )
       ]}
     >
-      <span class={[
-        "text-lg font-bold transition-colors",
-        if(@booked,
-          do: "text-neutral",
-          else: "text-base-content group-hover:text-secondary"
-        )
-      ]}>
-        {CalendarExt.format_time_range(@time_slot)}
-      </span>
-      <span class={[
-        "text-xs font-medium",
-        if(@booked, do: "text-neutral", else: "text-secondary")
-      ]}>
-        {if @booked, do: "Booked", else: "Available"}
-      </span>
+      <div class="flex items-center justify-between">
+        <div class="flex-1">
+          <div class="text-lg font-semibold text-slate-900 dark:text-white">
+            {Calendar.strftime(@time_slot.start_time, "%H:%M")} - {Calendar.strftime(
+              @time_slot.end_time,
+              "%H:%M"
+            )}
+          </div>
+          <%= if @user_has_booking do %>
+            <div class="text-sm text-slate-500 dark:text-slate-400 font-medium mt-1">
+              Already Requested
+            </div>
+          <% else %>
+            <%= if @availability == :available do %>
+              <div class="text-sm text-green-600 dark:text-green-400 font-medium mt-1">
+                Available - Request Booking
+              </div>
+            <% else %>
+              <div class="text-sm text-yellow-600 dark:text-yellow-400 font-medium mt-1">
+                High Demand - Join Waitlist
+              </div>
+            <% end %>
+          <% end %>
+          <div class="flex gap-3 mt-2 text-xs text-slate-600 dark:text-slate-400">
+            <%= if @requested_count > 0 do %>
+              <span class="flex items-center gap-1">
+                <.icon name="hero-clock" class="w-3.5 h-3.5" />
+                {@requested_count} pending
+              </span>
+            <% end %>
+            <%= if @accepted_count > 0 do %>
+              <span class="flex items-center gap-1">
+                <.icon name="hero-check-circle" class="w-3.5 h-3.5" />
+                {@accepted_count} booked
+              </span>
+            <% end %>
+          </div>
+        </div>
+        <.icon
+          name={if @user_has_booking, do: "hero-check", else: "hero-arrow-right"}
+          class={[
+            "w-5 h-5",
+            if(@user_has_booking,
+              do: "text-slate-400 dark:text-slate-500",
+              else:
+                if(@availability == :available,
+                  do: "text-green-500 dark:text-green-400",
+                  else: "text-yellow-500 dark:text-yellow-400"
+                )
+            )
+          ]}
+        />
+      </div>
     </button>
     """
   end

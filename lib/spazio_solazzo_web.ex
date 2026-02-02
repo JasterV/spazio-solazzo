@@ -94,8 +94,6 @@ defmodule SpazioSolazzoWeb do
       import Phoenix.HTML
       # Core UI components
       import SpazioSolazzoWeb.CoreComponents
-      # Landing page components
-      import SpazioSolazzoWeb.LandingComponents
 
       # Common modules used in templates
       alias Phoenix.LiveView.JS
