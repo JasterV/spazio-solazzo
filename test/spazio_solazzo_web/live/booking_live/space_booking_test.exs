@@ -251,7 +251,11 @@ defmodule SpazioSolazzoWeb.BookingLive.SpaceBookingTest do
       assert html =~ "High Demand - Join Waitlist"
     end
 
-    test "shows slots over capacity with high demand warning", %{conn: conn, space: space, today: today} do
+    test "shows slots over capacity with high demand warning", %{
+      conn: conn,
+      space: space,
+      today: today
+    } do
       for i <- 1..3 do
         {:ok, booking} =
           request_booking(

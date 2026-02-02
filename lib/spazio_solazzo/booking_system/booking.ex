@@ -26,6 +26,18 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
     references do
       reference :user, on_delete: :nilify, index?: true
     end
+
+    custom_indexes do
+      # Composite index for space + datetime range queries (most common pattern)
+      index [:space_id, :start_datetime, :end_datetime]
+
+      # Composite index for space + state queries (filtering by status)
+      index [:space_id, :state]
+
+      # Single indexes for datetime overlap queries
+      index [:start_datetime]
+      index [:end_datetime]
+    end
   end
 
   state_machine do
@@ -95,6 +107,49 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
 
     read :count_pending_requests do
       filter expr(state == :requested)
+    end
+
+    read :by_datetime_range_and_status do
+      description "Fetch bookings within a date/time range with optional filters"
+
+      argument :space_id, :uuid, allow_nil?: true
+      argument :user_id, :uuid, allow_nil?: true
+      argument :start_datetime, :datetime, allow_nil?: false
+      argument :end_datetime, :datetime, allow_nil?: false
+      argument :states, {:array, :atom}, allow_nil?: true
+
+      prepare fn query, _ctx ->
+        start_dt = Ash.Query.get_argument(query, :start_datetime)
+        end_dt = Ash.Query.get_argument(query, :end_datetime)
+
+        # Base datetime overlap filter
+        query =
+          Ash.Query.filter(
+            query,
+            start_datetime < ^end_dt and end_datetime > ^start_dt
+          )
+
+        # Optional space filter
+        query =
+          case Ash.Query.get_argument(query, :space_id) do
+            nil -> query
+            space_id -> Ash.Query.filter(query, space_id == ^space_id)
+          end
+
+        # Optional user filter
+        query =
+          case Ash.Query.get_argument(query, :user_id) do
+            nil -> query
+            user_id -> Ash.Query.filter(query, user_id == ^user_id)
+          end
+
+        # Optional states filter
+        case Ash.Query.get_argument(query, :states) do
+          nil -> query
+          [] -> query
+          states -> Ash.Query.filter(query, state in ^states)
+        end
+      end
     end
 
     create :create do
@@ -366,52 +421,10 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
       description "Delete a booking record"
       primary? true
     end
-
-    action :get_slot_booking_counts, :map do
-      argument :space_id, :uuid, allow_nil?: true
-      argument :date, :date, allow_nil?: false
-      argument :start_time, :time, allow_nil?: false
-      argument :end_time, :time, allow_nil?: false
-
-      run fn input, _context ->
-        space_id = input.arguments.space_id
-        date = input.arguments.date
-        start_time = input.arguments.start_time
-        end_time = input.arguments.end_time
-
-        start_datetime = DateTime.new!(date, start_time, "Etc/UTC")
-        end_datetime = DateTime.new!(date, end_time, "Etc/UTC")
-
-        query =
-          __MODULE__
-          |> Ash.Query.filter(
-            start_datetime < ^end_datetime and end_datetime > ^start_datetime and
-              (state == :requested or state == :accepted)
-          )
-
-        query =
-          if space_id do
-            Ash.Query.filter(query, space_id == ^space_id)
-          else
-            query
-          end
-
-        case Ash.read(query) do
-          {:ok, bookings} ->
-            pending_count = Enum.count(bookings, &(&1.state == :requested))
-            approved_count = Enum.count(bookings, &(&1.state == :accepted))
-
-            {:ok, %{pending: pending_count, approved: approved_count}}
-
-          error ->
-            error
-        end
-      end
-    end
   end
 
   policies do
-    policy action([:cancel, :approve, :reject, :get_slot_booking_counts]) do
+    policy action([:cancel, :approve, :reject]) do
       authorize_if always()
     end
 

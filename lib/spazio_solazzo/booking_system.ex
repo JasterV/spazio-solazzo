@@ -13,10 +13,6 @@ defmodule SpazioSolazzo.BookingSystem do
       define :create_space,
         action: :create,
         args: [:name, :slug, :description, :capacity]
-
-      define :check_availability,
-        action: :check_availability,
-        args: [:space_id, :date, :start_time, :end_time]
     end
 
     resource SpazioSolazzo.BookingSystem.TimeSlotTemplate do
@@ -40,9 +36,9 @@ defmodule SpazioSolazzo.BookingSystem do
 
       define :count_pending_requests, action: :count_pending_requests
 
-      define :get_slot_booking_counts,
-        action: :get_slot_booking_counts,
-        args: [:space_id, :date, :start_time, :end_time]
+      define :list_bookings_by_datetime_range,
+        action: :by_datetime_range_and_status,
+        args: [:space_id, :user_id, :start_datetime, :end_datetime, :states]
 
       define :create_booking,
         action: :create,

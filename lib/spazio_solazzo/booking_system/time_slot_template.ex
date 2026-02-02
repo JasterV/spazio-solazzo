@@ -67,4 +67,17 @@ defmodule SpazioSolazzo.BookingSystem.TimeSlotTemplate do
       public? true
     end
   end
+
+  calculations do
+    calculate :booking_stats,
+              :map,
+              {SpazioSolazzo.BookingSystem.TimeSlotTemplate.Calculations.SlotBookingStats, []} do
+      description "Calculates booking counts and availability for this time slot on a specific date"
+
+      argument :date, :date, allow_nil?: false
+      argument :space_id, :uuid, allow_nil?: false
+      argument :capacity, :integer, allow_nil?: false
+      argument :user_id, :uuid, allow_nil?: true
+    end
+  end
 end

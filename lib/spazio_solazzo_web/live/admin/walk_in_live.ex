@@ -153,20 +153,31 @@ defmodule SpazioSolazzoWeb.Admin.WalkInLive do
       assign(socket, time_slot_warning: nil)
     else
       date = socket.assigns.selected_date
+      start_time = socket.assigns.start_time
+      end_time = socket.assigns.end_time
+      space_id = socket.assigns.coworking_space.id
+      capacity = socket.assigns.coworking_space.capacity
 
-      case BookingSystem.check_availability(
-             socket.assigns.coworking_space.id,
-             date,
-             socket.assigns.start_time,
-             socket.assigns.end_time
-           ) do
-        {:ok, :over_capacity} ->
-          assign(socket,
-            time_slot_warning: "This time slot is currently overbooked. Proceed with caution."
-          )
+      start_datetime = DateTime.new!(date, start_time, "Etc/UTC")
+      end_datetime = DateTime.new!(date, end_time, "Etc/UTC")
 
-        _ ->
-          assign(socket, time_slot_warning: nil)
+      {:ok, bookings} =
+        BookingSystem.list_bookings_by_datetime_range(
+          space_id,
+          nil,
+          start_datetime,
+          end_datetime,
+          [:accepted]
+        )
+
+      accepted_count = length(bookings)
+
+      if accepted_count >= capacity do
+        assign(socket,
+          time_slot_warning: "This time slot is currently overbooked. Proceed with caution."
+        )
+      else
+        assign(socket, time_slot_warning: nil)
       end
     end
   end

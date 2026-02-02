@@ -45,83 +45,83 @@
               </div>
             <% else %>
               <%= for time_slot <- @time_slots do %>
-                <% availability = Map.get(@slot_availability, time_slot.id, :available) %>
-                <% counts =
-                  Map.get(@slot_booking_counts, time_slot.id, %{pending: 0, approved: 0}) %>
-                <% user_has_booking = Map.get(@user_booked_slots, time_slot.id, false) %>
+                <% availability = time_slot.booking_stats.availability_status %>
+                <% requested_count = time_slot.booking_stats.requested_count %>
+                <% accepted_count = time_slot.booking_stats.accepted_count %>
+                <% user_has_booking = time_slot.booking_stats.user_has_booking %>
                 <button
-                    phx-click={if user_has_booking, do: nil, else: "select_slot"}
-                    phx-value-time_slot_id={time_slot.id}
-                    disabled={user_has_booking}
-                    class={[
-                      "w-full p-4 rounded-xl border-2 transition-all duration-200 text-left",
-                      if(user_has_booking,
-                        do:
-                          "border-slate-200 bg-slate-100 cursor-not-allowed opacity-60 dark:bg-slate-700/50 dark:border-slate-600",
-                        else:
-                          if(availability == :available,
-                            do:
-                              "border-green-200 bg-green-50 hover:border-green-500 hover:shadow-lg cursor-pointer dark:bg-green-900/20 dark:border-green-800 dark:hover:border-green-600",
-                            else:
-                              "border-yellow-200 bg-yellow-50 hover:border-yellow-500 hover:shadow-lg cursor-pointer dark:bg-yellow-900/20 dark:border-yellow-800 dark:hover:border-yellow-600"
-                          )
-                      )
-                    ]}
-                  >
-                    <div class="flex items-center justify-between">
-                      <div class="flex-1">
-                        <div class="text-lg font-semibold text-slate-900 dark:text-white">
-                          {Calendar.strftime(time_slot.start_time, "%H:%M")} - {Calendar.strftime(
-                            time_slot.end_time,
-                            "%H:%M"
-                          )}
+                  phx-click={if user_has_booking, do: nil, else: "select_slot"}
+                  phx-value-time_slot_id={time_slot.id}
+                  disabled={user_has_booking}
+                  class={[
+                    "w-full p-4 rounded-xl border-2 transition-all duration-200 text-left",
+                    if(user_has_booking,
+                      do:
+                        "border-slate-200 bg-slate-100 cursor-not-allowed opacity-60 dark:bg-slate-700/50 dark:border-slate-600",
+                      else:
+                        if(availability == :available,
+                          do:
+                            "border-green-200 bg-green-50 hover:border-green-500 hover:shadow-lg cursor-pointer dark:bg-green-900/20 dark:border-green-800 dark:hover:border-green-600",
+                          else:
+                            "border-yellow-200 bg-yellow-50 hover:border-yellow-500 hover:shadow-lg cursor-pointer dark:bg-yellow-900/20 dark:border-yellow-800 dark:hover:border-yellow-600"
+                        )
+                    )
+                  ]}
+                >
+                  <div class="flex items-center justify-between">
+                    <div class="flex-1">
+                      <div class="text-lg font-semibold text-slate-900 dark:text-white">
+                        {Calendar.strftime(time_slot.start_time, "%H:%M")} - {Calendar.strftime(
+                          time_slot.end_time,
+                          "%H:%M"
+                        )}
+                      </div>
+                      <%= if user_has_booking do %>
+                        <div class="text-sm text-slate-500 dark:text-slate-400 font-medium mt-1">
+                          Already Requested
                         </div>
-                        <%= if user_has_booking do %>
-                          <div class="text-sm text-slate-500 dark:text-slate-400 font-medium mt-1">
-                            Already Requested
+                      <% else %>
+                        <%= if availability == :available do %>
+                          <div class="text-sm text-green-600 dark:text-green-400 font-medium mt-1">
+                            Available - Request Booking
                           </div>
                         <% else %>
-                          <%= if availability == :available do %>
-                            <div class="text-sm text-green-600 dark:text-green-400 font-medium mt-1">
-                              Available - Request Booking
-                            </div>
-                          <% else %>
-                            <div class="text-sm text-yellow-600 dark:text-yellow-400 font-medium mt-1">
-                              High Demand - Join Waitlist
-                            </div>
-                          <% end %>
+                          <div class="text-sm text-yellow-600 dark:text-yellow-400 font-medium mt-1">
+                            High Demand - Join Waitlist
+                          </div>
                         <% end %>
-                        <div class="flex gap-3 mt-2 text-xs text-slate-600 dark:text-slate-400">
-                          <%= if counts.pending > 0 do %>
-                            <span class="flex items-center gap-1">
-                              <.icon name="hero-clock" class="w-3.5 h-3.5" />
-                              {counts.pending} pending
-                            </span>
-                          <% end %>
-                          <%= if counts.approved > 0 do %>
-                            <span class="flex items-center gap-1">
-                              <.icon name="hero-check-circle" class="w-3.5 h-3.5" />
-                              {counts.approved} booked
-                            </span>
-                          <% end %>
-                        </div>
+                      <% end %>
+                      <div class="flex gap-3 mt-2 text-xs text-slate-600 dark:text-slate-400">
+                        <%= if requested_count > 0 do %>
+                          <span class="flex items-center gap-1">
+                            <.icon name="hero-clock" class="w-3.5 h-3.5" />
+                            {requested_count} pending
+                          </span>
+                        <% end %>
+                        <%= if accepted_count > 0 do %>
+                          <span class="flex items-center gap-1">
+                            <.icon name="hero-check-circle" class="w-3.5 h-3.5" />
+                            {accepted_count} booked
+                          </span>
+                        <% end %>
                       </div>
-                      <.icon
-                        name={if user_has_booking, do: "hero-check", else: "hero-arrow-right"}
-                        class={[
-                          "w-5 h-5",
-                          if(user_has_booking,
-                            do: "text-slate-400 dark:text-slate-500",
-                            else:
-                              if(availability == :available,
-                                do: "text-green-500 dark:text-green-400",
-                                else: "text-yellow-500 dark:text-yellow-400"
-                              )
-                          )
-                        ]}
-                      />
                     </div>
-                  </button>
+                    <.icon
+                      name={if user_has_booking, do: "hero-check", else: "hero-arrow-right"}
+                      class={[
+                        "w-5 h-5",
+                        if(user_has_booking,
+                          do: "text-slate-400 dark:text-slate-500",
+                          else:
+                            if(availability == :available,
+                              do: "text-green-500 dark:text-green-400",
+                              else: "text-yellow-500 dark:text-yellow-400"
+                            )
+                        )
+                      ]}
+                    />
+                  </div>
+                </button>
               <% end %>
             <% end %>
           </div>
@@ -146,7 +146,7 @@
     current_user={@current_user}
     slot_availability={
       if @selected_time_slot do
-        Map.get(@slot_availability, @selected_time_slot.id, :available)
+        @selected_time_slot.booking_stats.availability_status
       else
         :available
       end
