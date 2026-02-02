@@ -119,6 +119,10 @@ defmodule SpazioSolazzoWeb.Admin.BookingManagementLive do
      )}
   end
 
+  def handle_event("stop_propagation", _, socket) do
+    {:noreply, socket}
+  end
+
   def handle_event("update_rejection_reason", %{"reason" => reason}, socket) do
     {:noreply, assign(socket, rejection_reason: reason)}
   end

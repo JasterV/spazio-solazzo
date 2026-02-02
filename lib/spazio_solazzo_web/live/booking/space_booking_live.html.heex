@@ -46,18 +46,26 @@
             <% else %>
               <%= for time_slot <- @time_slots do %>
                 <% availability = Map.get(@slot_availability, time_slot.id, :available) %>
-                <% counts = Map.get(@slot_booking_counts, time_slot.id, %{pending: 0, approved: 0}) %>
+                <% counts =
+                  Map.get(@slot_booking_counts, time_slot.id, %{pending: 0, approved: 0}) %>
+                <% user_has_booking = Map.get(@user_booked_slots, time_slot.id, false) %>
                 <%= if availability != :over_real_capacity do %>
                   <button
-                    phx-click="select_slot"
+                    phx-click={if user_has_booking, do: nil, else: "select_slot"}
                     phx-value-time_slot_id={time_slot.id}
+                    disabled={user_has_booking}
                     class={[
                       "w-full p-4 rounded-xl border-2 transition-all duration-200 text-left",
-                      if(availability == :available,
+                      if(user_has_booking,
                         do:
-                          "border-green-200 bg-green-50 hover:border-green-500 hover:shadow-lg cursor-pointer dark:bg-green-900/20 dark:border-green-800 dark:hover:border-green-600",
+                          "border-slate-200 bg-slate-100 cursor-not-allowed opacity-60 dark:bg-slate-700/50 dark:border-slate-600",
                         else:
-                          "border-yellow-200 bg-yellow-50 hover:border-yellow-500 hover:shadow-lg cursor-pointer dark:bg-yellow-900/20 dark:border-yellow-800 dark:hover:border-yellow-600"
+                          if(availability == :available,
+                            do:
+                              "border-green-200 bg-green-50 hover:border-green-500 hover:shadow-lg cursor-pointer dark:bg-green-900/20 dark:border-green-800 dark:hover:border-green-600",
+                            else:
+                              "border-yellow-200 bg-yellow-50 hover:border-yellow-500 hover:shadow-lg cursor-pointer dark:bg-yellow-900/20 dark:border-yellow-800 dark:hover:border-yellow-600"
+                          )
                       )
                     ]}
                   >
@@ -69,14 +77,20 @@
                             "%H:%M"
                           )}
                         </div>
-                        <%= if availability == :available do %>
-                          <div class="text-sm text-green-600 dark:text-green-400 font-medium mt-1">
-                            Available - Request Booking
+                        <%= if user_has_booking do %>
+                          <div class="text-sm text-slate-500 dark:text-slate-400 font-medium mt-1">
+                            Already Requested
                           </div>
                         <% else %>
-                          <div class="text-sm text-yellow-600 dark:text-yellow-400 font-medium mt-1">
-                            High Demand - Join Waitlist
-                          </div>
+                          <%= if availability == :available do %>
+                            <div class="text-sm text-green-600 dark:text-green-400 font-medium mt-1">
+                              Available - Request Booking
+                            </div>
+                          <% else %>
+                            <div class="text-sm text-yellow-600 dark:text-yellow-400 font-medium mt-1">
+                              High Demand - Join Waitlist
+                            </div>
+                          <% end %>
                         <% end %>
                         <div class="flex gap-3 mt-2 text-xs text-slate-600 dark:text-slate-400">
                           <%= if counts.pending > 0 do %>
@@ -94,12 +108,16 @@
                         </div>
                       </div>
                       <.icon
-                        name="hero-arrow-right"
+                        name={if user_has_booking, do: "hero-check", else: "hero-arrow-right"}
                         class={[
                           "w-5 h-5",
-                          if(availability == :available,
-                            do: "text-green-500 dark:text-green-400",
-                            else: "text-yellow-500 dark:text-yellow-400"
+                          if(user_has_booking,
+                            do: "text-slate-400 dark:text-slate-500",
+                            else:
+                              if(availability == :available,
+                                do: "text-green-500 dark:text-green-400",
+                                else: "text-yellow-500 dark:text-yellow-400"
+                              )
                           )
                         ]}
                       />
@@ -141,14 +159,14 @@
   <%= if @show_success_modal do %>
     <div
       id="success-modal"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+      class="fixed inset-0 bg-slate-900/20 backdrop-blur-sm flex items-center justify-center p-4 z-50"
       phx-click="close_success_modal"
     >
-      <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-md w-full p-8 text-center">
-        <div class="mb-6">
-          <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 dark:bg-green-900/20 mb-4">
+      <div class="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-xl shadow-slate-200/50 dark:shadow-none max-w-md w-full p-6 text-center">
+        <div class="mb-4">
+          <div class="mx-auto flex items-center justify-center h-14 w-14 rounded-full bg-green-100 dark:bg-green-900/20 mb-3">
             <svg
-              class="h-10 w-10 text-green-600 dark:text-green-400"
+              class="h-8 w-8 text-green-600 dark:text-green-400"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -161,17 +179,17 @@
               />
             </svg>
           </div>
-          <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-2">
+          <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-2">
             Request Submitted!
           </h3>
-          <p class="text-slate-600 dark:text-slate-400">
-            Your booking request has been received and is pending approval. You will receive an email confirmation shortly.
+          <p class="text-slate-600 dark:text-slate-400 text-sm">
+            Your booking request is pending approval. You'll receive an email confirmation shortly.
           </p>
         </div>
 
         <button
           phx-click="close_success_modal"
-          class="w-full bg-green-500 text-white px-6 py-3 rounded-xl font-semibold hover:bg-green-600 transition-colors"
+          class="w-full bg-green-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-600 transition-colors text-sm"
         >
           Close
         </button>

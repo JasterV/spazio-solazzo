@@ -95,20 +95,6 @@ defmodule SpazioSolazzo.BookingSystem.Space do
     end
   end
 
-  attributes do
-    uuid_primary_key :id
-    attribute :name, :string, allow_nil?: false, public?: true
-    attribute :description, :string, allow_nil?: false, public?: true
-    attribute :slug, :string, allow_nil?: false, public?: true
-    attribute :public_capacity, :integer, allow_nil?: false, public?: true
-    attribute :real_capacity, :integer, allow_nil?: false, public?: true
-  end
-
-  identities do
-    identity :unique_name, [:name]
-    identity :unique_slug, [:slug]
-  end
-
   policies do
     policy action(:check_availability) do
       authorize_if always()
@@ -121,5 +107,19 @@ defmodule SpazioSolazzo.BookingSystem.Space do
     policy action_type(:create) do
       authorize_if always()
     end
+  end
+
+  attributes do
+    uuid_primary_key :id
+    attribute :name, :string, allow_nil?: false, public?: true
+    attribute :description, :string, allow_nil?: false, public?: true
+    attribute :slug, :string, allow_nil?: false, public?: true
+    attribute :public_capacity, :integer, allow_nil?: false, public?: true
+    attribute :real_capacity, :integer, allow_nil?: false, public?: true
+  end
+
+  identities do
+    identity :unique_name, [:name]
+    identity :unique_slug, [:slug]
   end
 end

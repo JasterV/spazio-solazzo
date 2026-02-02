@@ -21,9 +21,10 @@ defmodule SpazioSolazzo.BookingSystem.Booking.RequestCreatedEmailWorkerTest do
 
       # Verify customer email was sent
       emails = Memory.all()
+
       assert Enum.any?(emails, fn email ->
-        email.to == [{"John Doe", "john@example.com"}]
-      end)
+               email.to == [{"John Doe", "john@example.com"}]
+             end)
     end
 
     test "sends notification email to admin" do
@@ -44,9 +45,10 @@ defmodule SpazioSolazzo.BookingSystem.Booking.RequestCreatedEmailWorkerTest do
 
       # Verify admin email was sent
       emails = Memory.all()
+
       assert Enum.any?(emails, fn email ->
-        email.to == [{"", admin_email}]
-      end)
+               email.to == [{"", admin_email}]
+             end)
     end
 
     test "sends both customer and admin emails in single job execution" do
@@ -89,9 +91,11 @@ defmodule SpazioSolazzo.BookingSystem.Booking.RequestCreatedEmailWorkerTest do
       assert :ok = perform_job(RequestCreatedEmailWorker, job_args)
 
       emails = Memory.all()
-      customer_email = Enum.find(emails, fn email ->
-        email.to == [{"Test User", "test@example.com"}]
-      end)
+
+      customer_email =
+        Enum.find(emails, fn email ->
+          email.to == [{"Test User", "test@example.com"}]
+        end)
 
       assert customer_email != nil
       assert String.contains?(customer_email.html_body, "Music Room")
@@ -115,9 +119,11 @@ defmodule SpazioSolazzo.BookingSystem.Booking.RequestCreatedEmailWorkerTest do
       assert :ok = perform_job(RequestCreatedEmailWorker, job_args)
 
       emails = Memory.all()
-      admin_notification = Enum.find(emails, fn email ->
-        email.to == [{"", admin_email}]
-      end)
+
+      admin_notification =
+        Enum.find(emails, fn email ->
+          email.to == [{"", admin_email}]
+        end)
 
       assert admin_notification != nil
       assert String.contains?(admin_notification.html_body, "Admin Test")

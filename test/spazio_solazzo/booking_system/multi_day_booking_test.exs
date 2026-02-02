@@ -66,21 +66,31 @@ defmodule SpazioSolazzo.BookingSystem.MultiDayBookingTest do
         )
 
       # Should appear on start date
-      {:ok, day1_bookings} = BookingSystem.list_accepted_space_bookings_by_date(space.id, start_date)
+      {:ok, day1_bookings} =
+        BookingSystem.list_accepted_space_bookings_by_date(space.id, start_date)
+
       assert length(day1_bookings) == 1
 
       # Should appear on middle date
       middle_date = Date.add(start_date, 1)
-      {:ok, day2_bookings} = BookingSystem.list_accepted_space_bookings_by_date(space.id, middle_date)
+
+      {:ok, day2_bookings} =
+        BookingSystem.list_accepted_space_bookings_by_date(space.id, middle_date)
+
       assert length(day2_bookings) == 1
 
       # Should appear on end date
-      {:ok, day4_bookings} = BookingSystem.list_accepted_space_bookings_by_date(space.id, end_date)
+      {:ok, day4_bookings} =
+        BookingSystem.list_accepted_space_bookings_by_date(space.id, end_date)
+
       assert length(day4_bookings) == 1
 
       # Should not appear on day after end date
       day_after = Date.add(end_date, 1)
-      {:ok, day_after_bookings} = BookingSystem.list_accepted_space_bookings_by_date(space.id, day_after)
+
+      {:ok, day_after_bookings} =
+        BookingSystem.list_accepted_space_bookings_by_date(space.id, day_after)
+
       assert length(day_after_bookings) == 0
     end
 
@@ -291,11 +301,16 @@ defmodule SpazioSolazzo.BookingSystem.MultiDayBookingTest do
 
       # Should not appear on day before start
       day_before = Date.add(start_date, -1)
-      {:ok, bookings_before} = BookingSystem.list_accepted_space_bookings_by_date(space.id, day_before)
+
+      {:ok, bookings_before} =
+        BookingSystem.list_accepted_space_bookings_by_date(space.id, day_before)
+
       assert length(bookings_before) == 0
 
       # Should appear on start date
-      {:ok, bookings_start} = BookingSystem.list_accepted_space_bookings_by_date(space.id, start_date)
+      {:ok, bookings_start} =
+        BookingSystem.list_accepted_space_bookings_by_date(space.id, start_date)
+
       assert length(bookings_start) == 1
 
       # Should appear on end date
@@ -304,7 +319,10 @@ defmodule SpazioSolazzo.BookingSystem.MultiDayBookingTest do
 
       # Should not appear on day after end
       day_after = Date.add(end_date, 1)
-      {:ok, bookings_after} = BookingSystem.list_accepted_space_bookings_by_date(space.id, day_after)
+
+      {:ok, bookings_after} =
+        BookingSystem.list_accepted_space_bookings_by_date(space.id, day_after)
+
       assert length(bookings_after) == 0
     end
 
@@ -338,7 +356,10 @@ defmodule SpazioSolazzo.BookingSystem.MultiDayBookingTest do
 
       # Verify it doesn't appear the day after
       day_after = Date.add(end_date, 1)
-      {:ok, bookings_after} = BookingSystem.list_accepted_space_bookings_by_date(space.id, day_after)
+
+      {:ok, bookings_after} =
+        BookingSystem.list_accepted_space_bookings_by_date(space.id, day_after)
+
       assert length(bookings_after) == 0
     end
   end

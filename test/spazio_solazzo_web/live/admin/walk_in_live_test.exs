@@ -10,8 +10,10 @@ defmodule SpazioSolazzoWeb.Admin.WalkInLiveTest do
   defp create_admin_user do
     user = register_user("admin@example.com", "Admin User")
     {:ok, uuid} = Ecto.UUID.dump(user.id)
+
     from(u in "users", where: u.id == ^uuid)
     |> SpazioSolazzo.Repo.update_all(set: [role: "admin"])
+
     user
   end
 
@@ -41,7 +43,11 @@ defmodule SpazioSolazzoWeb.Admin.WalkInLiveTest do
       assert has_element?(view, "button[phx-click='create_booking']")
     end
 
-    test "creates single-day walk-in booking successfully", %{conn: conn, user: user, space: space} do
+    test "creates single-day walk-in booking successfully", %{
+      conn: conn,
+      user: user,
+      space: space
+    } do
       conn = log_in_user(conn, user)
       {:ok, view, _html} = live(conn, "/admin/walk-in")
 
@@ -180,7 +186,9 @@ defmodule SpazioSolazzoWeb.Admin.WalkInLiveTest do
 
       assert length(day2_bookings) == 1
 
-      {:ok, day3_bookings} = BookingSystem.list_accepted_space_bookings_by_date(space.id, end_date)
+      {:ok, day3_bookings} =
+        BookingSystem.list_accepted_space_bookings_by_date(space.id, end_date)
+
       assert length(day3_bookings) == 1
     end
 

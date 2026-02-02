@@ -117,7 +117,8 @@ defmodule SpazioSolazzoWeb.Admin.WalkInLive do
       end
     else
       _ ->
-        {:noreply, put_flash(socket, :error, "Please fill in all required fields and select a date")}
+        {:noreply,
+         put_flash(socket, :error, "Please fill in all required fields and select a date")}
     end
   end
 
@@ -163,7 +164,9 @@ defmodule SpazioSolazzoWeb.Admin.WalkInLive do
           assign(socket, time_slot_warning: "This time slot is currently full.")
 
         {:ok, :over_public_capacity} ->
-          assign(socket, time_slot_warning: "This time slot has high demand but space is still available.")
+          assign(socket,
+            time_slot_warning: "This time slot has high demand but space is still available."
+          )
 
         _ ->
           assign(socket, time_slot_warning: nil)

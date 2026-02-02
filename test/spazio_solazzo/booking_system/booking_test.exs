@@ -63,7 +63,6 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
                  "Test booking"
                )
 
-
       assert booking.space_id == space.id
       assert booking.user_id == nil
       assert booking.date == date
@@ -108,7 +107,6 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
                  nil
                )
 
-
       error_messages = Ash.Error.error_descriptions(error)
       assert String.contains?(error_messages, "must be after start time")
     end
@@ -129,7 +127,6 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
                  nil
                )
 
-
       error_messages = Ash.Error.error_descriptions(error)
       assert String.contains?(error_messages, "cannot be in the past")
     end
@@ -149,7 +146,6 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
                  nil,
                  nil
                )
-
 
       assert booking.date == today
     end
@@ -183,7 +179,6 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
                  nil
                )
 
-
       assert booking.customer_phone == nil || booking.customer_phone == ""
     end
   end
@@ -192,17 +187,16 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
     test "approves a pending booking", %{space: space, date: date} do
       {:ok, booking} =
         request_booking(
-                 space.id,
-                 nil,
-                 date,
-                 ~T[09:00:00],
-                 ~T[10:00:00],
-                 "John Doe",
-                 "john@example.com",
-                 nil,
-                 nil
-               )
-
+          space.id,
+          nil,
+          date,
+          ~T[09:00:00],
+          ~T[10:00:00],
+          "John Doe",
+          "john@example.com",
+          nil,
+          nil
+        )
 
       assert booking.state == :requested
 
@@ -215,17 +209,16 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
     test "cannot approve already approved booking", %{space: space, date: date} do
       {:ok, booking} =
         request_booking(
-                 space.id,
-                 nil,
-                 date,
-                 ~T[09:00:00],
-                 ~T[10:00:00],
-                 "John Doe",
-                 "john@example.com",
-                 nil,
-                 nil
-               )
-
+          space.id,
+          nil,
+          date,
+          ~T[09:00:00],
+          ~T[10:00:00],
+          "John Doe",
+          "john@example.com",
+          nil,
+          nil
+        )
 
       {:ok, _} = BookingSystem.approve_booking(booking.id)
 
@@ -237,17 +230,16 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
     test "cannot approve cancelled booking", %{space: space, date: date} do
       {:ok, booking} =
         request_booking(
-                 space.id,
-                 nil,
-                 date,
-                 ~T[09:00:00],
-                 ~T[10:00:00],
-                 "John Doe",
-                 "john@example.com",
-                 nil,
-                 nil
-               )
-
+          space.id,
+          nil,
+          date,
+          ~T[09:00:00],
+          ~T[10:00:00],
+          "John Doe",
+          "john@example.com",
+          nil,
+          nil
+        )
 
       {:ok, _} = BookingSystem.cancel_booking(booking.id, "Test cancellation")
 
@@ -261,17 +253,16 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
     test "cancels a pending booking", %{space: space, date: date} do
       {:ok, booking} =
         request_booking(
-                 space.id,
-                 nil,
-                 date,
-                 ~T[09:00:00],
-                 ~T[10:00:00],
-                 "John Doe",
-                 "john@example.com",
-                 nil,
-                 nil
-               )
-
+          space.id,
+          nil,
+          date,
+          ~T[09:00:00],
+          ~T[10:00:00],
+          "John Doe",
+          "john@example.com",
+          nil,
+          nil
+        )
 
       {:ok, cancelled_booking} = BookingSystem.cancel_booking(booking.id, "Test cancellation")
 
@@ -282,17 +273,16 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
     test "cancels an approved booking", %{space: space, date: date} do
       {:ok, booking} =
         request_booking(
-                 space.id,
-                 nil,
-                 date,
-                 ~T[09:00:00],
-                 ~T[10:00:00],
-                 "John Doe",
-                 "john@example.com",
-                 nil,
-                 nil
-               )
-
+          space.id,
+          nil,
+          date,
+          ~T[09:00:00],
+          ~T[10:00:00],
+          "John Doe",
+          "john@example.com",
+          nil,
+          nil
+        )
 
       {:ok, _} = BookingSystem.approve_booking(booking.id)
       {:ok, cancelled_booking} = BookingSystem.cancel_booking(booking.id, "Test cancellation")
@@ -303,17 +293,16 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
     test "cannot cancel already cancelled booking", %{space: space, date: date} do
       {:ok, booking} =
         request_booking(
-                 space.id,
-                 nil,
-                 date,
-                 ~T[09:00:00],
-                 ~T[10:00:00],
-                 "John Doe",
-                 "john@example.com",
-                 nil,
-                 nil
-               )
-
+          space.id,
+          nil,
+          date,
+          ~T[09:00:00],
+          ~T[10:00:00],
+          "John Doe",
+          "john@example.com",
+          nil,
+          nil
+        )
 
       {:ok, _} = BookingSystem.cancel_booking(booking.id, "Test cancellation")
 

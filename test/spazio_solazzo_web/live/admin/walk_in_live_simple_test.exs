@@ -11,8 +11,10 @@ defmodule SpazioSolazzoWeb.Admin.WalkInLiveSimpleTest do
     user = register_user("admin@example.com", "Admin User")
     # Directly update role to admin using Ecto
     {:ok, uuid} = Ecto.UUID.dump(user.id)
+
     from(u in "users", where: u.id == ^uuid)
     |> SpazioSolazzo.Repo.update_all(set: [role: "admin"])
+
     user
   end
 

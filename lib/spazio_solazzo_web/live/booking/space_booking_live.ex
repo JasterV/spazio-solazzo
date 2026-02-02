@@ -34,10 +34,12 @@ defmodule SpazioSolazzoWeb.SpaceBookingLive do
            time_slots: time_slots,
            current_scope: nil,
            slot_availability: %{},
-           slot_booking_counts: %{}
+           slot_booking_counts: %{},
+           user_booked_slots: %{}
          )
          |> compute_slot_availability()
-         |> compute_slot_booking_counts()}
+         |> compute_slot_booking_counts()
+         |> compute_user_booked_slots()}
 
       {:error, _error} ->
         {:ok,
@@ -50,11 +52,16 @@ defmodule SpazioSolazzoWeb.SpaceBookingLive do
   def handle_event("select_slot", %{"time_slot_id" => time_slot_id}, socket) do
     time_slot = Enum.find(socket.assigns.time_slots, &(&1.id == time_slot_id))
 
-    {:noreply,
-     assign(socket,
-       selected_time_slot: time_slot,
-       show_booking_modal: true
-     )}
+    # Prevent opening modal if user already has a booking for this slot
+    if socket.assigns.user_booked_slots[time_slot_id] do
+      {:noreply, socket}
+    else
+      {:noreply,
+       assign(socket,
+         selected_time_slot: time_slot,
+         show_booking_modal: true
+       )}
+    end
   end
 
   def handle_event("cancel_booking", _params, socket) do
@@ -90,6 +97,21 @@ defmodule SpazioSolazzoWeb.SpaceBookingLive do
            show_success_modal: true
          )}
 
+      {:error, %Ash.Error.Invalid{errors: errors}} ->
+        error_message =
+          errors
+          |> Enum.map(fn
+            %{field: :date, message: msg} -> msg
+            %{message: msg} -> msg
+            _error -> "Invalid booking request"
+          end)
+          |> Enum.join(", ")
+
+        {:noreply,
+         socket
+         |> assign(show_booking_modal: false)
+         |> put_flash(:error, error_message)}
+
       {:error, _error} ->
         {:noreply,
          socket
@@ -113,7 +135,8 @@ defmodule SpazioSolazzoWeb.SpaceBookingLive do
        bookings: bookings
      )
      |> compute_slot_availability()
-     |> compute_slot_booking_counts()}
+     |> compute_slot_booking_counts()
+     |> compute_user_booked_slots()}
   end
 
   def handle_info(
@@ -126,7 +149,8 @@ defmodule SpazioSolazzoWeb.SpaceBookingLive do
      socket
      |> assign(bookings: bookings)
      |> compute_slot_availability()
-     |> compute_slot_booking_counts()}
+     |> compute_slot_booking_counts()
+     |> compute_user_booked_slots()}
   end
 
   def handle_info(_msg, socket) do
@@ -169,5 +193,39 @@ defmodule SpazioSolazzoWeb.SpaceBookingLive do
       |> Map.new()
 
     assign(socket, slot_booking_counts: slot_booking_counts)
+  end
+
+  defp compute_user_booked_slots(socket) do
+    current_user = socket.assigns.current_user
+
+    user_booked_slots =
+      if current_user do
+        socket.assigns.time_slots
+        |> Enum.map(fn time_slot ->
+          start_datetime =
+            DateTime.new!(socket.assigns.selected_date, time_slot.start_time, "Etc/UTC")
+
+          end_datetime =
+            DateTime.new!(socket.assigns.selected_date, time_slot.end_time, "Etc/UTC")
+
+          existing_bookings =
+            SpazioSolazzo.BookingSystem.Booking
+            |> Ash.Query.filter(
+              user_id == ^current_user.id and
+                space_id == ^socket.assigns.space.id and
+                (state == :requested or state == :accepted) and
+                start_datetime < ^end_datetime and
+                end_datetime > ^start_datetime
+            )
+            |> Ash.read!()
+
+          {time_slot.id, existing_bookings != []}
+        end)
+        |> Map.new()
+      else
+        %{}
+      end
+
+    assign(socket, user_booked_slots: user_booked_slots)
   end
 end

@@ -223,8 +223,12 @@ defmodule SpazioSolazzoWeb.Admin.AdminCalendarComponent do
   end
 
   defp day_in_range?(_date, nil, nil, nil), do: false
-  defp day_in_range?(date, selected, nil, nil) when not is_nil(selected), do: Date.compare(date, selected) == :eq
-  defp day_in_range?(date, nil, start_date, nil) when not is_nil(start_date), do: Date.compare(date, start_date) == :eq
+
+  defp day_in_range?(date, selected, nil, nil) when not is_nil(selected),
+    do: Date.compare(date, selected) == :eq
+
+  defp day_in_range?(date, nil, start_date, nil) when not is_nil(start_date),
+    do: Date.compare(date, start_date) == :eq
 
   defp day_in_range?(date, nil, start_date, end_date)
        when not is_nil(start_date) and not is_nil(end_date) do
@@ -254,28 +258,49 @@ defmodule SpazioSolazzoWeb.Admin.AdminCalendarComponent do
         [base, "text-slate-400 dark:text-slate-600 cursor-not-allowed opacity-50"]
 
       capacity == :over_real_capacity ->
-        [base, "bg-red-50 dark:bg-red-900/20 text-slate-400 dark:text-slate-500 border border-red-300 dark:border-red-800/30 cursor-not-allowed"]
+        [
+          base,
+          "bg-red-50 dark:bg-red-900/20 text-slate-400 dark:text-slate-500 border border-red-300 dark:border-red-800/30 cursor-not-allowed"
+        ]
 
       in_range && assigns.multi_day_mode && assigns.end_date != nil ->
         cond do
           is_start ->
-            [base, "rounded-l-lg bg-primary text-white shadow-lg shadow-primary/30 relative z-10 hover:scale-105"]
+            [
+              base,
+              "rounded-l-lg bg-primary text-white shadow-lg shadow-primary/30 relative z-10 hover:scale-105"
+            ]
 
           is_end ->
-            [base, "rounded-r-lg bg-primary text-white shadow-lg shadow-primary/30 relative z-10 hover:scale-105"]
+            [
+              base,
+              "rounded-r-lg bg-primary text-white shadow-lg shadow-primary/30 relative z-10 hover:scale-105"
+            ]
 
           true ->
-            [base, "bg-primary/20 dark:bg-primary/30 text-slate-900 dark:text-white border-y border-primary/20 dark:border-primary/50"]
+            [
+              base,
+              "bg-primary/20 dark:bg-primary/30 text-slate-900 dark:text-white border-y border-primary/20 dark:border-primary/50"
+            ]
         end
 
       in_range ->
-        [base, "rounded-lg bg-primary text-white shadow-lg shadow-primary/30 relative z-10 hover:scale-105"]
+        [
+          base,
+          "rounded-lg bg-primary text-white shadow-lg shadow-primary/30 relative z-10 hover:scale-105"
+        ]
 
       capacity == :over_public_capacity ->
-        [base, "rounded-lg bg-orange-100 dark:bg-orange-900/20 hover:bg-orange-200 dark:hover:bg-orange-900/40 text-slate-700 dark:text-slate-200 border border-transparent hover:border-orange-500 dark:hover:border-orange-600"]
+        [
+          base,
+          "rounded-lg bg-orange-100 dark:bg-orange-900/20 hover:bg-orange-200 dark:hover:bg-orange-900/40 text-slate-700 dark:text-slate-200 border border-transparent hover:border-orange-500 dark:hover:border-orange-600"
+        ]
 
       true ->
-        [base, "rounded-lg bg-green-100 dark:bg-green-900/20 hover:bg-green-200 dark:hover:bg-green-900/40 text-slate-700 dark:text-slate-200 border border-transparent hover:border-green-500 dark:hover:border-green-600"]
+        [
+          base,
+          "rounded-lg bg-green-100 dark:bg-green-900/20 hover:bg-green-200 dark:hover:bg-green-900/40 text-slate-700 dark:text-slate-200 border border-transparent hover:border-green-500 dark:hover:border-green-600"
+        ]
     end
   end
 
