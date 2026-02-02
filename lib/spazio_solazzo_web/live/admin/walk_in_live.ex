@@ -160,12 +160,9 @@ defmodule SpazioSolazzoWeb.Admin.WalkInLive do
              socket.assigns.start_time,
              socket.assigns.end_time
            ) do
-        {:ok, :over_real_capacity} ->
-          assign(socket, time_slot_warning: "This time slot is currently full.")
-
-        {:ok, :over_public_capacity} ->
+        {:ok, :over_capacity} ->
           assign(socket,
-            time_slot_warning: "This time slot has high demand but space is still available."
+            time_slot_warning: "This time slot is currently overbooked. Proceed with caution."
           )
 
         _ ->

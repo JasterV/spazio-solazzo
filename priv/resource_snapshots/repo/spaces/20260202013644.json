@@ -21,23 +21,11 @@
       "references": null,
       "scale": null,
       "size": null,
-      "source": "email",
-      "type": "citext"
-    },
-    {
-      "allow_nil?": false,
-      "default": "nil",
-      "generated?": false,
-      "precision": null,
-      "primary_key?": false,
-      "references": null,
-      "scale": null,
-      "size": null,
       "source": "name",
       "type": "text"
     },
     {
-      "allow_nil?": true,
+      "allow_nil?": false,
       "default": "nil",
       "generated?": false,
       "precision": null,
@@ -45,20 +33,32 @@
       "references": null,
       "scale": null,
       "size": null,
-      "source": "phone_number",
+      "source": "description",
       "type": "text"
     },
     {
       "allow_nil?": false,
-      "default": "\"customer\"",
+      "default": "nil",
       "generated?": false,
       "precision": null,
       "primary_key?": false,
       "references": null,
       "scale": null,
       "size": null,
-      "source": "role",
+      "source": "slug",
       "type": "text"
+    },
+    {
+      "allow_nil?": false,
+      "default": "nil",
+      "generated?": false,
+      "precision": null,
+      "primary_key?": false,
+      "references": null,
+      "scale": null,
+      "size": null,
+      "source": "capacity",
+      "type": "bigint"
     }
   ],
   "base_filter": null,
@@ -66,19 +66,33 @@
   "custom_indexes": [],
   "custom_statements": [],
   "has_create_action": true,
-  "hash": "C0CABA03FB9BA869F1460B25693E0222AB1CE8B59A15BB0E343DAB3F4F3949E4",
+  "hash": "900D00B10E6347AEAB477B96DE6C11FCC9AD623D34E5DB404EA57E89E8A77E5B",
   "identities": [
     {
       "all_tenants?": false,
       "base_filter": null,
-      "index_name": "users_unique_email_index",
+      "index_name": "spaces_unique_name_index",
       "keys": [
         {
           "type": "atom",
-          "value": "email"
+          "value": "name"
         }
       ],
-      "name": "unique_email",
+      "name": "unique_name",
+      "nils_distinct?": true,
+      "where": null
+    },
+    {
+      "all_tenants?": false,
+      "base_filter": null,
+      "index_name": "spaces_unique_slug_index",
+      "keys": [
+        {
+          "type": "atom",
+          "value": "slug"
+        }
+      ],
+      "name": "unique_slug",
       "nils_distinct?": true,
       "where": null
     }
@@ -90,5 +104,5 @@
   },
   "repo": "Elixir.SpazioSolazzo.Repo",
   "schema": null,
-  "table": "users"
+  "table": "spaces"
 }

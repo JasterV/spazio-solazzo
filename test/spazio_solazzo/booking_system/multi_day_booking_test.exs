@@ -15,8 +15,7 @@ defmodule SpazioSolazzo.BookingSystem.MultiDayBookingTest do
         "Coworking",
         "coworking",
         "Coworking space for testing",
-        5,
-        10
+        5
       )
 
     %{space: space}
@@ -161,7 +160,7 @@ defmodule SpazioSolazzo.BookingSystem.MultiDayBookingTest do
       {:ok, availability} =
         BookingSystem.check_availability(space.id, middle_date, ~T[10:00:00], ~T[16:00:00])
 
-      assert availability == :over_public_capacity
+      assert availability == :over_capacity
     end
 
     test "can have both single-day and multi-day bookings on the same day", %{space: space} do

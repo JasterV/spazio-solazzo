@@ -85,7 +85,7 @@ defmodule SpazioSolazzoWeb.Admin.AdminCalendarComponent do
           # Check capacity
           capacity_status = Map.get(socket.assigns.day_capacities, date, :available)
 
-          if capacity_status == :over_real_capacity do
+          if capacity_status == :over_capacity do
             {:noreply, socket}
           else
             socket =
@@ -181,10 +181,10 @@ defmodule SpazioSolazzoWeb.Admin.AdminCalendarComponent do
             # Count unique booking slots (simplified - counts all bookings)
             booking_count = length(bookings)
 
-            cond do
-              booking_count >= space.real_capacity -> :over_real_capacity
-              booking_count >= space.public_capacity -> :over_public_capacity
-              true -> :available
+            if booking_count >= space.capacity do
+              :over_capacity
+            else
+              :available
             end
 
           _ ->
@@ -257,10 +257,10 @@ defmodule SpazioSolazzoWeb.Admin.AdminCalendarComponent do
       is_past ->
         [base, "text-slate-400 dark:text-slate-600 cursor-not-allowed opacity-50"]
 
-      capacity == :over_real_capacity ->
+      capacity == :over_capacity ->
         [
           base,
-          "bg-red-50 dark:bg-red-900/20 text-slate-400 dark:text-slate-500 border border-red-300 dark:border-red-800/30 cursor-not-allowed"
+          "bg-orange-100 dark:bg-orange-900/20 text-slate-400 dark:text-slate-500 border border-orange-300 dark:border-orange-800/30 cursor-not-allowed"
         ]
 
       in_range && assigns.multi_day_mode && assigns.end_date != nil ->
@@ -290,12 +290,6 @@ defmodule SpazioSolazzoWeb.Admin.AdminCalendarComponent do
           "rounded-lg bg-primary text-white shadow-lg shadow-primary/30 relative z-10 hover:scale-105"
         ]
 
-      capacity == :over_public_capacity ->
-        [
-          base,
-          "rounded-lg bg-orange-100 dark:bg-orange-900/20 hover:bg-orange-200 dark:hover:bg-orange-900/40 text-slate-700 dark:text-slate-200 border border-transparent hover:border-orange-500 dark:hover:border-orange-600"
-        ]
-
       true ->
         [
           base,
@@ -307,8 +301,7 @@ defmodule SpazioSolazzoWeb.Admin.AdminCalendarComponent do
   defp capacity_indicator_color(capacity) do
     case capacity do
       :available -> "bg-green-500"
-      :over_public_capacity -> "bg-orange-500"
-      :over_real_capacity -> "bg-red-500"
+      :over_capacity -> "bg-orange-500"
       _ -> "bg-slate-300"
     end
   end

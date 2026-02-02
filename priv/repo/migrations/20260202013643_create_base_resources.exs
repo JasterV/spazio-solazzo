@@ -60,8 +60,7 @@ defmodule SpazioSolazzo.Repo.Migrations.CreateBaseResources do
       add :name, :text, null: false
       add :description, :text, null: false
       add :slug, :text, null: false
-      add :public_capacity, :bigint, null: false
-      add :real_capacity, :bigint, null: false
+      add :capacity, :bigint, null: false
     end
 
     create unique_index(:spaces, [:name], name: "spaces_unique_name_index")
@@ -126,8 +125,7 @@ defmodule SpazioSolazzo.Repo.Migrations.CreateBaseResources do
     drop_if_exists unique_index(:spaces, [:name], name: "spaces_unique_name_index")
 
     alter table(:spaces) do
-      remove :real_capacity
-      remove :public_capacity
+      remove :capacity
       remove :slug
       remove :description
       remove :name

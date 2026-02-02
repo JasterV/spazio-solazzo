@@ -26,8 +26,7 @@ defmodule SpazioSolazzoWeb.BookingLive.SpaceBookingTest do
         "Test Space",
         "test-space",
         "Test description",
-        2,
-        3
+        2
       )
 
     today = Date.utc_today()
@@ -118,7 +117,6 @@ defmodule SpazioSolazzoWeb.BookingLive.SpaceBookingTest do
           "Empty Space",
           "empty-space",
           "No slots",
-          5,
           5
         )
 
@@ -253,7 +251,7 @@ defmodule SpazioSolazzoWeb.BookingLive.SpaceBookingTest do
       assert html =~ "High Demand - Join Waitlist"
     end
 
-    test "hides slots over real capacity", %{conn: conn, space: space, today: today} do
+    test "shows slots over capacity with high demand warning", %{conn: conn, space: space, today: today} do
       for i <- 1..3 do
         {:ok, booking} =
           request_booking(
@@ -273,7 +271,8 @@ defmodule SpazioSolazzoWeb.BookingLive.SpaceBookingTest do
       html = render(view)
 
       assert html =~ "14:00"
-      refute html =~ "09:00"
+      assert html =~ "09:00"
+      assert html =~ "High Demand"
     end
   end
 
@@ -594,9 +593,8 @@ defmodule SpazioSolazzoWeb.BookingLive.SpaceBookingTest do
         BookingSystem.create_space(
           "Small Space",
           "small-space",
-          "Limited public capacity",
-          1,
-          2
+          "Limited capacity",
+          1
         )
 
       today = Date.utc_today()

@@ -24,8 +24,7 @@ defmodule SpazioSolazzoWeb.Admin.WalkInLiveSimpleTest do
         "Coworking",
         "coworking",
         "Coworking space",
-        5,
-        10
+        5
       )
 
     user = create_admin_user()

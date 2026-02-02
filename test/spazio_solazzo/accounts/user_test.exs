@@ -179,8 +179,7 @@ defmodule SpazioSolazzo.Accounts.UserTest do
         "Test Space #{unique_id}",
         "test-space-#{unique_id}",
         "Test description",
-        10,
-        12
+        10
       )
 
     {:ok, time_slot} =

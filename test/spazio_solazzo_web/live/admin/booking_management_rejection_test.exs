@@ -44,8 +44,7 @@ defmodule SpazioSolazzoWeb.Admin.BookingManagementRejectionTest do
         "Coworking",
         "coworking",
         "Coworking space",
-        5,
-        10
+        5
       )
 
     admin_user = create_admin_user()

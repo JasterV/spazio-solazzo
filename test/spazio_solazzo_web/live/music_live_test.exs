@@ -5,7 +5,7 @@ defmodule SpazioSolazzoWeb.MusicLiveTest do
   alias SpazioSolazzo.BookingSystem
 
   setup do
-    {:ok, space} = BookingSystem.create_space("MusicTest", "music", "desc", 1, 2)
+    {:ok, space} = BookingSystem.create_space("MusicTest", "music", "desc", 1)
 
     %{space: space}
   end

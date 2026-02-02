@@ -10,8 +10,7 @@ defmodule SpazioSolazzo.BookingSystem.TimeSlotTemplateTest do
         "Test Space",
         "test-space",
         "Test description",
-        10,
-        12
+        10
       )
 
     %{space: space}
@@ -243,7 +242,6 @@ defmodule SpazioSolazzo.BookingSystem.TimeSlotTemplateTest do
           "Other Space",
           "other-space",
           "Other description",
-          5,
           5
         )
 

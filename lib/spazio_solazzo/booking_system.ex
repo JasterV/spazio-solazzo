@@ -12,7 +12,7 @@ defmodule SpazioSolazzo.BookingSystem do
 
       define :create_space,
         action: :create,
-        args: [:name, :slug, :description, :public_capacity, :real_capacity]
+        args: [:name, :slug, :description, :capacity]
 
       define :check_availability,
         action: :check_availability,

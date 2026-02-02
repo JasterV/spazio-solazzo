@@ -49,8 +49,7 @@
                 <% counts =
                   Map.get(@slot_booking_counts, time_slot.id, %{pending: 0, approved: 0}) %>
                 <% user_has_booking = Map.get(@user_booked_slots, time_slot.id, false) %>
-                <%= if availability != :over_real_capacity do %>
-                  <button
+                <button
                     phx-click={if user_has_booking, do: nil, else: "select_slot"}
                     phx-value-time_slot_id={time_slot.id}
                     disabled={user_has_booking}
@@ -123,7 +122,6 @@
                       />
                     </div>
                   </button>
-                <% end %>
               <% end %>
             <% end %>
           </div>

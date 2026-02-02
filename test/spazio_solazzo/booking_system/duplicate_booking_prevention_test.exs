@@ -11,8 +11,7 @@ defmodule SpazioSolazzo.BookingSystem.DuplicateBookingPreventionTest do
         "Coworking",
         "coworking",
         "Coworking space",
-        5,
-        10
+        5
       )
 
     user = register_user("user@example.com", "Test User")

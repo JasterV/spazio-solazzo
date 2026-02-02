@@ -6,7 +6,7 @@ defmodule SpazioSolazzoWeb.PageLiveTest do
 
   setup do
     for {name, slug} <- [{"Coworking", "coworking"}, {"Meeting", "meeting"}, {"Music", "music"}] do
-      BookingSystem.create_space!(name, slug, "desc", 10, 12)
+      BookingSystem.create_space!(name, slug, "desc", 10)
     end
 
     :ok

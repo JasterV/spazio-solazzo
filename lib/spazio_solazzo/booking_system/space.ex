@@ -18,25 +18,15 @@ defmodule SpazioSolazzo.BookingSystem.Space do
     defaults [:read]
 
     create :create do
-      accept [:name, :description, :slug, :public_capacity, :real_capacity]
+      accept [:name, :description, :slug, :capacity]
 
       validate fn changeset, _ctx ->
-        real_capacity = Ash.Changeset.get_attribute(changeset, :real_capacity)
-        public_capacity = Ash.Changeset.get_attribute(changeset, :public_capacity)
+        capacity = Ash.Changeset.get_attribute(changeset, :capacity)
 
-        cond do
-          real_capacity && real_capacity <= 0 ->
-            {:error, field: :real_capacity, message: "must be greater than 0"}
-
-          public_capacity && public_capacity <= 0 ->
-            {:error, field: :public_capacity, message: "must be greater than 0"}
-
-          real_capacity && public_capacity && public_capacity > real_capacity ->
-            {:error,
-             field: :public_capacity, message: "must be less than or equal to real_capacity"}
-
-          true ->
-            :ok
+        if capacity && capacity <= 0 do
+          {:error, field: :capacity, message: "must be greater than 0"}
+        else
+          :ok
         end
       end
     end
@@ -76,10 +66,10 @@ defmodule SpazioSolazzo.BookingSystem.Space do
                 current_count = length(overlapping_bookings)
 
                 availability =
-                  cond do
-                    current_count >= space.real_capacity -> :over_real_capacity
-                    current_count >= space.public_capacity -> :over_public_capacity
-                    true -> :available
+                  if current_count >= space.capacity do
+                    :over_capacity
+                  else
+                    :available
                   end
 
                 {:ok, availability}
@@ -114,8 +104,7 @@ defmodule SpazioSolazzo.BookingSystem.Space do
     attribute :name, :string, allow_nil?: false, public?: true
     attribute :description, :string, allow_nil?: false, public?: true
     attribute :slug, :string, allow_nil?: false, public?: true
-    attribute :public_capacity, :integer, allow_nil?: false, public?: true
-    attribute :real_capacity, :integer, allow_nil?: false, public?: true
+    attribute :capacity, :integer, allow_nil?: false, public?: true
   end
 
   identities do

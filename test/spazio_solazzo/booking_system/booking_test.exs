@@ -37,8 +37,7 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
         "Test Space",
         "test-space",
         "Test description",
-        2,
-        3
+        2
       )
 
     user = register_user("testuser@example.com", "Test User")
@@ -430,7 +429,6 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
           "Other Space",
           "other-space",
           "Other description",
-          5,
           5
         )
 
@@ -606,7 +604,7 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
       assert status == :available
     end
 
-    test "returns :over_public_capacity when at or over public but under real capacity", %{
+    test "returns :over_capacity when at or over capacity", %{
       space: space,
       date: date
     } do
@@ -635,39 +633,7 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
           ~T[10:00:00]
         )
 
-      assert status == :over_public_capacity
-    end
-
-    test "returns :over_real_capacity when at or over real capacity", %{
-      space: space,
-      date: date
-    } do
-      for i <- 1..3 do
-        {:ok, booking} =
-          request_booking(
-            space.id,
-            nil,
-            date,
-            ~T[09:00:00],
-            ~T[10:00:00],
-            "User #{i}",
-            "user#{i}@example.com",
-            "",
-            ""
-          )
-
-        {:ok, _} = BookingSystem.approve_booking(booking.id)
-      end
-
-      {:ok, status} =
-        BookingSystem.check_availability(
-          space.id,
-          date,
-          ~T[09:00:00],
-          ~T[10:00:00]
-        )
-
-      assert status == :over_real_capacity
+      assert status == :over_capacity
     end
 
     test "only counts overlapping bookings", %{space: space, date: date} do
@@ -738,7 +704,7 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
           ~T[12:00:00]
         )
 
-      assert status == :over_public_capacity
+      assert status == :over_capacity
     end
 
     test "does not count pending bookings", %{space: space, date: date} do
@@ -877,7 +843,6 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
           "Other Space",
           "other-space-pending",
           "Other description",
-          5,
           5
         )
 
@@ -1069,7 +1034,7 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
 
       {:ok, status} = BookingSystem.check_availability(space.id, date, start_time, end_time)
 
-      assert status == :over_real_capacity
+      assert status == :over_capacity
     end
   end
 
@@ -1270,7 +1235,6 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
           "Other Space",
           "other-space-counts",
           "Other description",
-          5,
           5
         )
 
@@ -1300,7 +1264,6 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
           "Other Space",
           "other-space-all",
           "Other description",
-          5,
           5
         )
 

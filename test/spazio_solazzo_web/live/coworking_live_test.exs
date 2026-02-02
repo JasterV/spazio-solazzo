@@ -5,7 +5,7 @@ defmodule SpazioSolazzoWeb.CoworkingLiveTest do
   alias SpazioSolazzo.BookingSystem
 
   setup do
-    {:ok, space} = BookingSystem.create_space("CoworkingTest", "coworking", "desc", 10, 12)
+    {:ok, space} = BookingSystem.create_space("CoworkingTest", "coworking", "desc", 10)
 
     %{space: space}
   end

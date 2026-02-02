@@ -55,7 +55,7 @@ defmodule SpazioSolazzoWeb.BookingFormLiveComponent do
         </:subtitle>
 
         <div>
-          <%= if @slot_availability == :over_public_capacity do %>
+          <%= if @slot_availability == :over_capacity do %>
             <div class="mb-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-400 rounded">
               <div class="flex gap-3">
                 <div class="flex-shrink-0">

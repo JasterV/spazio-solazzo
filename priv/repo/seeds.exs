@@ -17,38 +17,35 @@ case BookingSystem.Space |> Ash.read() do
     :ok
 end
 
-# Create Coworking Space (public_capacity: 10, real_capacity: 12)
+# Create Coworking Space (capacity: 10)
 coworking =
   BookingSystem.create_space!(
     "Arcipelago",
     "coworking",
     "Flexible desk spaces for remote work",
-    10,
-    12
+    10
   )
 
 IO.puts("✓ Created Coworking space")
 
-# Create Meeting Room Space (public_capacity: 1, real_capacity: 1)
+# Create Meeting Room Space (capacity: 1)
 meeting =
   BookingSystem.create_space!(
     "Media room",
     "meeting",
     "Private conference room for your meetings",
-    1,
     1
   )
 
 IO.puts("✓ Created Meeting Room space")
 
-# Create Music Studio Space (public_capacity: 1, real_capacity: 2)
+# Create Music Studio Space (capacity: 1)
 music =
   BookingSystem.create_space!(
     "Hall",
     "music",
     "Tailored for band rehearsals.",
-    1,
-    2
+    1
   )
 
 IO.puts("✓ Created Music Studio space")

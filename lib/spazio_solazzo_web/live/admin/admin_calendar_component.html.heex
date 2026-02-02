@@ -32,11 +32,7 @@
       </div>
       <div class="flex items-center gap-1">
         <div class="w-2 h-2 rounded-full bg-orange-500"></div>
-        <span class="text-slate-600 dark:text-slate-400">High Demand</span>
-      </div>
-      <div class="flex items-center gap-1">
-        <div class="w-2 h-2 rounded-full bg-red-500"></div>
-        <span class="text-slate-600 dark:text-slate-400">Full</span>
+        <span class="text-slate-600 dark:text-slate-400">Overbooked</span>
       </div>
       <%= if @multi_day_mode && @start_date do %>
         <div class="flex items-center gap-1">
@@ -90,7 +86,7 @@
           <% else %>
             <% capacity = Map.get(@day_capacities, day, :available) %>
             <% is_past = Date.compare(day, Date.utc_today()) == :lt %>
-            <% is_disabled = is_past || capacity == :over_real_capacity %>
+            <% is_disabled = is_past || capacity == :over_capacity %>
             <% is_start = is_start_date?(day, @start_date, @end_date) %>
             <% is_end = is_end_date?(day, @start_date, @end_date) %>
 
@@ -103,7 +99,7 @@
               title={
                 cond do
                   is_past -> "Past date"
-                  capacity == :over_real_capacity -> "Fully Booked"
+                  capacity == :over_capacity -> "Overbooked"
                   true -> "Select date"
                 end
               }
@@ -149,7 +145,7 @@
       @start_date
       |> Date.range(@end_date)
       |> Enum.any?(fn date ->
-        Map.get(@day_capacities, date, :available) == :over_real_capacity
+        Map.get(@day_capacities, date, :available) == :over_capacity
       end) %>
 
     <%= if has_full_days do %>
@@ -162,7 +158,7 @@
             Attention
           </h4>
           <p class="text-xs font-medium text-red-700 dark:text-red-300 mt-1">
-            Some days in your selected range have reached maximum capacity.
+            Some days in your selected range are overbooked.
           </p>
         </div>
       </div>
