@@ -812,9 +812,9 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
       assert String.contains?(error_messages, "must be after start datetime")
     end
 
-    test "rejects walk-in in the past", %{space: space} do
+    test "rejects walk-in with end time in the past", %{space: space} do
       start_datetime = DateTime.utc_now() |> DateTime.add(-2, :hour)
-      end_datetime = DateTime.add(start_datetime, 1, :hour)
+      end_datetime = DateTime.utc_now() |> DateTime.add(-1, :hour)
 
       assert {:error, error} =
                BookingSystem.create_walk_in(
@@ -829,6 +829,25 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
 
       error_messages = Ash.Error.error_descriptions(error)
       assert String.contains?(error_messages, "cannot be in the past")
+    end
+
+    test "allows walk-in with start time in the past but end time in the future", %{space: space} do
+      start_datetime = DateTime.utc_now() |> DateTime.add(-1, :hour)
+      end_datetime = DateTime.utc_now() |> DateTime.add(2, :hour)
+
+      assert {:ok, booking} =
+               BookingSystem.create_walk_in(
+                 space.id,
+                 start_datetime,
+                 end_datetime,
+                 "Walk-in Customer",
+                 "walkin@example.com",
+                 nil,
+                 nil
+               )
+
+      assert booking.state == :accepted
+      assert booking.customer_name == "Walk-in Customer"
     end
 
     test "rejects walk-in with invalid email", %{space: space} do

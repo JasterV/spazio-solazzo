@@ -243,11 +243,11 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
       change manage_relationship(:space_id, :space, type: :append_and_remove)
 
       validate fn changeset, _ctx ->
-        start_datetime = Ash.Changeset.get_argument(changeset, :start_datetime)
+        end_datetime = Ash.Changeset.get_argument(changeset, :end_datetime)
         now = DateTime.utc_now()
 
-        if start_datetime && DateTime.compare(start_datetime, now) == :lt do
-          {:error, field: :start_datetime, message: "cannot be in the past"}
+        if end_datetime && DateTime.compare(end_datetime, now) == :lt do
+          {:error, field: :end_datetime, message: "cannot be in the past"}
         else
           :ok
         end

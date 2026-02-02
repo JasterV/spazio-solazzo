@@ -66,7 +66,11 @@ defmodule SpazioSolazzo.BookingSystem.TimeSlotTemplateTest do
                )
 
       error_messages = Ash.Error.error_descriptions(error)
-      assert String.contains?(error_messages, "overlaps with existing time slot")
+
+      assert String.contains?(
+               error_messages,
+               "time slot overlaps with existing template for this space and day."
+             )
     end
 
     test "allows same time slot on different days", %{space: space} do
