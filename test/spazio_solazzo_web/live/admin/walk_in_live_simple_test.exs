@@ -42,9 +42,6 @@ defmodule SpazioSolazzoWeb.Admin.WalkInLiveSimpleTest do
       # Simulate the calendar component sending the date_selected message
       send(view.pid, {:date_selected, tomorrow, tomorrow})
 
-      # Give it a moment to process
-      :timer.sleep(100)
-
       # Fill in customer details using the form
       view
       |> form("form[phx-change='update_customer_details']", %{
@@ -59,26 +56,11 @@ defmodule SpazioSolazzoWeb.Admin.WalkInLiveSimpleTest do
         |> element("button[phx-click='create_booking']")
         |> render_click()
 
-      # Check if it succeeded or failed
-      if html =~ "Walk-in booking created successfully" do
-        IO.puts("✓ SUCCESS: Booking was created")
-      else
-        if html =~ "Please fill in all required fields and select a date" do
-          IO.puts("✗ BUG FOUND: Error message shown even though all fields are filled!")
-          IO.puts("\nThis is the bug the user is experiencing.")
-        else
-          IO.puts("? Unexpected result")
-        end
-      end
+      assert html =~ "Walk-in booking created successfully"
 
       # Verify booking was created
-      {:ok, bookings} = BookingSystem.list_accepted_space_bookings_by_date(space.id, tomorrow)
-
-      if length(bookings) > 0 do
-        assert true
-      else
-        flunk("Booking was not created even though all requirements were met")
-      end
+      assert {:ok, [_booking]} =
+               BookingSystem.list_accepted_space_bookings_by_date(space.id, tomorrow)
     end
   end
 end
