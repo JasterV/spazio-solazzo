@@ -70,6 +70,8 @@ defmodule SpazioSolazzo.Repo.Migrations.CreateBaseResources do
 
     create table(:bookings, primary_key: false) do
       add :id, :uuid, null: false, default: fragment("gen_random_uuid()"), primary_key: true
+      add :start_datetime, :utc_datetime, null: false
+      add :end_datetime, :utc_datetime, null: false
       add :date, :date, null: false
       add :customer_name, :text, null: false
       add :customer_email, :text, null: false

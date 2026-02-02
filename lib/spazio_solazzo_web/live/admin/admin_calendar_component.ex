@@ -56,8 +56,9 @@ defmodule SpazioSolazzoWeb.Admin.AdminCalendarComponent do
     {:noreply, socket}
   end
 
-  def handle_event("toggle_multi_day", %{"value" => value}, socket) do
-    multi_day = value == "on"
+  def handle_event("toggle_multi_day", _params, socket) do
+    # Toggle the current state
+    multi_day = !socket.assigns.multi_day_mode
 
     socket =
       socket
@@ -238,12 +239,13 @@ defmodule SpazioSolazzoWeb.Admin.AdminCalendarComponent do
   defp is_end_date?(_date, _, nil), do: false
   defp is_end_date?(date, _, end_date), do: Date.compare(date, end_date) == :eq
 
-  defp day_classes(date, socket) do
-    capacity = Map.get(socket.assigns.day_capacities, date, :available)
+  defp day_classes(date, assigns) do
+    # Extract capacity status for the given date
+    capacity = Map.get(assigns.day_capacities, date, :available)
     is_past = Date.compare(date, Date.utc_today()) == :lt
-    in_range = day_in_range?(date, socket.assigns.selected_date, socket.assigns.start_date, socket.assigns.end_date)
-    is_start = is_start_date?(date, socket.assigns.start_date, socket.assigns.end_date)
-    is_end = is_end_date?(date, socket.assigns.start_date, socket.assigns.end_date)
+    in_range = day_in_range?(date, assigns.selected_date, assigns.start_date, assigns.end_date)
+    is_start = is_start_date?(date, assigns.start_date, assigns.end_date)
+    is_end = is_end_date?(date, assigns.start_date, assigns.end_date)
 
     base = "aspect-square flex flex-col items-center justify-center transition-all"
 
@@ -254,7 +256,7 @@ defmodule SpazioSolazzoWeb.Admin.AdminCalendarComponent do
       capacity == :over_real_capacity ->
         [base, "bg-red-50 dark:bg-red-900/20 text-slate-400 dark:text-slate-500 border border-red-300 dark:border-red-800/30 cursor-not-allowed"]
 
-      in_range && socket.assigns.multi_day_mode && socket.assigns.end_date != nil ->
+      in_range && assigns.multi_day_mode && assigns.end_date != nil ->
         cond do
           is_start ->
             [base, "rounded-l-lg bg-primary text-white shadow-lg shadow-primary/30 relative z-10 hover:scale-105"]

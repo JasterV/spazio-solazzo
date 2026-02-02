@@ -66,20 +66,14 @@ defmodule SpazioSolazzoWeb.Admin.WalkInLive do
     end
   end
 
-  def handle_event("update_customer_name", %{"value" => value}, socket) do
-    {:noreply, assign(socket, customer_name: value)}
-  end
-
-  def handle_event("update_customer_email", %{"value" => value}, socket) do
-    {:noreply, assign(socket, customer_email: value)}
-  end
-
-  def handle_event("update_customer_phone", %{"value" => value}, socket) do
-    {:noreply, assign(socket, customer_phone: value)}
-  end
-
-  def handle_event("update_customer_comment", %{"value" => value}, socket) do
-    {:noreply, assign(socket, customer_comment: value)}
+  def handle_event("update_customer_details", params, socket) do
+    {:noreply,
+     assign(socket,
+       customer_name: Map.get(params, "customer_name", ""),
+       customer_email: Map.get(params, "customer_email", ""),
+       customer_phone: Map.get(params, "customer_phone", ""),
+       customer_comment: Map.get(params, "customer_comment", "")
+     )}
   end
 
   def handle_event("create_booking", _, socket) do

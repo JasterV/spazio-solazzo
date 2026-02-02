@@ -7,6 +7,7 @@ defmodule SpazioSolazzo.BookingSystem.Booking.RequestCreatedEmailWorker do
   use Oban.Worker, queue: :booking_email, max_attempts: 3
 
   alias SpazioSolazzo.BookingSystem.Booking.Email
+  alias SpazioSolazzo.CalendarExt
 
   @impl Oban.Worker
   def perform(%Oban.Job{
@@ -17,11 +18,13 @@ defmodule SpazioSolazzo.BookingSystem.Booking.RequestCreatedEmailWorker do
           "customer_phone" => customer_phone,
           "customer_comment" => customer_comment,
           "space_name" => space_name,
-          "date" => date,
-          "start_time" => start_time,
-          "end_time" => end_time
+          "start_datetime" => start_datetime_str,
+          "end_datetime" => end_datetime_str
         }
       }) do
+    {:ok, start_datetime, _} = DateTime.from_iso8601(start_datetime_str)
+    {:ok, end_datetime, _} = DateTime.from_iso8601(end_datetime_str)
+
     email_data = %{
       booking_id: booking_id,
       customer_name: customer_name,
@@ -29,9 +32,11 @@ defmodule SpazioSolazzo.BookingSystem.Booking.RequestCreatedEmailWorker do
       customer_phone: customer_phone,
       customer_comment: customer_comment,
       space_name: space_name,
-      date: date,
-      start_time: start_time,
-      end_time: end_time,
+      start_datetime: start_datetime,
+      end_datetime: end_datetime,
+      date: CalendarExt.format_datetime_date_only(start_datetime),
+      start_time: DateTime.to_time(start_datetime),
+      end_time: DateTime.to_time(end_datetime),
       admin_email: admin_email()
     }
 

@@ -55,25 +55,24 @@ defmodule SpazioSolazzo.BookingSystem.Space do
         start_time_arg = input.arguments.start_time
         end_time_arg = input.arguments.end_time
 
+        start_datetime = DateTime.new!(date_arg, start_time_arg, "Etc/UTC")
+        end_datetime = DateTime.new!(date_arg, end_time_arg, "Etc/UTC")
+
         # Load the space
         case Ash.get(__MODULE__, space_id) do
           {:ok, space} ->
-            # Get accepted bookings for this space on the given date
+            # Get accepted bookings for this space that overlap with the requested time slot
             query =
               SpazioSolazzo.BookingSystem.Booking
               |> Ash.Query.filter(
-                expr(space_id == ^space_id and date == ^date_arg and state == :accepted)
+                expr(
+                  space_id == ^space_id and state == :accepted and start_datetime < ^end_datetime and
+                    end_datetime > ^start_datetime
+                )
               )
 
             case Ash.read(query) do
-              {:ok, bookings} ->
-                # Filter overlapping bookings
-                overlapping_bookings =
-                  Enum.filter(bookings, fn booking ->
-                    Time.compare(booking.start_time, end_time_arg) == :lt and
-                      Time.compare(start_time_arg, booking.end_time) == :lt
-                  end)
-
+              {:ok, overlapping_bookings} ->
                 current_count = length(overlapping_bookings)
 
                 availability =

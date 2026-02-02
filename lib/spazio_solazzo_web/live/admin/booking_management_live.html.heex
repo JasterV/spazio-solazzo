@@ -125,10 +125,10 @@
                       Space
                     </th>
                     <th class="px-6 py-3 text-left text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
-                      Date
+                      Start
                     </th>
                     <th class="px-6 py-3 text-left text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
-                      Time
+                      End
                     </th>
                     <th class="px-6 py-3 text-left text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
                       Customer
@@ -174,14 +174,14 @@
                       </td>
                       <td class="px-6 py-4 whitespace-nowrap">
                         <p class="text-sm text-slate-900 dark:text-slate-200">
-                          {Calendar.strftime(booking.date, "%b %d, %Y")}
+                          {SpazioSolazzo.CalendarExt.format_datetime_range_start(booking.start_datetime)}
                         </p>
                       </td>
                       <td class="px-6 py-4 whitespace-nowrap">
                         <p class="text-sm text-slate-900 dark:text-slate-200">
-                          {Calendar.strftime(booking.start_time, "%H:%M")} - {Calendar.strftime(
-                            booking.end_time,
-                            "%H:%M"
+                          {SpazioSolazzo.CalendarExt.format_datetime_range_end(
+                            booking.start_datetime,
+                            booking.end_datetime
                           )}
                         </p>
                       </td>
@@ -278,10 +278,10 @@
                       Space
                     </th>
                     <th class="px-6 py-3 text-left text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
-                      Date
+                      Start
                     </th>
                     <th class="px-6 py-3 text-left text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
-                      Time
+                      End
                     </th>
                     <th class="px-6 py-3 text-left text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
                       Customer
@@ -324,14 +324,14 @@
                       </td>
                       <td class="px-6 py-4 whitespace-nowrap">
                         <p class="text-sm text-slate-900 dark:text-slate-200">
-                          {Calendar.strftime(booking.date, "%b %d, %Y")}
+                          {SpazioSolazzo.CalendarExt.format_datetime_range_start(booking.start_datetime)}
                         </p>
                       </td>
                       <td class="px-6 py-4 whitespace-nowrap">
                         <p class="text-sm text-slate-900 dark:text-slate-200">
-                          {Calendar.strftime(booking.start_time, "%H:%M")} - {Calendar.strftime(
-                            booking.end_time,
-                            "%H:%M"
+                          {SpazioSolazzo.CalendarExt.format_datetime_range_end(
+                            booking.start_datetime,
+                            booking.end_datetime
                           )}
                         </p>
                       </td>

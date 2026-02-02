@@ -13,9 +13,8 @@ defmodule SpazioSolazzo.BookingSystem.Booking.RequestCreatedEmailWorkerTest do
         "customer_phone" => "+1234567890",
         "customer_comment" => "Test comment",
         "space_name" => "Coworking Space",
-        "date" => "Monday, February 02",
-        "start_time" => ~T[09:00:00],
-        "end_time" => ~T[13:00:00]
+        "start_datetime" => "2026-02-02T09:00:00Z",
+        "end_datetime" => "2026-02-02T13:00:00Z"
       }
 
       assert :ok = perform_job(RequestCreatedEmailWorker, job_args)
@@ -35,9 +34,8 @@ defmodule SpazioSolazzo.BookingSystem.Booking.RequestCreatedEmailWorkerTest do
         "customer_phone" => "+1234567890",
         "customer_comment" => "Test comment",
         "space_name" => "Coworking Space",
-        "date" => "Monday, February 02",
-        "start_time" => ~T[09:00:00],
-        "end_time" => ~T[13:00:00]
+        "start_datetime" => "2026-02-02T09:00:00Z",
+        "end_datetime" => "2026-02-02T13:00:00Z"
       }
 
       admin_email = Application.get_env(:spazio_solazzo, :admin_email)
@@ -59,9 +57,8 @@ defmodule SpazioSolazzo.BookingSystem.Booking.RequestCreatedEmailWorkerTest do
         "customer_phone" => "+1234567890",
         "customer_comment" => "Another test",
         "space_name" => "Meeting Room",
-        "date" => "Tuesday, February 03",
-        "start_time" => ~T[14:00:00],
-        "end_time" => ~T[18:00:00]
+        "start_datetime" => "2026-02-03T14:00:00Z",
+        "end_datetime" => "2026-02-03T18:00:00Z"
       }
 
       admin_email = Application.get_env(:spazio_solazzo, :admin_email)
@@ -85,9 +82,8 @@ defmodule SpazioSolazzo.BookingSystem.Booking.RequestCreatedEmailWorkerTest do
         "customer_phone" => "+1234567890",
         "customer_comment" => "Test",
         "space_name" => "Music Room",
-        "date" => "Wednesday, February 04",
-        "start_time" => ~T[10:00:00],
-        "end_time" => ~T[12:00:00]
+        "start_datetime" => "2026-02-04T10:00:00Z",
+        "end_datetime" => "2026-02-04T12:00:00Z"
       }
 
       assert :ok = perform_job(RequestCreatedEmailWorker, job_args)
@@ -110,9 +106,8 @@ defmodule SpazioSolazzo.BookingSystem.Booking.RequestCreatedEmailWorkerTest do
         "customer_phone" => "+1234567890",
         "customer_comment" => "Admin comment",
         "space_name" => "Coworking Space",
-        "date" => "Thursday, February 05",
-        "start_time" => ~T[09:00:00],
-        "end_time" => ~T[11:00:00]
+        "start_datetime" => "2026-02-05T09:00:00Z",
+        "end_datetime" => "2026-02-05T11:00:00Z"
       }
 
       admin_email = Application.get_env(:spazio_solazzo, :admin_email)

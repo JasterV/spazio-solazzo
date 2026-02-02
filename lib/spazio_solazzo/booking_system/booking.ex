@@ -46,10 +46,18 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
       argument :space_id, :uuid, allow_nil?: false
       argument :date, :date, allow_nil?: false
 
-      filter expr(
-               space_id == ^arg(:space_id) and date == ^arg(:date) and
-                 state == :accepted
-             )
+      prepare fn query, _ctx ->
+        date = Ash.Query.get_argument(query, :date)
+        day_start = DateTime.new!(date, ~T[00:00:00], "Etc/UTC")
+        day_end = DateTime.new!(date, ~T[23:59:59], "Etc/UTC")
+
+        query
+        |> Ash.Query.filter(
+          start_datetime < ^day_end and end_datetime > ^day_start and state == :accepted
+        )
+      end
+
+      filter expr(space_id == ^arg(:space_id))
     end
 
     read :list_booking_requests do
@@ -73,8 +81,14 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
           end
 
         case Ash.Query.get_argument(query, :date) do
-          nil -> query
-          date -> Ash.Query.filter(query, date == ^date)
+          nil ->
+            query
+
+          date ->
+            day_start = DateTime.new!(date, ~T[00:00:00], "Etc/UTC")
+            day_end = DateTime.new!(date, ~T[23:59:59], "Etc/UTC")
+
+            Ash.Query.filter(query, start_datetime < ^day_end and end_datetime > ^day_start)
         end
       end
     end
@@ -82,7 +96,6 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
     read :count_pending_requests do
       filter expr(state == :requested)
     end
-
 
     create :create do
       argument :space_id, :uuid, allow_nil?: false
@@ -132,19 +145,19 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
       end
 
       change fn changeset, _ctx ->
+        date = Ash.Changeset.get_argument(changeset, :date)
+        start_time = Ash.Changeset.get_argument(changeset, :start_time)
+        end_time = Ash.Changeset.get_argument(changeset, :end_time)
+
+        start_datetime = DateTime.new!(date, start_time, "Etc/UTC")
+        end_datetime = DateTime.new!(date, end_time, "Etc/UTC")
+
         changeset
-        |> Ash.Changeset.force_change_attribute(
-          :date,
-          Ash.Changeset.get_argument(changeset, :date)
-        )
-        |> Ash.Changeset.force_change_attribute(
-          :start_time,
-          Ash.Changeset.get_argument(changeset, :start_time)
-        )
-        |> Ash.Changeset.force_change_attribute(
-          :end_time,
-          Ash.Changeset.get_argument(changeset, :end_time)
-        )
+        |> Ash.Changeset.force_change_attribute(:start_datetime, start_datetime)
+        |> Ash.Changeset.force_change_attribute(:end_datetime, end_datetime)
+        |> Ash.Changeset.force_change_attribute(:date, date)
+        |> Ash.Changeset.force_change_attribute(:start_time, start_time)
+        |> Ash.Changeset.force_change_attribute(:end_time, end_time)
         |> Ash.Changeset.force_change_attribute(
           :customer_name,
           Ash.Changeset.get_argument(changeset, :customer_name)
@@ -173,9 +186,8 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
                  customer_phone: booking.customer_phone,
                  customer_comment: booking.customer_comment,
                  space_name: booking.space.name,
-                 date: Calendar.strftime(booking.date, "%A, %B %d"),
-                 start_time: booking.start_time,
-                 end_time: booking.end_time
+                 start_datetime: booking.start_datetime,
+                 end_datetime: booking.end_datetime
                }
                |> RequestCreatedEmailWorker.new()
                |> Oban.insert!()
@@ -237,6 +249,8 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
         end_time = DateTime.to_time(end_datetime)
 
         changeset
+        |> Ash.Changeset.force_change_attribute(:start_datetime, start_datetime)
+        |> Ash.Changeset.force_change_attribute(:end_datetime, end_datetime)
         |> Ash.Changeset.force_change_attribute(:date, date)
         |> Ash.Changeset.force_change_attribute(:start_time, start_time)
         |> Ash.Changeset.force_change_attribute(:end_time, end_time)
@@ -274,9 +288,8 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
                  customer_email: booking.customer_email,
                  customer_phone: booking.customer_phone,
                  space_name: booking.space.name,
-                 date: Calendar.strftime(booking.date, "%A, %B %d"),
-                 start_time: booking.start_time,
-                 end_time: booking.end_time,
+                 start_datetime: booking.start_datetime,
+                 end_datetime: booking.end_datetime,
                  action: "accepted"
                }
                |> AdminActionEmailWorker.new()
@@ -306,9 +319,8 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
                  customer_email: booking.customer_email,
                  customer_phone: booking.customer_phone,
                  space_name: booking.space.name,
-                 date: Calendar.strftime(booking.date, "%A, %B %d"),
-                 start_time: booking.start_time,
-                 end_time: booking.end_time,
+                 start_datetime: booking.start_datetime,
+                 end_datetime: booking.end_datetime,
                  action: "rejected",
                  rejection_reason: booking.rejection_reason
                }
@@ -339,9 +351,8 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
                  customer_email: booking.customer_email,
                  customer_phone: booking.customer_phone,
                  space_name: booking.space.name,
-                 date: Calendar.strftime(booking.date, "%A, %B %d"),
-                 start_time: booking.start_time,
-                 end_time: booking.end_time,
+                 start_datetime: booking.start_datetime,
+                 end_datetime: booking.end_datetime,
                  cancellation_reason: booking.cancellation_reason
                }
                |> UserCancellationEmailWorker.new()
@@ -368,10 +379,15 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
         start_time = input.arguments.start_time
         end_time = input.arguments.end_time
 
+        start_datetime = DateTime.new!(date, start_time, "Etc/UTC")
+        end_datetime = DateTime.new!(date, end_time, "Etc/UTC")
+
         query =
           __MODULE__
-          |> Ash.Query.filter(date == ^date)
-          |> Ash.Query.filter(state == :requested or state == :accepted)
+          |> Ash.Query.filter(
+            start_datetime < ^end_datetime and end_datetime > ^start_datetime and
+              (state == :requested or state == :accepted)
+          )
 
         query =
           if space_id do
@@ -382,15 +398,8 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
 
         case Ash.read(query) do
           {:ok, bookings} ->
-            # Filter overlapping bookings
-            overlapping_bookings =
-              Enum.filter(bookings, fn booking ->
-                Time.compare(booking.start_time, end_time) == :lt and
-                  Time.compare(start_time, booking.end_time) == :lt
-              end)
-
-            pending_count = Enum.count(overlapping_bookings, &(&1.state == :requested))
-            approved_count = Enum.count(overlapping_bookings, &(&1.state == :accepted))
+            pending_count = Enum.count(bookings, &(&1.state == :requested))
+            approved_count = Enum.count(bookings, &(&1.state == :accepted))
 
             {:ok, %{pending: pending_count, approved: approved_count}}
 
@@ -431,6 +440,8 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
 
   attributes do
     uuid_primary_key :id
+    attribute :start_datetime, :datetime, allow_nil?: false
+    attribute :end_datetime, :datetime, allow_nil?: false
     attribute :date, :date, allow_nil?: false
     attribute :customer_name, :string, allow_nil?: false
     attribute :customer_email, :string, allow_nil?: false

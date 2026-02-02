@@ -21,6 +21,30 @@
       "references": null,
       "scale": null,
       "size": null,
+      "source": "start_datetime",
+      "type": "utc_datetime"
+    },
+    {
+      "allow_nil?": false,
+      "default": "nil",
+      "generated?": false,
+      "precision": null,
+      "primary_key?": false,
+      "references": null,
+      "scale": null,
+      "size": null,
+      "source": "end_datetime",
+      "type": "utc_datetime"
+    },
+    {
+      "allow_nil?": false,
+      "default": "nil",
+      "generated?": false,
+      "precision": null,
+      "primary_key?": false,
+      "references": null,
+      "scale": null,
+      "size": null,
       "source": "date",
       "type": "date"
     },
@@ -224,7 +248,7 @@
   "custom_indexes": [],
   "custom_statements": [],
   "has_create_action": true,
-  "hash": "0EFE49884DF5DC66BF3F1E125132A2F3E18DD66AC732121184A93707260C5225",
+  "hash": "CBA4F1C24A9B1AB8A2E4EF42917C1DE5F143C74D0D175D1A29156ECCE6FD5660",
   "identities": [],
   "multitenancy": {
     "attribute": null,

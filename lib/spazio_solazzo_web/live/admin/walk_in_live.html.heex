@@ -204,14 +204,14 @@
             </div>
           </header>
 
-          <div class="space-y-4 max-w-2xl">
+          <.form for={%{}} phx-change="update_customer_details" class="space-y-4 max-w-2xl">
             <div class="relative">
               <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
                 <.icon name="hero-user" class="w-5 h-5" />
               </span>
               <input
+                name="customer_name"
                 value={@customer_name}
-                phx-change="update_customer_name"
                 class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-sm rounded-xl pl-10 pr-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary transition-all placeholder:text-slate-400"
                 placeholder="Customer Name"
                 type="text"
@@ -223,8 +223,8 @@
                 <.icon name="hero-envelope" class="w-5 h-5" />
               </span>
               <input
+                name="customer_email"
                 value={@customer_email}
-                phx-change="update_customer_email"
                 class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-sm rounded-xl pl-10 pr-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary transition-all placeholder:text-slate-400"
                 placeholder="customer@example.com"
                 type="email"
@@ -236,8 +236,8 @@
                 <.icon name="hero-phone" class="w-5 h-5" />
               </span>
               <input
+                name="customer_phone"
                 value={@customer_phone}
-                phx-change="update_customer_phone"
                 class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-sm rounded-xl pl-10 pr-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary transition-all placeholder:text-slate-400"
                 placeholder="Customer Phone Number (Optional)"
                 type="tel"
@@ -246,38 +246,25 @@
 
             <div class="relative">
               <textarea
+                name="customer_comment"
                 value={@customer_comment}
-                phx-change="update_customer_comment"
                 rows="3"
                 class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-sm rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary transition-all placeholder:text-slate-400"
                 placeholder="Additional notes or comments (Optional)"
               ></textarea>
             </div>
-          </div>
+          </.form>
         </article>
 
         <%!-- Submit button --%>
-        <div class="sticky bottom-6 z-20">
-          <div class="bg-slate-900 dark:bg-primary rounded-2xl p-4 md:p-6 shadow-2xl border border-slate-800 dark:border-slate-600 flex flex-col sm:flex-row justify-between items-center gap-4 backdrop-blur-xl bg-opacity-95 dark:bg-opacity-95">
-            <div class="flex items-center gap-4">
-              <div class="bg-yellow-500/20 p-2 rounded-full hidden sm:block">
-                <.icon name="hero-currency-dollar" class="w-5 h-5 text-yellow-500" />
-              </div>
-              <div>
-                <p class="text-white font-bold">Ready to book?</p>
-                <p class="text-xs text-slate-300 dark:text-slate-200">
-                  Payment collected upon arrival.
-                </p>
-              </div>
-            </div>
-            <button
-              phx-click="create_booking"
-              class="w-full sm:w-auto flex items-center justify-center gap-2 overflow-hidden rounded-xl h-11 px-8 bg-yellow-500 hover:bg-yellow-400 transition-colors text-slate-900 text-sm font-bold shadow-lg shadow-yellow-500/20"
-            >
-              <span>Confirm Booking</span>
-              <.icon name="hero-arrow-right" class="w-4 h-4" />
-            </button>
-          </div>
+        <div class="flex justify-center pt-4">
+          <button
+            phx-click="create_booking"
+            class="w-full sm:w-auto flex items-center justify-center gap-2 overflow-hidden rounded-xl h-12 px-10 bg-primary hover:bg-primary/90 transition-colors text-white text-base font-bold shadow-lg shadow-primary/30"
+          >
+            <span>Create Booking</span>
+            <.icon name="hero-check" class="w-5 h-5" />
+          </button>
         </div>
       </div>
     </section>
