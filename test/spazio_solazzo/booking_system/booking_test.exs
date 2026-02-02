@@ -749,15 +749,13 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
                  end_datetime,
                  "Walk-in Customer",
                  "walkin@example.com",
-                 "+39 1234567890",
-                 "Walk-in booking"
+                 "+39 1234567890"
                )
 
       assert booking.space_id == space.id
       assert booking.customer_name == "Walk-in Customer"
       assert booking.customer_email == "walkin@example.com"
       assert booking.customer_phone == "+39 1234567890"
-      assert booking.customer_comment == "Walk-in booking"
       assert booking.state == :accepted
       assert booking.date == DateTime.to_date(start_datetime)
       # Compare times ignoring microseconds
@@ -784,7 +782,6 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
                  end_datetime,
                  "Walk-in Customer",
                  "walkin@example.com",
-                 nil,
                  nil
                )
 
@@ -804,7 +801,6 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
                  end_datetime,
                  "Walk-in Customer",
                  "walkin@example.com",
-                 nil,
                  nil
                )
 
@@ -823,7 +819,6 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
                  end_datetime,
                  "Walk-in Customer",
                  "walkin@example.com",
-                 nil,
                  nil
                )
 
@@ -842,7 +837,6 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
                  end_datetime,
                  "Walk-in Customer",
                  "walkin@example.com",
-                 nil,
                  nil
                )
 
@@ -861,7 +855,6 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
                  end_datetime,
                  "Walk-in Customer",
                  "invalid-email",
-                 nil,
                  nil
                )
 
@@ -884,7 +877,6 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
                  end_datetime,
                  "Walk-in Customer",
                  "walkin@example.com",
-                 nil,
                  nil
                )
 

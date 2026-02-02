@@ -7,20 +7,17 @@ defmodule SpazioSolazzoWeb.Admin.WalkInLive do
   alias SpazioSolazzo.BookingSystem
 
   def mount(_params, _session, socket) do
-    {:ok, coworking_space} = BookingSystem.get_space_by_slug("coworking")
+    {:ok, space} = BookingSystem.get_space_by_slug("coworking")
 
     {:ok,
      assign(socket,
-       coworking_space: coworking_space,
+       space: space,
        multi_day_mode: false,
        start_date: nil,
        end_date: nil,
        start_time: ~T[09:00:00],
        end_time: ~T[18:00:00],
-       customer_name: "",
-       customer_email: "",
-       customer_phone: "",
-       customer_comment: ""
+       customer_details_form: customer_details_form()
      )}
   end
 
@@ -44,57 +41,89 @@ defmodule SpazioSolazzoWeb.Admin.WalkInLive do
     end
   end
 
-  def handle_event("update_customer_details", params, socket) do
-    {:noreply,
-     assign(socket,
-       customer_name: Map.get(params, "customer_name", ""),
-       customer_email: Map.get(params, "customer_email", ""),
-       customer_phone: Map.get(params, "customer_phone", ""),
-       customer_comment: Map.get(params, "customer_comment", "")
-     )}
+  def handle_event(
+        "validate_customer_details",
+        form,
+        socket
+      ) do
+    {:noreply, assign(socket, customer_details_form: to_form(form))}
   end
 
-  def handle_event("create_booking", _, socket) do
-    with true <- socket.assigns.customer_name != "",
-         true <- socket.assigns.customer_email != "",
-         start_date when not is_nil(start_date) <- get_start_date(socket),
-         end_date when not is_nil(end_date) <- get_end_date(socket) do
-      # Create datetime objects
-      start_datetime =
-        DateTime.new!(start_date, socket.assigns.start_time, "Etc/UTC")
+  def handle_event(
+        "create_booking",
+        _,
+        %{assigns: %{start_date: start_date, end_date: end_date}} = socket
+      )
+      when is_nil(start_date) or is_nil(end_date) do
+    {:noreply, put_flash(socket, :error, "Please fill in all required fields and select a date")}
+  end
 
-      end_datetime =
-        DateTime.new!(end_date, socket.assigns.end_time, "Etc/UTC")
+  def handle_event("create_booking", form, socket) do
+    case parse_submitted_form(form) do
+      {:error, error} -> {:noreply, put_flash(socket, :error, error)}
+      {:ok, form} -> create_walk_in(form, socket)
+    end
+  end
 
-      case BookingSystem.create_walk_in(
-             socket.assigns.coworking_space.id,
-             start_datetime,
-             end_datetime,
-             socket.assigns.customer_name,
-             socket.assigns.customer_email,
-             socket.assigns.customer_phone,
-             socket.assigns.customer_comment
-           ) do
-        {:ok, _booking} ->
-          {:noreply,
-           socket
-           |> assign(
-             customer_name: "",
-             customer_email: "",
-             customer_phone: "",
-             customer_comment: "",
-             start_date: nil,
-             end_date: nil
-           )
-           |> put_flash(:info, "Walk-in booking created successfully")}
+  defp create_walk_in(
+         form,
+         %{
+           assigns: %{
+             start_date: start_date,
+             end_date: end_date,
+             start_time: start_time,
+             end_time: end_time,
+             space: space
+           }
+         } = socket
+       ) do
+    start_datetime =
+      DateTime.new!(start_date, start_time, "Etc/UTC")
 
-        {:error, error} ->
-          {:noreply, put_flash(socket, :error, "Failed to create walk-in: #{inspect(error)}")}
-      end
-    else
-      _ ->
+    end_datetime =
+      DateTime.new!(end_date, end_time, "Etc/UTC")
+
+    case BookingSystem.create_walk_in(
+           space.id,
+           start_datetime,
+           end_datetime,
+           form.customer_name,
+           form.customer_email,
+           form.customer_phone
+         ) do
+      {:ok, _booking} ->
         {:noreply,
-         put_flash(socket, :error, "Please fill in all required fields and select a date")}
+         socket
+         |> assign(
+           customer_details_form: customer_details_form(),
+           start_date: nil,
+           end_date: nil
+         )
+         |> put_flash(:info, "Walk-in booking created successfully")}
+
+      {:error, error} ->
+        {:noreply, put_flash(socket, :error, "Failed to create walk-in: #{inspect(error)}")}
+    end
+  end
+
+  defp parse_submitted_form(%{
+         "customer_name" => customer_name,
+         "customer_email" => customer_email,
+         "customer_phone" => customer_phone
+       }) do
+    customer_name = String.trim(customer_name)
+    customer_email = String.trim(customer_email)
+    customer_phone = String.trim(customer_phone)
+
+    if customer_name == "" || customer_email == "" do
+      {:error, "Please fill in all required fields and select a date"}
+    else
+      {:ok,
+       %{
+         customer_name: customer_name,
+         customer_email: customer_email,
+         customer_phone: customer_phone
+       }}
     end
   end
 
@@ -110,14 +139,6 @@ defmodule SpazioSolazzoWeb.Admin.WalkInLive do
     {:noreply, socket}
   end
 
-  defp get_start_date(socket) do
-    socket.assigns.start_date
-  end
-
-  defp get_end_date(socket) do
-    socket.assigns.end_date
-  end
-
   defp days_selected(nil, nil), do: 0
   defp days_selected(start_date, nil) when not is_nil(start_date), do: 1
 
@@ -127,4 +148,8 @@ defmodule SpazioSolazzoWeb.Admin.WalkInLive do
   end
 
   defp days_selected(_, _), do: 0
+
+  defp customer_details_form() do
+    to_form(%{"customer_name" => "", "customer_email" => "", "customer_phone" => ""})
+  end
 end

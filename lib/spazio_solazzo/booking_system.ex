@@ -56,8 +56,7 @@ defmodule SpazioSolazzo.BookingSystem do
           :end_datetime,
           :customer_name,
           :customer_email,
-          :customer_phone,
-          :customer_comment
+          :customer_phone
         ]
 
       define :approve_booking, action: :approve, args: []

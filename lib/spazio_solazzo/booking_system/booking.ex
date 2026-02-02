@@ -238,7 +238,6 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
       argument :customer_name, :string, allow_nil?: false
       argument :customer_email, :string, allow_nil?: false
       argument :customer_phone, :string, allow_nil?: true
-      argument :customer_comment, :string, allow_nil?: true
 
       change manage_relationship(:space_id, :space, type: :append_and_remove)
 
@@ -301,10 +300,6 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
         |> Ash.Changeset.force_change_attribute(
           :customer_phone,
           Ash.Changeset.get_argument(changeset, :customer_phone)
-        )
-        |> Ash.Changeset.force_change_attribute(
-          :customer_comment,
-          Ash.Changeset.get_argument(changeset, :customer_comment)
         )
       end
     end

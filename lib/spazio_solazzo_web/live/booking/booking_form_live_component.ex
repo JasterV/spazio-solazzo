@@ -11,9 +11,9 @@ defmodule SpazioSolazzoWeb.BookingFormLiveComponent do
     current_user = assigns.current_user
 
     initial_data = %{
-      "customer_name" => (current_user && current_user.name) || "",
-      "customer_email" => (current_user && current_user.email) || "",
-      "customer_phone" => (current_user && current_user.phone_number) || "",
+      "customer_name" => current_user.name,
+      "customer_email" => current_user.email,
+      "customer_phone" => current_user.phone_number || "",
       "customer_comment" => ""
     }
 

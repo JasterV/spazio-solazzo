@@ -13,15 +13,11 @@
 
       <%!-- Title --%>
       <div class="mb-10 flex flex-col items-center md:items-start text-center md:text-left">
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary dark:text-primary-hover dark:bg-primary/20 text-xs font-bold mb-4 border border-primary/20">
-          <.icon name="hero-building-office-2" class="w-4 h-4" />
-          <span>Coworking Space Only</span>
-        </div>
         <h1 class="text-3xl md:text-4xl font-black text-slate-900 dark:text-white tracking-tight mb-3">
-          New Coworking Walk-in Booking
+          New Arcipelago Walk-in Booking
         </h1>
         <p class="text-slate-600 dark:text-slate-400 max-w-2xl text-lg">
-          Follow the steps below to create a new guided reservation for the coworking area.
+          Create a walk-in booking for the Arcipelago space.
         </p>
       </div>
 
@@ -48,7 +44,7 @@
               <.live_component
                 module={SpazioSolazzoWeb.Admin.AdminCalendarComponent}
                 id="walk-in-calendar"
-                space_id={@coworking_space.id}
+                space_id={@space.id}
               />
             </div>
 
@@ -191,17 +187,23 @@
             </div>
           </header>
 
-          <.form for={%{}} phx-change="update_customer_details" class="space-y-4 max-w-2xl">
+          <.form
+            for={@customer_details_form}
+            id="customer-details-form"
+            phx-change="validate_customer_details"
+            phx-submit="create_booking"
+            class="space-y-4 max-w-2xl"
+          >
             <div class="relative">
               <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
                 <.icon name="hero-user" class="w-5 h-5" />
               </span>
-              <input
-                name="customer_name"
-                value={@customer_name}
+              <.input
+                field={@customer_details_form["customer_name"]}
                 class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-sm rounded-xl pl-10 pr-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary transition-all placeholder:text-slate-400"
                 placeholder="Customer Name"
                 type="text"
+                required
               />
             </div>
 
@@ -209,12 +211,12 @@
               <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
                 <.icon name="hero-envelope" class="w-5 h-5" />
               </span>
-              <input
-                name="customer_email"
-                value={@customer_email}
+              <.input
+                field={@customer_details_form["customer_email"]}
                 class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-sm rounded-xl pl-10 pr-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary transition-all placeholder:text-slate-400"
                 placeholder="customer@example.com"
                 type="email"
+                required
               />
             </div>
 
@@ -222,36 +224,26 @@
               <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
                 <.icon name="hero-phone" class="w-5 h-5" />
               </span>
-              <input
-                name="customer_phone"
-                value={@customer_phone}
+              <.input
+                field={@customer_details_form["customer_phone"]}
                 class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-sm rounded-xl pl-10 pr-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary transition-all placeholder:text-slate-400"
                 placeholder="Customer Phone Number (Optional)"
                 type="tel"
               />
-            </div>
-
-            <div class="relative">
-              <textarea
-                name="customer_comment"
-                value={@customer_comment}
-                rows="3"
-                class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-sm rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary transition-all placeholder:text-slate-400"
-                placeholder="Additional notes or comments (Optional)"
-              ></textarea>
             </div>
           </.form>
         </article>
 
         <%!-- Submit button --%>
         <div class="flex justify-center pt-4">
-          <button
-            phx-click="create_booking"
+          <.button
+            type="submit"
+            form="customer-details-form"
             class="w-full sm:w-auto flex items-center justify-center gap-2 overflow-hidden rounded-xl h-12 px-10 bg-primary hover:bg-primary/90 transition-colors text-white text-base font-bold shadow-lg shadow-primary/30"
           >
             <span>Create Booking</span>
             <.icon name="hero-check" class="w-5 h-5" />
-          </button>
+          </.button>
         </div>
       </div>
     </section>

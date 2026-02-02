@@ -44,7 +44,7 @@ defmodule SpazioSolazzoWeb.Admin.WalkInLiveSimpleTest do
 
       # Fill in customer details using the form
       view
-      |> form("form[phx-change='update_customer_details']", %{
+      |> form("form[phx-change='validate_customer_details']", %{
         "customer_name" => "John Doe",
         "customer_email" => "john@example.com"
       })
@@ -53,8 +53,8 @@ defmodule SpazioSolazzoWeb.Admin.WalkInLiveSimpleTest do
       # Try to create the booking
       html =
         view
-        |> element("button[phx-click='create_booking']")
-        |> render_click()
+        |> element("form[phx-submit='create_booking']")
+        |> render_submit()
 
       assert html =~ "Walk-in booking created successfully"
 

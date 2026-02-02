@@ -36,10 +36,10 @@ defmodule SpazioSolazzoWeb.Admin.WalkInLiveTest do
       conn = log_in_user(conn, user)
       {:ok, view, _html} = live(conn, "/admin/walk-in")
 
-      assert has_element?(view, "form[phx-change='update_customer_details']")
+      assert has_element?(view, "form[phx-change='validate_customer_details']")
       assert has_element?(view, "input[name='customer_name']")
       assert has_element?(view, "input[name='customer_email']")
-      assert has_element?(view, "button[phx-click='create_booking']")
+      assert has_element?(view, "button[type='submit']")
     end
 
     test "creates single-day walk-in booking successfully", %{
@@ -58,7 +58,7 @@ defmodule SpazioSolazzoWeb.Admin.WalkInLiveTest do
 
       # Fill in customer details
       view
-      |> form("form[phx-change='update_customer_details']", %{
+      |> form("form[phx-change='validate_customer_details']", %{
         "customer_name" => "John Doe",
         "customer_email" => "john@example.com"
       })
@@ -67,8 +67,8 @@ defmodule SpazioSolazzoWeb.Admin.WalkInLiveTest do
       # Submit the form
       html =
         view
-        |> element("button[phx-click='create_booking']")
-        |> render_click()
+        |> element("form[phx-submit='create_booking']")
+        |> render_submit()
 
       assert html =~ "Walk-in booking created successfully"
 
@@ -98,7 +98,7 @@ defmodule SpazioSolazzoWeb.Admin.WalkInLiveTest do
 
       # Fill in customer details without selecting a date
       view
-      |> form("form[phx-change='update_customer_details']", %{
+      |> form("form[phx-change='validate_customer_details']", %{
         "customer_name" => "John Doe",
         "customer_email" => "john@example.com"
       })
@@ -107,8 +107,8 @@ defmodule SpazioSolazzoWeb.Admin.WalkInLiveTest do
       # Try to submit
       html =
         view
-        |> element("button[phx-click='create_booking']")
-        |> render_click()
+        |> element("form[phx-submit='create_booking']")
+        |> render_submit()
 
       assert html =~ "Please fill in all required fields and select a date"
     end
@@ -122,15 +122,15 @@ defmodule SpazioSolazzoWeb.Admin.WalkInLiveTest do
       :timer.sleep(50)
 
       view
-      |> form("form[phx-change='update_customer_details']", %{
+      |> form("form[phx-change='validate_customer_details']", %{
         "customer_email" => "john@example.com"
       })
       |> render_change()
 
       html =
         view
-        |> element("button[phx-click='create_booking']")
-        |> render_click()
+        |> element("form[phx-submit='create_booking']")
+        |> render_submit()
 
       assert html =~ "Please fill in all required fields and select a date"
     end
@@ -144,15 +144,15 @@ defmodule SpazioSolazzoWeb.Admin.WalkInLiveTest do
       :timer.sleep(50)
 
       view
-      |> form("form[phx-change='update_customer_details']", %{
+      |> form("form[phx-change='validate_customer_details']", %{
         "customer_name" => "John Doe"
       })
       |> render_change()
 
       html =
         view
-        |> element("button[phx-click='create_booking']")
-        |> render_click()
+        |> element("form[phx-submit='create_booking']")
+        |> render_submit()
 
       assert html =~ "Please fill in all required fields and select a date"
     end
@@ -170,7 +170,7 @@ defmodule SpazioSolazzoWeb.Admin.WalkInLiveTest do
 
       # Fill in customer details
       view
-      |> form("form[phx-change='update_customer_details']", %{
+      |> form("form[phx-change='validate_customer_details']", %{
         "customer_name" => "Jane Smith",
         "customer_email" => "jane@example.com"
       })
@@ -179,8 +179,8 @@ defmodule SpazioSolazzoWeb.Admin.WalkInLiveTest do
       # Submit the form
       html =
         view
-        |> element("button[phx-click='create_booking']")
-        |> render_click()
+        |> element("form[phx-submit='create_booking']")
+        |> render_submit()
 
       assert html =~ "Walk-in booking created successfully"
 
@@ -219,7 +219,7 @@ defmodule SpazioSolazzoWeb.Admin.WalkInLiveTest do
       assert length(day3_bookings) == 1
     end
 
-    test "includes optional phone and comment", %{conn: conn, user: user, space: space} do
+    test "includes optional phone", %{conn: conn, user: user, space: space} do
       conn = log_in_user(conn, user)
       {:ok, view, _html} = live(conn, "/admin/walk-in")
 
@@ -228,18 +228,17 @@ defmodule SpazioSolazzoWeb.Admin.WalkInLiveTest do
       :timer.sleep(50)
 
       view
-      |> form("form[phx-change='update_customer_details']", %{
+      |> form("form[phx-change='validate_customer_details']", %{
         "customer_name" => "John Doe",
         "customer_email" => "john@example.com",
-        "customer_phone" => "+39 1234567890",
-        "customer_comment" => "Special request"
+        "customer_phone" => "+39 1234567890"
       })
       |> render_change()
 
       html =
         view
-        |> element("button[phx-click='create_booking']")
-        |> render_click()
+        |> element("form[phx-submit='create_booking']")
+        |> render_submit()
 
       assert html =~ "Walk-in booking created successfully"
 
@@ -257,7 +256,6 @@ defmodule SpazioSolazzoWeb.Admin.WalkInLiveTest do
 
       booking = hd(bookings)
       assert booking.customer_phone == "+39 1234567890"
-      assert booking.customer_comment == "Special request"
     end
 
     test "clears form after successful booking", %{conn: conn, user: user} do
@@ -269,7 +267,7 @@ defmodule SpazioSolazzoWeb.Admin.WalkInLiveTest do
       :timer.sleep(50)
 
       view
-      |> form("form[phx-change='update_customer_details']", %{
+      |> form("form[phx-change='validate_customer_details']", %{
         "customer_name" => "John Doe",
         "customer_email" => "john@example.com"
       })
@@ -277,8 +275,8 @@ defmodule SpazioSolazzoWeb.Admin.WalkInLiveTest do
 
       html =
         view
-        |> element("button[phx-click='create_booking']")
-        |> render_click()
+        |> element("form[phx-submit='create_booking']")
+        |> render_submit()
 
       assert html =~ "Walk-in booking created successfully"
 
