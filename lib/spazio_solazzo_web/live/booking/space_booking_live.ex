@@ -40,17 +40,7 @@ defmodule SpazioSolazzoWeb.SpaceBookingLive do
 
   def handle_event("select_slot", %{"time_slot_id" => time_slot_id}, socket) do
     time_slot = Enum.find(socket.assigns.time_slots, &(&1.id == time_slot_id))
-
-    # Prevent opening modal if user already has a booking for this slot
-    if time_slot && time_slot.booking_stats.user_has_booking do
-      {:noreply, socket}
-    else
-      {:noreply,
-       assign(socket,
-         selected_time_slot: time_slot,
-         show_booking_modal: true
-       )}
-    end
+    {:noreply, assign(socket, selected_time_slot: time_slot, show_booking_modal: true)}
   end
 
   def handle_event("cancel_booking", _params, socket) do
