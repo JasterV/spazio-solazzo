@@ -52,6 +52,41 @@ defmodule SpazioSolazzoWeb.SpaceBookingLive do
   end
 
   def handle_info({:create_booking, booking_data}, socket) do
+    case parse_booking_data(booking_data) do
+      {:error, error} -> {:noreply, put_flash(socket, :error, error)}
+      {:ok, booking_data} -> create_booking(booking_data, socket)
+    end
+  end
+
+  def handle_info({:date_selected, date}, socket) do
+    time_slots =
+      load_time_slots_with_stats(socket.assigns.space, date, socket.assigns.current_user)
+
+    {:noreply,
+     socket
+     |> assign(
+       selected_date: date,
+       time_slots: time_slots
+     )}
+  end
+
+  def handle_info(
+        %{topic: "booking:" <> _event, payload: %{data: %{space_id: space_id, date: date}}},
+        %{assigns: %{space: %{id: space_id}, selected_date: date}} = socket
+      ) do
+    time_slots =
+      load_time_slots_with_stats(socket.assigns.space, date, socket.assigns.current_user)
+
+    {:noreply,
+     socket
+     |> assign(time_slots: time_slots)}
+  end
+
+  def handle_info(_msg, socket) do
+    {:noreply, socket}
+  end
+
+  defp create_booking(booking_data, socket) do
     current_user = socket.assigns.current_user
 
     result =
@@ -84,32 +119,18 @@ defmodule SpazioSolazzoWeb.SpaceBookingLive do
     end
   end
 
-  def handle_info({:date_selected, date}, socket) do
-    time_slots =
-      load_time_slots_with_stats(socket.assigns.space, date, socket.assigns.current_user)
-
-    {:noreply,
-     socket
-     |> assign(
-       selected_date: date,
-       time_slots: time_slots
-     )}
+  defp parse_booking_data(%{customer_name: ""}) do
+    {:error, "Please fill all the required fields to create a booking request."}
   end
 
-  def handle_info(
-        %{topic: "booking:" <> _event, payload: %{data: %{space_id: space_id, date: date}}},
-        %{assigns: %{space: %{id: space_id}, selected_date: date}} = socket
-      ) do
-    time_slots =
-      load_time_slots_with_stats(socket.assigns.space, date, socket.assigns.current_user)
-
-    {:noreply,
-     socket
-     |> assign(time_slots: time_slots)}
-  end
-
-  def handle_info(_msg, socket) do
-    {:noreply, socket}
+  defp parse_booking_data(
+         %{
+           customer_name: _,
+           customer_phone: _,
+           customer_comment: _
+         } = form
+       ) do
+    {:ok, form}
   end
 
   defp load_time_slots_with_stats(space, date, current_user) do

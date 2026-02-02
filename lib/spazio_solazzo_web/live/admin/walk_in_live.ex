@@ -65,6 +65,18 @@ defmodule SpazioSolazzoWeb.Admin.WalkInLive do
     end
   end
 
+  def handle_info({:multi_day_mode_changed, multi_day}, socket) do
+    {:noreply, assign(socket, multi_day_mode: multi_day)}
+  end
+
+  def handle_info({:date_selected, start_date, end_date}, socket) do
+    {:noreply, assign(socket, start_date: start_date, end_date: end_date)}
+  end
+
+  def handle_info(_msg, socket) do
+    {:noreply, socket}
+  end
+
   defp create_walk_in(
          form,
          %{
@@ -125,18 +137,6 @@ defmodule SpazioSolazzoWeb.Admin.WalkInLive do
          customer_phone: customer_phone
        }}
     end
-  end
-
-  def handle_info({:multi_day_mode_changed, multi_day}, socket) do
-    {:noreply, assign(socket, multi_day_mode: multi_day)}
-  end
-
-  def handle_info({:date_selected, start_date, end_date}, socket) do
-    {:noreply, assign(socket, start_date: start_date, end_date: end_date)}
-  end
-
-  def handle_info(_msg, socket) do
-    {:noreply, socket}
   end
 
   defp days_selected(nil, nil), do: 0

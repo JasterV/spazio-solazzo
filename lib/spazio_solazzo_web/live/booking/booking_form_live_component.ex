@@ -12,7 +12,6 @@ defmodule SpazioSolazzoWeb.BookingFormLiveComponent do
 
     initial_data = %{
       "customer_name" => current_user.name,
-      "customer_email" => current_user.email,
       "customer_phone" => current_user.phone_number || "",
       "customer_comment" => ""
     }
@@ -31,10 +30,9 @@ defmodule SpazioSolazzoWeb.BookingFormLiveComponent do
 
   def handle_event("submit_booking", params, socket) do
     booking_data = %{
-      customer_name: params["customer_name"] || "",
-      customer_email: params["customer_email"],
-      customer_phone: params["customer_phone"] || "",
-      customer_comment: params["customer_comment"] || ""
+      customer_name: String.trim(params["customer_name"] || ""),
+      customer_phone: String.trim(params["customer_phone"] || ""),
+      customer_comment: String.trim(params["customer_comment"] || "")
     }
 
     send(self(), {:create_booking, booking_data})
@@ -92,31 +90,19 @@ defmodule SpazioSolazzoWeb.BookingFormLiveComponent do
                 placeholder="Your full name"
               />
 
-              <%= if @current_user do %>
-                <div>
-                  <label class="block text-sm font-medium text-base-content mb-2">
-                    Email
-                  </label>
-                  <div class="flex items-center gap-3 p-4 bg-secondary/5 rounded-xl border border-base-200">
-                    <div class="flex-shrink-0">
-                      <.icon name="hero-envelope" class="size-5 text-secondary" />
-                    </div>
-                    <span class="text-sm font-medium text-base-content truncate">
-                      {@current_user.email}
-                    </span>
+              <div>
+                <label class="block text-sm font-medium text-base-content mb-2">
+                  Email
+                </label>
+                <div class="flex items-center gap-3 p-4 bg-secondary/5 rounded-xl border border-base-200">
+                  <div class="flex-shrink-0">
+                    <.icon name="hero-envelope" class="size-5 text-secondary" />
                   </div>
+                  <span class="text-sm font-medium text-base-content truncate">
+                    {@current_user.email}
+                  </span>
                 </div>
-              <% else %>
-                <.input
-                  name="customer_email"
-                  id="customer_email"
-                  type="email"
-                  label="Email *"
-                  value={@form[:customer_email].value}
-                  required
-                  placeholder="your@email.com"
-                />
-              <% end %>
+              </div>
 
               <.input
                 name="customer_phone"
