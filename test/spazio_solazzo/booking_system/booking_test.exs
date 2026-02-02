@@ -311,7 +311,7 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
     end
   end
 
-  describe "list_accepted_space_bookings_by_date/2" do
+  describe "search_bookings/5 for accepted bookings" do
     test "returns only approved bookings for specific date", %{space: space, date: date} do
       {:ok, approved1} =
         request_booking(
@@ -356,7 +356,17 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
           ""
         )
 
-      {:ok, bookings} = BookingSystem.list_accepted_space_bookings_by_date(space.id, date)
+      start_datetime = DateTime.new!(date, ~T[00:00:00], "Etc/UTC")
+      end_datetime = DateTime.new!(Date.add(date, 1), ~T[00:00:00], "Etc/UTC")
+
+      {:ok, bookings} =
+        BookingSystem.search_bookings(
+          space.id,
+          start_datetime,
+          end_datetime,
+          [:accepted],
+          nil
+        )
 
       assert length(bookings) == 2
       assert Enum.all?(bookings, &(&1.state == :accepted))
@@ -379,7 +389,17 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
       {:ok, _} = BookingSystem.approve_booking(booking.id)
       {:ok, _} = BookingSystem.cancel_booking(booking.id, "Test cancellation")
 
-      {:ok, bookings} = BookingSystem.list_accepted_space_bookings_by_date(space.id, date)
+      start_datetime = DateTime.new!(date, ~T[00:00:00], "Etc/UTC")
+      end_datetime = DateTime.new!(Date.add(date, 1), ~T[00:00:00], "Etc/UTC")
+
+      {:ok, bookings} =
+        BookingSystem.search_bookings(
+          space.id,
+          start_datetime,
+          end_datetime,
+          [:accepted],
+          nil
+        )
 
       assert bookings == []
     end
@@ -417,7 +437,17 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
 
       {:ok, _} = BookingSystem.approve_booking(booking2.id)
 
-      {:ok, bookings} = BookingSystem.list_accepted_space_bookings_by_date(space.id, date)
+      start_datetime = DateTime.new!(date, ~T[00:00:00], "Etc/UTC")
+      end_datetime = DateTime.new!(Date.add(date, 1), ~T[00:00:00], "Etc/UTC")
+
+      {:ok, bookings} =
+        BookingSystem.search_bookings(
+          space.id,
+          start_datetime,
+          end_datetime,
+          [:accepted],
+          nil
+        )
 
       assert length(bookings) == 1
       assert hd(bookings).date == date
@@ -447,13 +477,23 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
 
       {:ok, _} = BookingSystem.approve_booking(booking.id)
 
-      {:ok, bookings} = BookingSystem.list_accepted_space_bookings_by_date(space.id, date)
+      start_datetime = DateTime.new!(date, ~T[00:00:00], "Etc/UTC")
+      end_datetime = DateTime.new!(Date.add(date, 1), ~T[00:00:00], "Etc/UTC")
+
+      {:ok, bookings} =
+        BookingSystem.search_bookings(
+          space.id,
+          start_datetime,
+          end_datetime,
+          [:accepted],
+          nil
+        )
 
       assert bookings == []
     end
   end
 
-  describe "list_booking_requests/3" do
+  describe "admin_search_bookings/3" do
     test "returns pending and approved bookings for space", %{space: space, date: date} do
       {:ok, pending} =
         request_booking(
@@ -498,7 +538,7 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
 
       {:ok, _} = BookingSystem.cancel_booking(cancelled.id, "Test cancellation")
 
-      {:ok, bookings} = BookingSystem.list_booking_requests(space.id, nil, nil)
+      {:ok, bookings} = BookingSystem.admin_search_bookings(space.id, nil, nil)
 
       assert length(bookings) == 2
       assert Enum.any?(bookings, &(&1.id == pending.id))
@@ -534,7 +574,7 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
         )
 
       {:ok, bookings} =
-        BookingSystem.list_booking_requests(space.id, "user2@example.com", nil)
+        BookingSystem.admin_search_bookings(space.id, "user2@example.com", nil)
 
       assert length(bookings) == 1
       assert hd(bookings).id == booking2.id
@@ -569,14 +609,14 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
           ""
         )
 
-      {:ok, bookings} = BookingSystem.list_booking_requests(space.id, nil, date)
+      {:ok, bookings} = BookingSystem.admin_search_bookings(space.id, nil, date)
 
       assert length(bookings) == 1
       assert hd(bookings).id == booking1.id
     end
   end
 
-  describe "count_pending_requests/0" do
+  describe "count pending requests" do
     test "returns only pending bookings", %{space: space, date: date} do
       {:ok, _pending1} =
         request_booking(
@@ -621,13 +661,15 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
 
       {:ok, _} = BookingSystem.cancel_booking(cancelled.id, "Test cancellation")
 
-      {:ok, pending_requests} = BookingSystem.count_pending_requests()
+      {:ok, count} =
+        Ash.count(SpazioSolazzo.BookingSystem.Booking,
+          query: [filter: [state: :requested]]
+        )
 
-      assert length(pending_requests) == 1
-      assert Enum.all?(pending_requests, &(&1.state == :requested))
+      assert count == 1
     end
 
-    test "returns empty list when no pending requests", %{space: space, date: date} do
+    test "returns zero when no pending requests", %{space: space, date: date} do
       {:ok, booking} =
         request_booking(
           space.id,
@@ -643,9 +685,12 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
 
       {:ok, _} = BookingSystem.approve_booking(booking.id)
 
-      {:ok, pending_requests} = BookingSystem.count_pending_requests()
+      {:ok, count} =
+        Ash.count(SpazioSolazzo.BookingSystem.Booking,
+          query: [filter: [state: :requested]]
+        )
 
-      assert pending_requests == []
+      assert count == 0
     end
 
     test "counts pending requests across multiple spaces", %{space: space, date: date} do
@@ -683,9 +728,12 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
           ""
         )
 
-      {:ok, pending_requests} = BookingSystem.count_pending_requests()
+      {:ok, count} =
+        Ash.count(SpazioSolazzo.BookingSystem.Booking,
+          query: [filter: [state: :requested]]
+        )
 
-      assert length(pending_requests) == 2
+      assert count == 2
     end
   end
 

@@ -5,12 +5,12 @@ defmodule SpazioSolazzoWeb.Admin.DashboardLive do
 
   use SpazioSolazzoWeb, :live_view
 
-  alias SpazioSolazzo.BookingSystem
-
   def mount(_params, _session, socket) do
-    # Get pending requests count for the badge
-    {:ok, pending_requests} = BookingSystem.count_pending_requests()
-    pending_count = length(pending_requests)
+    # Get pending requests count directly from database (no data loaded)
+    {:ok, pending_count} =
+      Ash.count(SpazioSolazzo.BookingSystem.Booking,
+        query: [filter: [state: :requested]]
+      )
 
     {:ok,
      assign(socket,

@@ -9,7 +9,7 @@ defmodule SpazioSolazzoWeb.Admin.BookingManagementLive do
 
   def mount(_params, _session, socket) do
     {:ok, spaces} = Ash.read(SpazioSolazzo.BookingSystem.Space)
-    {:ok, bookings} = BookingSystem.list_booking_requests(nil, nil, nil, load: [:space, :user])
+    {:ok, bookings} = BookingSystem.admin_search_bookings(nil, nil, nil, load: [:space, :user])
 
     # Separate pending and other bookings
     {pending, past} = Enum.split_with(bookings, &(&1.state == :requested))
@@ -36,6 +36,34 @@ defmodule SpazioSolazzoWeb.Admin.BookingManagementLive do
      )}
   end
 
+  def handle_params(params, _uri, socket) do
+    # Parse date from URL if present
+    filter_date =
+      case Map.get(params, "date") do
+        nil ->
+          nil
+
+        "" ->
+          nil
+
+        date_string ->
+          case Date.from_iso8601(date_string) do
+            {:ok, date} -> date
+            {:error, _} -> nil
+          end
+      end
+
+    # If we have a date from URL, apply it to filters
+    socket =
+      if filter_date && socket.assigns.filter_date != filter_date do
+        apply_date_filter(socket, filter_date)
+      else
+        socket
+      end
+
+    {:noreply, socket}
+  end
+
   def handle_event("toggle_expand", %{"booking_id" => booking_id}, socket) do
     expanded =
       if MapSet.member?(socket.assigns.expanded_booking_ids, booking_id) do
@@ -57,7 +85,7 @@ defmodule SpazioSolazzoWeb.Admin.BookingManagementLive do
         else: Date.from_iso8601!(params["date"])
 
     {:ok, bookings} =
-      BookingSystem.list_booking_requests(space_id, email, date, load: [:space, :user])
+      BookingSystem.admin_search_bookings(space_id, email, date, load: [:space, :user])
 
     {pending, past} = Enum.split_with(bookings, &(&1.state == :requested))
 
@@ -72,7 +100,7 @@ defmodule SpazioSolazzoWeb.Admin.BookingManagementLive do
   end
 
   def handle_event("clear_filters", _, socket) do
-    {:ok, bookings} = BookingSystem.list_booking_requests(nil, nil, nil, load: [:space, :user])
+    {:ok, bookings} = BookingSystem.admin_search_bookings(nil, nil, nil, load: [:space, :user])
     {pending, past} = Enum.split_with(bookings, &(&1.state == :requested))
 
     {:noreply,
@@ -169,7 +197,7 @@ defmodule SpazioSolazzoWeb.Admin.BookingManagementLive do
 
   defp refresh_bookings(socket) do
     {:ok, bookings} =
-      BookingSystem.list_booking_requests(
+      BookingSystem.admin_search_bookings(
         socket.assigns.filter_space_id,
         socket.assigns.filter_email,
         socket.assigns.filter_date,
@@ -183,6 +211,22 @@ defmodule SpazioSolazzoWeb.Admin.BookingManagementLive do
        pending_bookings: pending,
        past_bookings: past
      )}
+  end
+
+  defp apply_date_filter(socket, date) do
+    space_id = socket.assigns.filter_space_id
+    email = if socket.assigns.filter_email == "", do: nil, else: socket.assigns.filter_email
+
+    {:ok, bookings} =
+      BookingSystem.admin_search_bookings(space_id, email, date, load: [:space, :user])
+
+    {pending, past} = Enum.split_with(bookings, &(&1.state == :requested))
+
+    assign(socket,
+      pending_bookings: pending,
+      past_bookings: past,
+      filter_date: date
+    )
   end
 
   defp status_badge_classes(:requested) do

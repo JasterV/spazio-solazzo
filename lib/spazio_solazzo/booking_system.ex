@@ -26,19 +26,13 @@ defmodule SpazioSolazzo.BookingSystem do
     end
 
     resource SpazioSolazzo.BookingSystem.Booking do
-      define :list_accepted_space_bookings_by_date,
-        action: :list_accepted_space_bookings_by_date,
-        args: [:space_id, :date]
-
-      define :list_booking_requests,
-        action: :list_booking_requests,
+      define :admin_search_bookings,
+        action: :admin_dashboard_search,
         args: [:space_id, :email, :date]
 
-      define :count_pending_requests, action: :count_pending_requests
-
-      define :list_bookings_by_datetime_range,
-        action: :by_datetime_range_and_status,
-        args: [:space_id, :user_id, :start_datetime, :end_datetime, :states]
+      define :search_bookings,
+        action: :search,
+        args: [:space_id, :start_datetime, :end_datetime, :states, :select]
 
       define :create_booking,
         action: :create,

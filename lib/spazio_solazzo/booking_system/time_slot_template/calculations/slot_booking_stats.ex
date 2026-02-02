@@ -23,12 +23,12 @@ defmodule SpazioSolazzo.BookingSystem.TimeSlotTemplate.Calculations.SlotBookingS
     day_end = DateTime.new!(date, ~T[23:59:59], "Etc/UTC")
 
     {:ok, all_bookings} =
-      SpazioSolazzo.BookingSystem.list_bookings_by_datetime_range(
+      SpazioSolazzo.BookingSystem.search_bookings(
         space_id,
-        nil,
         day_start,
         day_end,
-        [:requested, :accepted]
+        [:requested, :accepted],
+        [:start_datetime, :end_datetime, :state, :user_id]
       )
 
     # Calculate stats for each slot using the cached bookings

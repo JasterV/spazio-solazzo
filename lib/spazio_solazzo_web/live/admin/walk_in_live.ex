@@ -4,47 +4,30 @@ defmodule SpazioSolazzoWeb.Admin.WalkInLive do
   """
 
   use SpazioSolazzoWeb, :live_view
-
   alias SpazioSolazzo.BookingSystem
 
   def mount(_params, _session, socket) do
-    # Get coworking space
-    {:ok, spaces} = Ash.read(SpazioSolazzo.BookingSystem.Space)
-    coworking_space = Enum.find(spaces, &(&1.slug == "coworking"))
+    {:ok, coworking_space} = BookingSystem.get_space_by_slug("coworking")
 
-    if coworking_space == nil do
-      {:ok,
-       socket
-       |> put_flash(:error, "Coworking space not found")
-       |> push_navigate(to: "/admin/dashboard")}
-    else
-      {:ok,
-       assign(socket,
-         coworking_space: coworking_space,
-         multi_day_mode: false,
-         start_date: nil,
-         end_date: nil,
-         selected_date: nil,
-         start_time: ~T[09:00:00],
-         end_time: ~T[18:00:00],
-         customer_name: "",
-         customer_email: "",
-         customer_phone: "",
-         customer_comment: "",
-         time_slot_warning: nil
-       )}
-    end
+    {:ok,
+     assign(socket,
+       coworking_space: coworking_space,
+       multi_day_mode: false,
+       start_date: nil,
+       end_date: nil,
+       start_time: ~T[09:00:00],
+       end_time: ~T[18:00:00],
+       customer_name: "",
+       customer_email: "",
+       customer_phone: "",
+       customer_comment: ""
+     )}
   end
 
   def handle_event("update_start_time", %{"value" => time_str}, socket) do
     case Time.from_iso8601(time_str <> ":00") do
       {:ok, time} ->
-        socket =
-          socket
-          |> assign(start_time: time)
-          |> check_time_slot_capacity()
-
-        {:noreply, socket}
+        {:noreply, assign(socket, start_time: time)}
 
       _ ->
         {:noreply, socket}
@@ -54,12 +37,7 @@ defmodule SpazioSolazzoWeb.Admin.WalkInLive do
   def handle_event("update_end_time", %{"value" => time_str}, socket) do
     case Time.from_iso8601(time_str <> ":00") do
       {:ok, time} ->
-        socket =
-          socket
-          |> assign(end_time: time)
-          |> check_time_slot_capacity()
-
-        {:noreply, socket}
+        {:noreply, assign(socket, end_time: time)}
 
       _ ->
         {:noreply, socket}
@@ -106,9 +84,7 @@ defmodule SpazioSolazzoWeb.Admin.WalkInLive do
              customer_phone: "",
              customer_comment: "",
              start_date: nil,
-             end_date: nil,
-             selected_date: nil,
-             time_slot_warning: nil
+             end_date: nil
            )
            |> put_flash(:info, "Walk-in booking created successfully")}
 
@@ -127,12 +103,7 @@ defmodule SpazioSolazzoWeb.Admin.WalkInLive do
   end
 
   def handle_info({:date_selected, start_date, end_date}, socket) do
-    socket =
-      socket
-      |> assign(start_date: start_date, end_date: end_date, selected_date: nil)
-      |> check_time_slot_capacity()
-
-    {:noreply, socket}
+    {:noreply, assign(socket, start_date: start_date, end_date: end_date)}
   end
 
   def handle_info(_msg, socket) do
@@ -140,56 +111,20 @@ defmodule SpazioSolazzoWeb.Admin.WalkInLive do
   end
 
   defp get_start_date(socket) do
-    socket.assigns.start_date || socket.assigns.selected_date
+    socket.assigns.start_date
   end
 
   defp get_end_date(socket) do
-    socket.assigns.end_date || socket.assigns.selected_date
+    socket.assigns.end_date
   end
 
-  defp check_time_slot_capacity(socket) do
-    # Only check for single-day bookings
-    if socket.assigns.multi_day_mode || socket.assigns.selected_date == nil do
-      assign(socket, time_slot_warning: nil)
-    else
-      date = socket.assigns.selected_date
-      start_time = socket.assigns.start_time
-      end_time = socket.assigns.end_time
-      space_id = socket.assigns.coworking_space.id
-      capacity = socket.assigns.coworking_space.capacity
+  defp days_selected(nil, nil), do: 0
+  defp days_selected(start_date, nil) when not is_nil(start_date), do: 1
 
-      start_datetime = DateTime.new!(date, start_time, "Etc/UTC")
-      end_datetime = DateTime.new!(date, end_time, "Etc/UTC")
-
-      {:ok, bookings} =
-        BookingSystem.list_bookings_by_datetime_range(
-          space_id,
-          nil,
-          start_datetime,
-          end_datetime,
-          [:accepted]
-        )
-
-      accepted_count = length(bookings)
-
-      if accepted_count >= capacity do
-        assign(socket,
-          time_slot_warning: "This time slot is currently overbooked. Proceed with caution."
-        )
-      else
-        assign(socket, time_slot_warning: nil)
-      end
-    end
-  end
-
-  defp days_selected(nil, nil, nil), do: 0
-  defp days_selected(selected, nil, nil) when not is_nil(selected), do: 1
-  defp days_selected(nil, start_date, nil) when not is_nil(start_date), do: 1
-
-  defp days_selected(nil, start_date, end_date)
+  defp days_selected(start_date, end_date)
        when not is_nil(start_date) and not is_nil(end_date) do
     Date.diff(end_date, start_date) + 1
   end
 
-  defp days_selected(_, _, _), do: 0
+  defp days_selected(_, _), do: 0
 end

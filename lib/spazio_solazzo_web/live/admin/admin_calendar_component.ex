@@ -82,21 +82,14 @@ defmodule SpazioSolazzoWeb.Admin.AdminCalendarComponent do
         if Date.compare(date, Date.utc_today()) == :lt do
           {:noreply, socket}
         else
-          # Check capacity
-          capacity_status = Map.get(socket.assigns.day_capacities, date, :available)
+          socket =
+            if socket.assigns.multi_day_mode do
+              handle_multi_day_selection(socket, date)
+            else
+              handle_single_day_selection(socket, date)
+            end
 
-          if capacity_status == :over_capacity do
-            {:noreply, socket}
-          else
-            socket =
-              if socket.assigns.multi_day_mode do
-                handle_multi_day_selection(socket, date)
-              else
-                handle_single_day_selection(socket, date)
-              end
-
-            {:noreply, socket}
-          end
+          {:noreply, socket}
         end
 
       _ ->
@@ -147,53 +140,58 @@ defmodule SpazioSolazzoWeb.Admin.AdminCalendarComponent do
     space_id = socket.assigns.space_id
     current_month = socket.assigns.current_month
 
-    # Get all days in the current month
-    first_day = Date.beginning_of_month(current_month)
-    last_day = Date.end_of_month(current_month)
+    start_of_month = Date.beginning_of_month(current_month)
+    end_of_month = Date.end_of_month(current_month)
 
-    # Calculate capacity for each day
-    day_capacities =
-      first_day
-      |> Date.range(last_day)
-      |> Enum.map(fn date ->
-        capacity = get_day_capacity(space_id, date)
-        {date, capacity}
-      end)
-      |> Map.new()
+    # Single query for entire month
+    {:ok, bookings} =
+      BookingSystem.search_bookings(
+        space_id,
+        DateTime.new!(start_of_month, ~T[00:00:00]),
+        DateTime.new!(end_of_month, ~T[23:59:59]),
+        [:accepted],
+        [:start_datetime, :end_datetime]
+      )
+
+    # Count bookings per day
+    day_data = compute_day_data(bookings, start_of_month, end_of_month)
 
     # Build calendar grid
-    calendar_weeks = build_calendar_grid(first_day, last_day)
+    calendar_weeks = build_calendar_grid(start_of_month, end_of_month)
 
     assign(socket,
-      day_capacities: day_capacities,
+      day_data: day_data,
       calendar_weeks: calendar_weeks,
       month_name: Calendar.strftime(current_month, "%B %Y")
     )
   end
 
-  defp get_day_capacity(space_id, date) do
-    # Get the space to check capacities
-    case Ash.get(SpazioSolazzo.BookingSystem.Space, space_id) do
-      {:ok, space} ->
-        # Get all bookings for this day
-        case BookingSystem.list_accepted_space_bookings_by_date(space_id, date) do
-          {:ok, bookings} ->
-            # Count unique booking slots (simplified - counts all bookings)
-            booking_count = length(bookings)
+  defp compute_day_data(bookings, start_date, end_date) do
+    # Initialize all days with zero count
+    date_range = Date.range(start_date, end_date)
 
-            if booking_count >= space.capacity do
-              :over_capacity
-            else
-              :available
-            end
+    initial_map =
+      Enum.reduce(date_range, %{}, fn date, acc ->
+        Map.put(acc, date, 0)
+      end)
 
-          _ ->
-            :available
+    # Count bookings for each day
+    Enum.reduce(bookings, initial_map, fn booking, acc ->
+      # Get all dates this booking spans
+      booking_start_date = DateTime.to_date(booking.start_datetime)
+      booking_end_date = DateTime.to_date(booking.end_datetime)
+
+      booking_dates = Date.range(booking_start_date, booking_end_date)
+
+      # Increment count for each day this booking touches
+      Enum.reduce(booking_dates, acc, fn date, inner_acc ->
+        case Map.get(inner_acc, date) do
+          # Date outside month range
+          nil -> inner_acc
+          count -> Map.put(inner_acc, date, count + 1)
         end
-
-      _ ->
-        :available
-    end
+      end)
+    end)
   end
 
   defp build_calendar_grid(first_day, last_day) do
@@ -244,24 +242,16 @@ defmodule SpazioSolazzoWeb.Admin.AdminCalendarComponent do
   defp is_end_date?(date, _, end_date), do: Date.compare(date, end_date) == :eq
 
   defp day_classes(date, assigns) do
-    # Extract capacity status for the given date
-    capacity = Map.get(assigns.day_capacities, date, :available)
     is_past = Date.compare(date, Date.utc_today()) == :lt
     in_range = day_in_range?(date, assigns.selected_date, assigns.start_date, assigns.end_date)
     is_start = is_start_date?(date, assigns.start_date, assigns.end_date)
     is_end = is_end_date?(date, assigns.start_date, assigns.end_date)
 
-    base = "aspect-square flex flex-col items-center justify-center transition-all"
+    base = "relative aspect-square flex flex-col items-start justify-start p-2 transition-all"
 
     cond do
       is_past ->
         [base, "text-slate-400 dark:text-slate-600 cursor-not-allowed opacity-50"]
-
-      capacity == :over_capacity ->
-        [
-          base,
-          "bg-orange-100 dark:bg-orange-900/20 text-slate-400 dark:text-slate-500 border border-orange-300 dark:border-orange-800/30 cursor-not-allowed"
-        ]
 
       in_range && assigns.multi_day_mode && assigns.end_date != nil ->
         cond do
@@ -293,16 +283,8 @@ defmodule SpazioSolazzoWeb.Admin.AdminCalendarComponent do
       true ->
         [
           base,
-          "rounded-lg bg-green-100 dark:bg-green-900/20 hover:bg-green-200 dark:hover:bg-green-900/40 text-slate-700 dark:text-slate-200 border border-transparent hover:border-green-500 dark:hover:border-green-600"
+          "rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-600 hover:border-primary dark:hover:border-primary"
         ]
-    end
-  end
-
-  defp capacity_indicator_color(capacity) do
-    case capacity do
-      :available -> "bg-green-500"
-      :over_capacity -> "bg-orange-500"
-      _ -> "bg-slate-300"
     end
   end
 end

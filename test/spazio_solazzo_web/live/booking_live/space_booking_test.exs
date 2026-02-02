@@ -394,7 +394,7 @@ defmodule SpazioSolazzoWeb.BookingLive.SpaceBookingTest do
       # Process the handle_info message that creates the booking
       render(view)
 
-      {:ok, bookings} = BookingSystem.list_booking_requests(space.id, nil, today)
+      {:ok, bookings} = BookingSystem.admin_search_bookings(space.id, nil, today)
 
       assert length(bookings) == 1
       booking = hd(bookings)
@@ -578,7 +578,7 @@ defmodule SpazioSolazzoWeb.BookingLive.SpaceBookingTest do
       # Process the handle_info message that creates the booking
       render(view)
 
-      {:ok, bookings} = BookingSystem.list_booking_requests(space.id, nil, today)
+      {:ok, bookings} = BookingSystem.admin_search_bookings(space.id, nil, today)
 
       assert length(bookings) == 1
       booking = hd(bookings)

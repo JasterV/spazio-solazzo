@@ -73,7 +73,18 @@ defmodule SpazioSolazzoWeb.Admin.WalkInLiveTest do
       assert html =~ "Walk-in booking created successfully"
 
       # Verify booking was created
-      {:ok, bookings} = BookingSystem.list_accepted_space_bookings_by_date(space.id, tomorrow)
+      start_datetime = DateTime.new!(tomorrow, ~T[00:00:00], "Etc/UTC")
+      end_datetime = DateTime.new!(Date.add(tomorrow, 1), ~T[00:00:00], "Etc/UTC")
+
+      {:ok, bookings} =
+        BookingSystem.search_bookings(
+          space.id,
+          start_datetime,
+          end_datetime,
+          [:accepted],
+          nil
+        )
+
       assert length(bookings) == 1
       booking = hd(bookings)
       assert booking.customer_name == "John Doe"
@@ -174,19 +185,36 @@ defmodule SpazioSolazzoWeb.Admin.WalkInLiveTest do
       assert html =~ "Walk-in booking created successfully"
 
       # Verify booking was created and spans multiple days
-      {:ok, bookings} = BookingSystem.list_accepted_space_bookings_by_date(space.id, start_date)
+      start_datetime = DateTime.new!(start_date, ~T[00:00:00], "Etc/UTC")
+      end_datetime_search = DateTime.new!(Date.add(start_date, 1), ~T[00:00:00], "Etc/UTC")
+
+      {:ok, bookings} =
+        BookingSystem.search_bookings(
+          space.id,
+          start_datetime,
+          end_datetime_search,
+          [:accepted],
+          nil
+        )
+
       assert length(bookings) == 1
       booking = hd(bookings)
       assert booking.customer_name == "Jane Smith"
 
       # Verify booking appears on all days in the range
+      day2_start = DateTime.new!(Date.add(start_date, 1), ~T[00:00:00], "Etc/UTC")
+      day2_end = DateTime.new!(Date.add(start_date, 2), ~T[00:00:00], "Etc/UTC")
+
       {:ok, day2_bookings} =
-        BookingSystem.list_accepted_space_bookings_by_date(space.id, Date.add(start_date, 1))
+        BookingSystem.search_bookings(space.id, day2_start, day2_end, [:accepted], nil)
 
       assert length(day2_bookings) == 1
 
+      day3_start = DateTime.new!(end_date, ~T[00:00:00], "Etc/UTC")
+      day3_end = DateTime.new!(Date.add(end_date, 1), ~T[00:00:00], "Etc/UTC")
+
       {:ok, day3_bookings} =
-        BookingSystem.list_accepted_space_bookings_by_date(space.id, end_date)
+        BookingSystem.search_bookings(space.id, day3_start, day3_end, [:accepted], nil)
 
       assert length(day3_bookings) == 1
     end
@@ -215,7 +243,18 @@ defmodule SpazioSolazzoWeb.Admin.WalkInLiveTest do
 
       assert html =~ "Walk-in booking created successfully"
 
-      {:ok, bookings} = BookingSystem.list_accepted_space_bookings_by_date(space.id, tomorrow)
+      start_datetime = DateTime.new!(tomorrow, ~T[00:00:00], "Etc/UTC")
+      end_datetime = DateTime.new!(Date.add(tomorrow, 1), ~T[00:00:00], "Etc/UTC")
+
+      {:ok, bookings} =
+        BookingSystem.search_bookings(
+          space.id,
+          start_datetime,
+          end_datetime,
+          [:accepted],
+          nil
+        )
+
       booking = hd(bookings)
       assert booking.customer_phone == "+39 1234567890"
       assert booking.customer_comment == "Special request"

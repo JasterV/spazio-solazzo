@@ -59,8 +59,17 @@ defmodule SpazioSolazzoWeb.Admin.WalkInLiveSimpleTest do
       assert html =~ "Walk-in booking created successfully"
 
       # Verify booking was created
+      start_datetime = DateTime.new!(tomorrow, ~T[00:00:00], "Etc/UTC")
+      end_datetime = DateTime.new!(Date.add(tomorrow, 1), ~T[00:00:00], "Etc/UTC")
+
       assert {:ok, [_booking]} =
-               BookingSystem.list_accepted_space_bookings_by_date(space.id, tomorrow)
+               BookingSystem.search_bookings(
+                 space.id,
+                 start_datetime,
+                 end_datetime,
+                 [:accepted],
+                 nil
+               )
     end
   end
 end

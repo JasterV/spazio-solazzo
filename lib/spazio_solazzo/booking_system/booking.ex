@@ -54,25 +54,52 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
   actions do
     defaults [:read]
 
-    read :list_accepted_space_bookings_by_date do
-      argument :space_id, :uuid, allow_nil?: false
-      argument :date, :date, allow_nil?: false
+    read :search do
+      description "Fetch bookings within a date/time range with optional filters"
+
+      argument :space_id, :uuid, allow_nil?: true
+      argument :start_datetime, :datetime, allow_nil?: false
+      argument :end_datetime, :datetime, allow_nil?: false
+      argument :states, {:array, :atom}, allow_nil?: true
+      argument :select, {:array, :atom}, allow_nil?: true
 
       prepare fn query, _ctx ->
-        date = Ash.Query.get_argument(query, :date)
-        day_start = DateTime.new!(date, ~T[00:00:00], "Etc/UTC")
-        day_end = DateTime.new!(date, ~T[23:59:59], "Etc/UTC")
+        start_dt = Ash.Query.get_argument(query, :start_datetime)
+        end_dt = Ash.Query.get_argument(query, :end_datetime)
 
-        query
-        |> Ash.Query.filter(
-          start_datetime < ^day_end and end_datetime > ^day_start and state == :accepted
-        )
+        # Base datetime overlap filter
+        query =
+          Ash.Query.filter(
+            query,
+            start_datetime < ^end_dt and end_datetime > ^start_dt
+          )
+
+        # Optional space filter
+        query =
+          case Ash.Query.get_argument(query, :space_id) do
+            nil -> query
+            space_id -> Ash.Query.filter(query, space_id == ^space_id)
+          end
+
+        # Optional states filter
+        query =
+          case Ash.Query.get_argument(query, :states) do
+            nil -> query
+            [] -> query
+            states -> Ash.Query.filter(query, state in ^states)
+          end
+
+        case Ash.Query.get_argument(query, :select) do
+          nil -> query
+          [] -> query
+          select -> Ash.Query.select(query, select)
+        end
       end
-
-      filter expr(space_id == ^arg(:space_id))
     end
 
-    read :list_booking_requests do
+    read :admin_dashboard_search do
+      description "Search query tailored for the admin booking management panel"
+
       argument :space_id, :uuid, allow_nil?: true
       argument :email, :string, allow_nil?: true
       argument :date, :date, allow_nil?: true
@@ -101,53 +128,6 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
             day_end = DateTime.new!(date, ~T[23:59:59], "Etc/UTC")
 
             Ash.Query.filter(query, start_datetime < ^day_end and end_datetime > ^day_start)
-        end
-      end
-    end
-
-    read :count_pending_requests do
-      filter expr(state == :requested)
-    end
-
-    read :by_datetime_range_and_status do
-      description "Fetch bookings within a date/time range with optional filters"
-
-      argument :space_id, :uuid, allow_nil?: true
-      argument :user_id, :uuid, allow_nil?: true
-      argument :start_datetime, :datetime, allow_nil?: false
-      argument :end_datetime, :datetime, allow_nil?: false
-      argument :states, {:array, :atom}, allow_nil?: true
-
-      prepare fn query, _ctx ->
-        start_dt = Ash.Query.get_argument(query, :start_datetime)
-        end_dt = Ash.Query.get_argument(query, :end_datetime)
-
-        # Base datetime overlap filter
-        query =
-          Ash.Query.filter(
-            query,
-            start_datetime < ^end_dt and end_datetime > ^start_dt
-          )
-
-        # Optional space filter
-        query =
-          case Ash.Query.get_argument(query, :space_id) do
-            nil -> query
-            space_id -> Ash.Query.filter(query, space_id == ^space_id)
-          end
-
-        # Optional user filter
-        query =
-          case Ash.Query.get_argument(query, :user_id) do
-            nil -> query
-            user_id -> Ash.Query.filter(query, user_id == ^user_id)
-          end
-
-        # Optional states filter
-        case Ash.Query.get_argument(query, :states) do
-          nil -> query
-          [] -> query
-          states -> Ash.Query.filter(query, state in ^states)
         end
       end
     end
