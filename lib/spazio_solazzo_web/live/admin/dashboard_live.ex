@@ -5,16 +5,9 @@ defmodule SpazioSolazzoWeb.Admin.DashboardLive do
 
   use SpazioSolazzoWeb, :live_view
 
-  def mount(_params, _session, socket) do
-    # Get pending requests count directly from database (no data loaded)
-    {:ok, pending_count} =
-      Ash.count(SpazioSolazzo.BookingSystem.Booking,
-        query: [filter: [state: :requested]]
-      )
+  import SpazioSolazzoWeb.AdminDashboardComponents
 
-    {:ok,
-     assign(socket,
-       pending_requests_count: pending_count
-     )}
+  def mount(_params, _session, socket) do
+    {:ok, socket}
   end
 end
