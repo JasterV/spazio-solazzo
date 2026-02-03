@@ -164,7 +164,11 @@ defmodule SpazioSolazzoWeb.BookingLive.SpaceBookingTest do
 
   describe "SpaceBooking date selection" do
     test "updates time slots when selecting a different date", %{conn: conn, space: space} do
-      monday_date = ~D[2026-02-02]
+      # Find next Monday from today
+      today = Date.utc_today()
+      days_until_monday = rem(8 - Date.day_of_week(today), 7)
+      days_until_monday = if days_until_monday == 0, do: 7, else: days_until_monday
+      monday_date = Date.add(today, days_until_monday)
 
       {:ok, _monday_slot} =
         BookingSystem.create_time_slot_template(
@@ -394,7 +398,17 @@ defmodule SpazioSolazzoWeb.BookingLive.SpaceBookingTest do
       # Process the handle_info message that creates the booking
       render(view)
 
-      {:ok, bookings} = BookingSystem.admin_search_bookings(space.id, nil, today)
+      day_start = DateTime.new!(today, ~T[00:00:00], "Etc/UTC")
+      day_end = DateTime.new!(today, ~T[23:59:59], "Etc/UTC")
+
+      {:ok, bookings} =
+        BookingSystem.search_bookings(
+          space.id,
+          day_start,
+          day_end,
+          [:requested],
+          [:customer_name, :customer_email, :customer_phone, :customer_comment, :state]
+        )
 
       assert length(bookings) == 1
       booking = hd(bookings)
@@ -578,7 +592,17 @@ defmodule SpazioSolazzoWeb.BookingLive.SpaceBookingTest do
       # Process the handle_info message that creates the booking
       render(view)
 
-      {:ok, bookings} = BookingSystem.admin_search_bookings(space.id, nil, today)
+      day_start = DateTime.new!(today, ~T[00:00:00], "Etc/UTC")
+      day_end = DateTime.new!(today, ~T[23:59:59], "Etc/UTC")
+
+      {:ok, bookings} =
+        BookingSystem.search_bookings(
+          space.id,
+          day_start,
+          day_end,
+          [:requested],
+          [:customer_email, :user_id]
+        )
 
       assert length(bookings) == 1
       booking = hd(bookings)
@@ -632,7 +656,14 @@ defmodule SpazioSolazzoWeb.BookingLive.SpaceBookingTest do
     test "handles rapid date changes", %{conn: conn, space: space} do
       {:ok, view, _html} = live(conn, ~p"/book/space/#{space.slug}")
 
-      dates = [~D[2026-02-02], ~D[2026-02-03], ~D[2026-02-04], ~D[2026-02-02]]
+      # Use future dates relative to today
+      today = Date.utc_today()
+      dates = [
+        Date.add(today, 1),
+        Date.add(today, 2),
+        Date.add(today, 3),
+        Date.add(today, 1)
+      ]
 
       for date <- dates do
         view
@@ -641,7 +672,10 @@ defmodule SpazioSolazzoWeb.BookingLive.SpaceBookingTest do
       end
 
       html = render(view)
-      assert html =~ "Monday, February 02, 2026"
+      # Verify the last selected date is shown (which is Date.add(today, 1))
+      final_date = Date.add(today, 1)
+      formatted_date = Calendar.strftime(final_date, "%A, %B %d, %Y")
+      assert html =~ formatted_date
     end
   end
 end

@@ -672,6 +672,123 @@ defmodule SpazioSolazzoWeb.CoreComponents do
   end
 
   @doc """
+  Renders pagination controls for Ash offset pagination.
+
+  ## Examples
+
+      <.pagination_controls
+        page={@page}
+        current_page={@current_page_number}
+        event_prefix="bookings"
+      />
+  """
+  attr :page, :map, required: true, doc: "The Ash.Page.Offset struct"
+  attr :current_page, :integer, required: true, doc: "Current page number (1-indexed)"
+  attr :event_prefix, :string, required: true, doc: "Prefix for phx-click event"
+
+  def pagination_controls(assigns) do
+    total_count = assigns.page.count || 0
+    limit = assigns.page.limit || 10
+    current = assigns.current_page
+
+    start_item = if total_count == 0, do: 0, else: (current - 1) * limit + 1
+    end_item = min(current * limit, total_count)
+    total_pages = if limit > 0, do: ceil(total_count / limit), else: 1
+
+    # Calculate visible pages (show max 7 with ellipsis)
+    visible_pages =
+      cond do
+        total_pages <= 7 ->
+          Enum.to_list(1..total_pages)
+
+        current <= 4 ->
+          [1, 2, 3, 4, 5, :ellipsis, total_pages]
+
+        current >= total_pages - 3 ->
+          [1, :ellipsis | Enum.to_list((total_pages - 4)..total_pages)]
+
+        true ->
+          [1, :ellipsis, current - 1, current, current + 1, :ellipsis, total_pages]
+      end
+
+    assigns =
+      assign(assigns,
+        total_count: total_count,
+        start_item: start_item,
+        end_item: end_item,
+        total_pages: total_pages,
+        visible_pages: visible_pages
+      )
+
+    ~H"""
+    <div class="px-6 py-4 bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700">
+      <div class="flex items-center justify-between">
+        <div class="text-sm text-slate-600 dark:text-slate-400">
+          Showing {@start_item}-{@end_item} of {@total_count}
+        </div>
+
+        <%= if @total_pages > 1 do %>
+          <div class="flex items-center gap-2">
+            <button
+              phx-click={"#{@event_prefix}_page_change"}
+              phx-value-page={@current_page - 1}
+              disabled={@current_page == 1}
+              class={[
+                "px-3 py-1.5 rounded-lg font-medium text-sm transition-colors",
+                if(@current_page == 1,
+                  do: "bg-slate-200 dark:bg-slate-700 text-slate-400 cursor-not-allowed",
+                  else:
+                    "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-600 hover:bg-slate-50"
+                )
+              ]}
+            >
+              <.icon name="hero-chevron-left" class="w-4 h-4" />
+            </button>
+
+            <%= for page_num <- @visible_pages do %>
+              <%= if page_num == :ellipsis do %>
+                <span class="px-2 text-slate-400">...</span>
+              <% else %>
+                <button
+                  phx-click={"#{@event_prefix}_page_change"}
+                  phx-value-page={page_num}
+                  class={[
+                    "px-3 py-1.5 rounded-lg font-medium text-sm transition-colors",
+                    if(page_num == @current_page,
+                      do: "bg-primary text-white",
+                      else:
+                        "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-600 hover:bg-slate-50"
+                    )
+                  ]}
+                >
+                  {page_num}
+                </button>
+              <% end %>
+            <% end %>
+
+            <button
+              phx-click={"#{@event_prefix}_page_change"}
+              phx-value-page={@current_page + 1}
+              disabled={@current_page == @total_pages}
+              class={[
+                "px-3 py-1.5 rounded-lg font-medium text-sm transition-colors",
+                if(@current_page == @total_pages,
+                  do: "bg-slate-200 dark:bg-slate-700 text-slate-400 cursor-not-allowed",
+                  else:
+                    "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-600 hover:bg-slate-50"
+                )
+              ]}
+            >
+              <.icon name="hero-chevron-right" class="w-4 h-4" />
+            </button>
+          </div>
+        <% end %>
+      </div>
+    </div>
+    """
+  end
+
+  @doc """
   Translates the errors for a field from a keyword list of errors.
   """
   def translate_errors(errors, field) when is_list(errors) do

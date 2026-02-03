@@ -5,14 +5,27 @@ defmodule SpazioSolazzoWeb.Admin.BookingManagementLive do
 
   use SpazioSolazzoWeb, :live_view
 
+  import SpazioSolazzoWeb.Admin.BookingManagementComponents
+
   alias SpazioSolazzo.BookingSystem
+
+  @pending_bookings_page_limit 10
+  @booking_history_page_limit 10
 
   def mount(_params, _session, socket) do
     {:ok, spaces} = Ash.read(SpazioSolazzo.BookingSystem.Space)
-    {:ok, bookings} = BookingSystem.admin_search_bookings(nil, nil, nil, load: [:space, :user])
 
-    # Separate pending and other bookings
-    {pending, past} = Enum.split_with(bookings, &(&1.state == :requested))
+    {:ok, pending_page} =
+      BookingSystem.read_pending_bookings(nil, nil, nil,
+        page: [limit: @pending_bookings_page_limit, offset: 0, count: true],
+        load: [:space, :user]
+      )
+
+    {:ok, history_page} =
+      BookingSystem.read_booking_history(nil, nil, nil,
+        page: [limit: @booking_history_page_limit, offset: 0, count: true],
+        load: [:space, :user]
+      )
 
     if connected?(socket) do
       Phoenix.PubSub.subscribe(SpazioSolazzo.PubSub, "booking:created")
@@ -24,8 +37,10 @@ defmodule SpazioSolazzoWeb.Admin.BookingManagementLive do
     {:ok,
      assign(socket,
        spaces: spaces,
-       pending_bookings: pending,
-       past_bookings: past,
+       pending_page: pending_page,
+       history_page: history_page,
+       pending_page_number: 1,
+       history_page_number: 1,
        filter_space_id: nil,
        filter_email: "",
        filter_date: nil,
@@ -37,26 +52,31 @@ defmodule SpazioSolazzoWeb.Admin.BookingManagementLive do
   end
 
   def handle_params(params, _uri, socket) do
-    # Parse date from URL if present
-    filter_date =
-      case Map.get(params, "date") do
-        nil ->
-          nil
+    # Parse URL parameters - URL is the source of truth for all filters
+    filter_space_id = if params["space_id"] == "" || is_nil(params["space_id"]), do: nil, else: params["space_id"]
+    filter_email = params["email"] || ""
+    filter_date = parse_date_param(params["date"])
+    pending_page = parse_page_param(params["pending_page"])
+    history_page = parse_page_param(params["history_page"])
 
-        "" ->
-          nil
+    # Determine if we need to reload data
+    needs_reload =
+      params_changed?(
+        socket.assigns.filter_space_id,
+        filter_space_id,
+        socket.assigns.filter_email,
+        filter_email,
+        socket.assigns.filter_date,
+        filter_date,
+        socket.assigns.pending_page_number,
+        pending_page,
+        socket.assigns.history_page_number,
+        history_page
+      )
 
-        date_string ->
-          case Date.from_iso8601(date_string) do
-            {:ok, date} -> date
-            {:error, _} -> nil
-          end
-      end
-
-    # If we have a date from URL, apply it to filters
     socket =
-      if filter_date && socket.assigns.filter_date != filter_date do
-        apply_date_filter(socket, filter_date)
+      if needs_reload do
+        reload_bookings(socket, filter_space_id, filter_email, filter_date, pending_page, history_page)
       else
         socket
       end
@@ -84,33 +104,56 @@ defmodule SpazioSolazzoWeb.Admin.BookingManagementLive do
         do: nil,
         else: Date.from_iso8601!(params["date"])
 
-    {:ok, bookings} =
-      BookingSystem.admin_search_bookings(space_id, email, date, load: [:space, :user])
+    {:ok, pending_page} =
+      BookingSystem.read_pending_bookings(space_id, email, date,
+        page: [limit: @pending_bookings_page_limit, offset: 0, count: true],
+        load: [:space, :user]
+      )
 
-    {pending, past} = Enum.split_with(bookings, &(&1.state == :requested))
+    {:ok, history_page} =
+      BookingSystem.read_booking_history(space_id, email, date,
+        page: [limit: @booking_history_page_limit, offset: 0, count: true],
+        load: [:space, :user]
+      )
 
-    {:noreply,
-     assign(socket,
-       pending_bookings: pending,
-       past_bookings: past,
-       filter_space_id: space_id,
-       filter_email: email || "",
-       filter_date: date
-     )}
+    updated_socket =
+      assign(socket,
+        pending_page: pending_page,
+        history_page: history_page,
+        pending_page_number: 1,
+        history_page_number: 1,
+        filter_space_id: space_id,
+        filter_email: email || "",
+        filter_date: date
+      )
+
+    {:noreply, push_patch(updated_socket, to: build_path(updated_socket, 1, 1))}
   end
 
   def handle_event("clear_filters", _, socket) do
-    {:ok, bookings} = BookingSystem.admin_search_bookings(nil, nil, nil, load: [:space, :user])
-    {pending, past} = Enum.split_with(bookings, &(&1.state == :requested))
+    {:noreply, push_patch(socket, to: ~p"/admin/bookings")}
+  end
 
-    {:noreply,
-     assign(socket,
-       pending_bookings: pending,
-       past_bookings: past,
-       filter_space_id: nil,
-       filter_email: "",
-       filter_date: nil
-     )}
+  def handle_event("pending_page_change", %{"page" => page_str}, socket) do
+    page_number = String.to_integer(page_str)
+
+    socket =
+      push_patch(socket,
+        to: build_path(socket, page_number, socket.assigns.history_page_number)
+      )
+
+    {:noreply, socket}
+  end
+
+  def handle_event("history_page_change", %{"page" => page_str}, socket) do
+    page_number = String.to_integer(page_str)
+
+    socket =
+      push_patch(socket,
+        to: build_path(socket, socket.assigns.pending_page_number, page_number)
+      )
+
+    {:noreply, socket}
   end
 
   def handle_event("approve_booking", %{"booking_id" => booking_id}, socket) do
@@ -196,66 +239,124 @@ defmodule SpazioSolazzoWeb.Admin.BookingManagementLive do
   end
 
   defp refresh_bookings(socket) do
-    {:ok, bookings} =
-      BookingSystem.admin_search_bookings(
+    pending_page_number = socket.assigns.pending_page_number
+    history_page_number = socket.assigns.history_page_number
+    pending_offset = (pending_page_number - 1) * @pending_bookings_page_limit
+    history_offset = (history_page_number - 1) * @booking_history_page_limit
+
+    {:ok, pending_page} =
+      BookingSystem.read_pending_bookings(
         socket.assigns.filter_space_id,
         socket.assigns.filter_email,
         socket.assigns.filter_date,
+        page: [limit: @pending_bookings_page_limit, offset: pending_offset, count: true],
         load: [:space, :user]
       )
 
-    {pending, past} = Enum.split_with(bookings, &(&1.state == :requested))
+    {:ok, history_page} =
+      BookingSystem.read_booking_history(
+        socket.assigns.filter_space_id,
+        socket.assigns.filter_email,
+        socket.assigns.filter_date,
+        page: [limit: @booking_history_page_limit, offset: history_offset, count: true],
+        load: [:space, :user]
+      )
 
     {:noreply,
      assign(socket,
-       pending_bookings: pending,
-       past_bookings: past
+       pending_page: pending_page,
+       history_page: history_page
      )}
   end
 
-  defp apply_date_filter(socket, date) do
-    space_id = socket.assigns.filter_space_id
-    email = if socket.assigns.filter_email == "", do: nil, else: socket.assigns.filter_email
+  defp reload_bookings(socket, filter_space_id, filter_email, filter_date, pending_page_number, history_page_number) do
+    pending_offset = (pending_page_number - 1) * @pending_bookings_page_limit
+    history_offset = (history_page_number - 1) * @booking_history_page_limit
 
-    {:ok, bookings} =
-      BookingSystem.admin_search_bookings(space_id, email, date, load: [:space, :user])
+    email = if filter_email == "", do: nil, else: filter_email
 
-    {pending, past} = Enum.split_with(bookings, &(&1.state == :requested))
+    {:ok, pending_page} =
+      BookingSystem.read_pending_bookings(filter_space_id, email, filter_date,
+        page: [limit: @pending_bookings_page_limit, offset: pending_offset, count: true],
+        load: [:space, :user]
+      )
+
+    {:ok, history_page} =
+      BookingSystem.read_booking_history(filter_space_id, email, filter_date,
+        page: [limit: @booking_history_page_limit, offset: history_offset, count: true],
+        load: [:space, :user]
+      )
 
     assign(socket,
-      pending_bookings: pending,
-      past_bookings: past,
-      filter_date: date
+      pending_page: pending_page,
+      history_page: history_page,
+      pending_page_number: pending_page_number,
+      history_page_number: history_page_number,
+      filter_space_id: filter_space_id,
+      filter_email: filter_email,
+      filter_date: filter_date
     )
   end
 
-  defp status_badge_classes(:requested) do
-    "bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-200"
+  defp build_path(socket, pending_page, history_page) do
+    query_params = []
+
+    query_params =
+      if pending_page != 1,
+        do: [{"pending_page", pending_page} | query_params],
+        else: query_params
+
+    query_params =
+      if history_page != 1,
+        do: [{"history_page", history_page} | query_params],
+        else: query_params
+
+    query_params =
+      if socket.assigns.filter_space_id,
+        do: [{"space_id", socket.assigns.filter_space_id} | query_params],
+        else: query_params
+
+    query_params =
+      if socket.assigns.filter_email && socket.assigns.filter_email != "",
+        do: [{"email", socket.assigns.filter_email} | query_params],
+        else: query_params
+
+    query_params =
+      if socket.assigns.filter_date,
+        do: [{"date", Date.to_iso8601(socket.assigns.filter_date)} | query_params],
+        else: query_params
+
+    base_path = ~p"/admin/bookings"
+
+    if query_params == [] do
+      base_path
+    else
+      query_string = URI.encode_query(query_params)
+      "#{base_path}?#{query_string}"
+    end
   end
 
-  defp status_badge_classes(:accepted) do
-    "bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-200"
+  defp parse_date_param(nil), do: nil
+  defp parse_date_param(""), do: nil
+
+  defp parse_date_param(date_string) do
+    case Date.from_iso8601(date_string) do
+      {:ok, date} -> date
+      {:error, _} -> nil
+    end
   end
 
-  defp status_badge_classes(:rejected) do
-    "bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-200"
+  defp parse_page_param(nil), do: 1
+  defp parse_page_param(""), do: 1
+
+  defp parse_page_param(page_string) do
+    case Integer.parse(page_string) do
+      {page, _} when page > 0 -> page
+      _ -> 1
+    end
   end
 
-  defp status_badge_classes(:cancelled) do
-    "bg-slate-100 dark:bg-slate-900/40 text-slate-800 dark:text-slate-200"
+  defp params_changed?(old_space_id, new_space_id, old_email, new_email, old_date, new_date, old_pending, new_pending, old_history, new_history) do
+    old_space_id != new_space_id or old_email != new_email or old_date != new_date or old_pending != new_pending or old_history != new_history
   end
-
-  defp status_badge_classes(_), do: "bg-slate-100 text-slate-800"
-
-  defp status_icon(:requested), do: "hero-clock"
-  defp status_icon(:accepted), do: "hero-check-circle"
-  defp status_icon(:rejected), do: "hero-x-circle"
-  defp status_icon(:cancelled), do: "hero-minus-circle"
-  defp status_icon(_), do: "hero-question-mark-circle"
-
-  defp status_label(:requested), do: "Pending"
-  defp status_label(:accepted), do: "Confirmed"
-  defp status_label(:rejected), do: "Rejected"
-  defp status_label(:cancelled), do: "Cancelled"
-  defp status_label(_), do: "Unknown"
 end

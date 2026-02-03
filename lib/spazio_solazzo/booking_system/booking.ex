@@ -97,38 +97,55 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
       end
     end
 
-    read :admin_dashboard_search do
-      description "Search query tailored for the admin booking management panel"
+    read :read_pending_bookings do
+      description "Fetch pending bookings for admin dashboard with pagination"
 
       argument :space_id, :uuid, allow_nil?: true
       argument :email, :string, allow_nil?: true
       argument :date, :date, allow_nil?: true
 
-      filter expr(state == :requested or state == :accepted)
+      # Only requested bookings
+      filter expr(state == :requested)
+
+      pagination do
+        required? false
+        offset? true
+        countable true
+        default_limit 10
+        max_page_size 50
+      end
+
+      # Apply shared admin filters preparation
+      prepare SpazioSolazzo.BookingSystem.Preparations.ApplyAdminFilters
 
       prepare fn query, _ctx ->
-        query =
-          case Ash.Query.get_argument(query, :space_id) do
-            nil -> query
-            space_id -> Ash.Query.filter(query, space_id == ^space_id)
-          end
+        Ash.Query.sort(query, inserted_at: :desc)
+      end
+    end
 
-        query =
-          case Ash.Query.get_argument(query, :email) do
-            nil -> query
-            email -> Ash.Query.filter(query, customer_email == ^email)
-          end
+    read :read_booking_history do
+      description "Fetch historical bookings (accepted/rejected/cancelled) with pagination"
 
-        case Ash.Query.get_argument(query, :date) do
-          nil ->
-            query
+      argument :space_id, :uuid, allow_nil?: true
+      argument :email, :string, allow_nil?: true
+      argument :date, :date, allow_nil?: true
 
-          date ->
-            day_start = DateTime.new!(date, ~T[00:00:00], "Etc/UTC")
-            day_end = DateTime.new!(date, ~T[23:59:59], "Etc/UTC")
+      # Non-pending states
+      filter expr(state in [:accepted, :rejected, :cancelled])
 
-            Ash.Query.filter(query, start_datetime < ^day_end and end_datetime > ^day_start)
-        end
+      pagination do
+        required? false
+        offset? true
+        countable true
+        default_limit 25
+        max_page_size 100
+      end
+
+      # Apply shared admin filters preparation
+      prepare SpazioSolazzo.BookingSystem.Preparations.ApplyAdminFilters
+
+      prepare fn query, _ctx ->
+        Ash.Query.sort(query, start_datetime: :desc)
       end
     end
 

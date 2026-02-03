@@ -26,8 +26,12 @@ defmodule SpazioSolazzo.BookingSystem do
     end
 
     resource SpazioSolazzo.BookingSystem.Booking do
-      define :admin_search_bookings,
-        action: :admin_dashboard_search,
+      define :read_pending_bookings,
+        action: :read_pending_bookings,
+        args: [:space_id, :email, :date]
+
+      define :read_booking_history,
+        action: :read_booking_history,
         args: [:space_id, :email, :date]
 
       define :search_bookings,
