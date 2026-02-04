@@ -136,7 +136,7 @@ defmodule SpazioSolazzoWeb.Admin.BookingManagementPaginationTest do
       |> element("button[phx-click='pending_page_change']", "2")
       |> render_click()
 
-      assert_patch(view, "/admin/bookings?pending_page=2")
+      assert_patch(view, "/admin/bookings?history_page=1&pending_page=2")
     end
 
     test "filters reset pagination to page 1", %{
@@ -166,7 +166,7 @@ defmodule SpazioSolazzoWeb.Admin.BookingManagementPaginationTest do
       end
 
       conn = log_in_user(conn, admin_user)
-      {:ok, view, _html} = live(conn, "/admin/bookings?pending_page=2")
+      {:ok, view, _html} = live(conn, "/admin/bookings?history_page=1&pending_page=2")
 
       view
       |> form("form", %{"email" => "customer1@example.com"})
@@ -305,7 +305,7 @@ defmodule SpazioSolazzoWeb.Admin.BookingManagementPaginationTest do
       |> element("button[phx-click='history_page_change']", "2")
       |> render_click()
 
-      assert_patch(view, "/admin/bookings?history_page=2")
+      assert_patch(view, "/admin/bookings?history_page=2&pending_page=1")
     end
   end
 
@@ -461,7 +461,7 @@ defmodule SpazioSolazzoWeb.Admin.BookingManagementPaginationTest do
       {:ok, view, _html} = live(conn, "/admin/bookings")
 
       view
-      |> form("form", %{"space_id" => space.id})
+      |> form("form", %{"space" => space.slug})
       |> render_change()
 
       html = render(view)

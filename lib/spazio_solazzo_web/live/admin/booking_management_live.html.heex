@@ -60,12 +60,12 @@
                 <.icon name="hero-map-pin" class="w-5 h-5" />
               </span>
               <select
-                name="space_id"
+                name="space"
                 class="w-full h-12 pl-10 pr-10 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none appearance-none cursor-pointer"
               >
                 <option value="">All Spaces</option>
                 <%= for space <- @spaces do %>
-                  <option value={space.id} selected={@filter_space_id == space.id}>
+                  <option value={space.slug} selected={@filter_space == space.slug}>
                     {space.name}
                   </option>
                 <% end %>
@@ -97,7 +97,7 @@
             <button
               type="button"
               phx-click="clear_filters"
-              class="w-full h-12 bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-100 text-white dark:text-slate-900 font-bold rounded-xl transition-colors flex items-center justify-center gap-2"
+              class="w-full h-12 bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-100 text-white dark:text-slate-900 font-bold rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer"
             >
               <span>Clear Filters</span>
               <.icon name="hero-x-mark" class="w-4 h-4" />

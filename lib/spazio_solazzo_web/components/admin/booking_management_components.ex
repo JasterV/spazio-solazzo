@@ -1,4 +1,4 @@
-defmodule SpazioSolazzoWeb.Admin.BookingManagementComponents do
+defmodule SpazioSolazzoWeb.AdminBookingManagementComponents do
   @moduledoc """
   Reusable components for the admin booking management interface.
   """
