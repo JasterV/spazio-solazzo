@@ -66,7 +66,6 @@ defmodule SpazioSolazzo.BookingSystem do
       define :approve_booking, action: :approve, args: []
       define :reject_booking, action: :reject, args: [:reason]
       define :cancel_booking, action: :cancel, args: [:reason]
-      define :delete_booking, action: :destroy, args: []
     end
   end
 end
