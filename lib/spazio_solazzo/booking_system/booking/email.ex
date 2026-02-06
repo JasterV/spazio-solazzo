@@ -57,7 +57,7 @@ defmodule SpazioSolazzo.BookingSystem.Booking.Email do
         end_time: end_time,
         admin_email: admin_email
       }) do
-    dashboard_url = url(~p"/admin/dashboard")
+    dashboard_url = url(~p"/admin/bookings")
 
     assigns = %{
       customer_name: customer_name,
