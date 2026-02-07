@@ -21,7 +21,7 @@ end
 coworking =
   BookingSystem.create_space!(
     "Arcipelago",
-    "coworking",
+    "arcipelago",
     "Flexible desk spaces for remote work",
     10
   )
@@ -32,7 +32,7 @@ IO.puts("✓ Created Coworking space")
 meeting =
   BookingSystem.create_space!(
     "Media room",
-    "meeting",
+    "media-room",
     "Private conference room for your meetings",
     1
   )
@@ -43,7 +43,7 @@ IO.puts("✓ Created Meeting Room space")
 music =
   BookingSystem.create_space!(
     "Hall",
-    "music",
+    "hall",
     "Tailored for band rehearsals.",
     1
   )
