@@ -658,6 +658,7 @@ defmodule SpazioSolazzoWeb.BookingLive.SpaceBookingTest do
 
       # Use future dates relative to today
       today = Date.utc_today()
+
       dates = [
         Date.add(today, 1),
         Date.add(today, 2),

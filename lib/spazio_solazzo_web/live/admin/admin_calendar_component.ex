@@ -1,290 +1,248 @@
 defmodule SpazioSolazzoWeb.Admin.AdminCalendarComponent do
   @moduledoc """
-  LiveComponent for admin calendar with capacity tracking and multi-day selection.
+  Admin calendar for managing bookings, visualizing capacity, and selecting date ranges.
   """
-
   use SpazioSolazzoWeb, :live_component
 
-  alias SpazioSolazzo.BookingSystem
+  alias SpazioSolazzo.CalendarExt
 
-  def mount(socket) do
+  @doc "Resets the calendar selection state."
+  def reset(id) do
+    send_update(__MODULE__, id: id, reset: true)
+  end
+
+  def update(%{reset: true}, socket) do
+    socket =
+      socket
+      |> assign(start_date: nil)
+      |> assign(end_date: nil)
+      |> assign(selected_date: nil)
+
     {:ok, socket}
   end
 
   def update(assigns, socket) do
+    first_day =
+      assigns[:first_day_of_month] ||
+        socket.assigns[:first_day_of_month] ||
+        Date.utc_today() |> Date.beginning_of_month()
+
+    grid = CalendarExt.build_calendar_grid(first_day)
+
     socket =
       socket
       |> assign(assigns)
-      |> assign_new(:current_month, fn -> Date.utc_today() end)
+      |> assign_new(:booking_counts, fn -> %{} end)
       |> assign_new(:multi_day_mode, fn -> false end)
       |> assign_new(:start_date, fn -> nil end)
       |> assign_new(:end_date, fn -> nil end)
       |> assign_new(:selected_date, fn -> nil end)
+      |> assign(first_day_of_month: first_day)
+      |> assign(grid: grid)
 
-    # Subscribe to booking events for real-time updates
-    if connected?(socket) do
-      Phoenix.PubSub.subscribe(SpazioSolazzo.PubSub, "booking:created")
-      Phoenix.PubSub.subscribe(SpazioSolazzo.PubSub, "booking:approved")
-      Phoenix.PubSub.subscribe(SpazioSolazzo.PubSub, "booking:cancelled")
-      Phoenix.PubSub.subscribe(SpazioSolazzo.PubSub, "booking:rejected")
-    end
-
-    {:ok, compute_calendar_data(socket)}
+    {:ok, socket}
   end
 
   def handle_event("prev_month", _, socket) do
-    new_month = Date.add(socket.assigns.current_month, -30)
-    first_of_month = Date.beginning_of_month(new_month)
+    new_date = Date.shift(socket.assigns.first_day_of_month, month: -1)
+
+    grid = CalendarExt.build_calendar_grid(new_date)
 
     socket =
       socket
-      |> assign(current_month: first_of_month)
-      |> compute_calendar_data()
+      |> assign(first_day_of_month: new_date)
+      |> assign(grid: grid)
+
+    send(self(), {:change_month, new_date})
 
     {:noreply, socket}
   end
 
   def handle_event("next_month", _, socket) do
-    new_month = Date.add(socket.assigns.current_month, 30)
-    first_of_month = Date.beginning_of_month(new_month)
+    new_date = Date.shift(socket.assigns.first_day_of_month, month: 1)
+
+    grid = CalendarExt.build_calendar_grid(new_date)
 
     socket =
       socket
-      |> assign(current_month: first_of_month)
-      |> compute_calendar_data()
+      |> assign(first_day_of_month: new_date)
+      |> assign(grid: grid)
+
+    send(self(), {:change_month, new_date})
 
     {:noreply, socket}
   end
 
-  def handle_event("toggle_multi_day", _params, socket) do
-    # Toggle the current state
-    multi_day = !socket.assigns.multi_day_mode
+  def handle_event("toggle_multi_day", _, socket) do
+    new_mode = !socket.assigns.multi_day_mode
 
-    socket =
-      socket
-      |> assign(
-        multi_day_mode: multi_day,
-        start_date: nil,
-        end_date: nil,
-        selected_date: nil
-      )
+    send(self(), {:multi_day_mode_toggle, new_mode})
 
-    # Notify parent of the change
-    send(self(), {:multi_day_mode_changed, multi_day})
-
-    {:noreply, socket}
+    {:noreply,
+     assign(socket,
+       multi_day_mode: new_mode,
+       start_date: nil,
+       end_date: nil,
+       selected_date: nil
+     )}
   end
 
-  def handle_event("select_date", %{"date" => date_string}, socket) do
-    case Date.from_iso8601(date_string) do
-      {:ok, date} ->
-        # Check if date is in the past
-        if Date.compare(date, Date.utc_today()) == :lt do
-          {:noreply, socket}
-        else
-          socket =
-            if socket.assigns.multi_day_mode do
-              handle_multi_day_selection(socket, date)
-            else
-              handle_single_day_selection(socket, date)
-            end
+  def handle_event("select_date", %{"date" => d}, socket) do
+    date = Date.from_iso8601!(d)
 
-          {:noreply, socket}
-        end
-
-      _ ->
-        {:noreply, socket}
+    if socket.assigns.multi_day_mode do
+      handle_multi_select(socket, date)
+    else
+      send(self(), {:date_selected, date, date})
+      {:noreply, assign(socket, selected_date: date, start_date: nil, end_date: nil)}
     end
   end
 
-  defp handle_single_day_selection(socket, date) do
-    socket = assign(socket, selected_date: date, start_date: nil, end_date: nil)
-
-    # Notify parent
-    send(self(), {:date_selected, date, date})
-
-    socket
-  end
-
-  defp handle_multi_day_selection(socket, date) do
+  defp handle_multi_select(
+         %{assigns: %{start_date: start_date, end_date: end_date}} = socket,
+         date
+       ) do
     cond do
-      socket.assigns.start_date == nil ->
-        # First click - set start date
-        assign(socket, start_date: date, end_date: nil, selected_date: nil)
+      is_nil(start_date) ->
+        # Start Selection
+        {:noreply, assign(socket, start_date: date)}
 
-      socket.assigns.end_date == nil ->
-        # Second click - set end date
-        start_date = socket.assigns.start_date
+      is_nil(end_date) ->
+        # End Selection (Order correctly)
+        {new_start, new_end} =
+          if Date.compare(date, start_date) == :lt,
+            do: {date, start_date},
+            else: {start_date, date}
 
-        {actual_start, actual_end} =
-          if Date.compare(date, start_date) == :lt do
-            {date, start_date}
-          else
-            {start_date, date}
-          end
-
-        socket = assign(socket, start_date: actual_start, end_date: actual_end)
-
-        # Notify parent
-        send(self(), {:date_selected, actual_start, actual_end})
-
-        socket
+        send(self(), {:date_selected, new_start, new_end})
+        {:noreply, assign(socket, start_date: new_start, end_date: new_end)}
 
       true ->
-        # Reset and start new selection
-        assign(socket, start_date: date, end_date: nil, selected_date: nil)
+        # Reset
+        {:noreply, assign(socket, start_date: date, end_date: nil)}
     end
   end
 
-  defp compute_calendar_data(socket) do
-    space_id = socket.assigns.space_id
-    current_month = socket.assigns.current_month
+  def render(assigns) do
+    ~H"""
+    <div class="flex flex-col gap-4">
+      <%!-- Toolbar --%>
+      <div
+        class="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700"
+        phx-click="toggle_multi_day"
+        phx-target={@myself}
+      >
+        <input
+          type="checkbox"
+          checked={@multi_day_mode}
+          class="checkbox checkbox-primary checkbox-sm pointer-events-none"
+        />
+        <label class="text-sm font-semibold select-none cursor-pointer">
+          Enable Multi-Day Selection
+        </label>
+      </div>
 
-    start_of_month = Date.beginning_of_month(current_month)
-    end_of_month = Date.end_of_month(current_month)
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 shadow-sm">
+        <div class="flex items-center justify-between mb-4">
+          <button phx-click="prev_month" phx-target={@myself} class="btn btn-sm btn-ghost btn-circle">
+            <.icon name="hero-chevron-left" />
+          </button>
+          <h4 class="font-bold text-lg capitalize">
+            {Calendar.strftime(@first_day_of_month, "%B %Y")}
+          </h4>
+          <button phx-click="next_month" phx-target={@myself} class="btn btn-sm btn-ghost btn-circle">
+            <.icon name="hero-chevron-right" />
+          </button>
+        </div>
 
-    # Single query for entire month
-    {:ok, bookings} =
-      BookingSystem.search_bookings(
-        space_id,
-        DateTime.new!(start_of_month, ~T[00:00:00]),
-        DateTime.new!(end_of_month, ~T[23:59:59]),
-        [:accepted],
-        [:start_datetime, :end_datetime]
-      )
+        <div class="grid grid-cols-7 mb-2 text-center text-xs font-bold text-slate-400 uppercase tracking-wider">
+          <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
+        </div>
 
-    # Count bookings per day
-    day_data = compute_day_data(bookings, start_of_month, end_of_month)
+        <div class="grid grid-cols-7 gap-1 md:gap-2">
+          <%= for date <- @grid do %>
+            <% # Uses the booking_counts passed from parent
+            count = Map.get(@booking_counts, date, 0)
+            is_current = date.month == @first_day_of_month.month %>
 
-    # Build calendar grid
-    calendar_weeks = build_calendar_grid(start_of_month, end_of_month)
+            <div class={[day_classes(date, assigns), !is_current && "opacity-25 grayscale"]}>
+              <%!-- Header Row: Date & Badge --%>
+              <div class="flex justify-between items-start">
+                <span class="text-xs font-bold">{date.day}</span>
+                <%= if count > 0 and is_current do %>
+                  <.link
+                    navigate={~p"/admin/bookings?date=#{Date.to_string(date)}"}
+                    class="badge badge-info badge-xs text-white font-bold hover:scale-110 transition-transform"
+                    title={"#{count} bookings"}
+                  >
+                    {count}
+                  </.link>
+                <% end %>
+              </div>
 
-    assign(socket,
-      day_data: day_data,
-      calendar_weeks: calendar_weeks,
-      month_name: Calendar.strftime(current_month, "%B %Y")
-    )
+              <%= if @multi_day_mode do %>
+                {if @start_date == date, do: echo_label("Start")}
+                {if @end_date == date, do: echo_label("End")}
+              <% end %>
+
+              <%= if Date.compare(date, Date.utc_today()) != :lt do %>
+                <button
+                  phx-click="select_date"
+                  phx-value-date={date}
+                  phx-target={@myself}
+                  class="absolute inset-0 w-full h-full"
+                >
+                </button>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+    """
   end
 
-  defp compute_day_data(bookings, start_date, end_date) do
-    # Initialize all days with zero count
-    date_range = Date.range(start_date, end_date)
-
-    initial_map =
-      Enum.reduce(date_range, %{}, fn date, acc ->
-        Map.put(acc, date, 0)
-      end)
-
-    # Count bookings for each day
-    Enum.reduce(bookings, initial_map, fn booking, acc ->
-      # Get all dates this booking spans
-      booking_start_date = DateTime.to_date(booking.start_datetime)
-      booking_end_date = DateTime.to_date(booking.end_datetime)
-
-      booking_dates = Date.range(booking_start_date, booking_end_date)
-
-      # Increment count for each day this booking touches
-      Enum.reduce(booking_dates, acc, fn date, inner_acc ->
-        case Map.get(inner_acc, date) do
-          # Date outside month range
-          nil -> inner_acc
-          count -> Map.put(inner_acc, date, count + 1)
-        end
-      end)
-    end)
-  end
-
-  defp build_calendar_grid(first_day, last_day) do
-    # Get the day of week for the first day (1 = Monday, 7 = Sunday)
-    start_day_of_week = Date.day_of_week(first_day)
-
-    # Calculate how many empty cells we need at the start
-    # We want Sunday to be 0, Monday to be 1, etc.
-    padding_days =
-      case start_day_of_week do
-        7 -> 0
-        n -> n
-      end
-
-    # Create the padding
-    padding = List.duplicate(nil, padding_days)
-
-    # Get all days in the month
-    days =
-      first_day
-      |> Date.range(last_day)
-      |> Enum.to_list()
-
-    # Combine and chunk into weeks
-    (padding ++ days)
-    |> Enum.chunk_every(7, 7, List.duplicate(nil, 7))
-  end
-
-  defp day_in_range?(_date, nil, nil, nil), do: false
-
-  defp day_in_range?(date, selected, nil, nil) when not is_nil(selected),
-    do: Date.compare(date, selected) == :eq
-
-  defp day_in_range?(date, nil, start_date, nil) when not is_nil(start_date),
-    do: Date.compare(date, start_date) == :eq
-
-  defp day_in_range?(date, nil, start_date, end_date)
-       when not is_nil(start_date) and not is_nil(end_date) do
-    Date.compare(date, start_date) != :lt and Date.compare(date, end_date) != :gt
-  end
-
-  defp day_in_range?(_, _, _, _), do: false
-
-  defp is_start_date?(_date, nil, _), do: false
-  defp is_start_date?(date, start_date, _), do: Date.compare(date, start_date) == :eq
-
-  defp is_end_date?(_date, _, nil), do: false
-  defp is_end_date?(date, _, end_date), do: Date.compare(date, end_date) == :eq
-
-  defp day_classes(date, assigns) do
+  defp day_classes(date, %{
+         start_date: start_date,
+         end_date: end_date,
+         selected_date: selected_date,
+         multi_day_mode: multi
+       }) do
     is_past = Date.compare(date, Date.utc_today()) == :lt
-    in_range = day_in_range?(date, assigns.selected_date, assigns.start_date, assigns.end_date)
-    is_start = is_start_date?(date, assigns.start_date, assigns.end_date)
-    is_end = is_end_date?(date, assigns.start_date, assigns.end_date)
+    is_start = start_date == date
+    is_end = end_date == date
+    is_sel = selected_date == date
+    in_range = CalendarExt.date_in_range?(date, start_date, end_date)
 
-    base = "relative aspect-square flex flex-col items-start justify-start p-2 transition-all"
+    base =
+      "relative aspect-square flex flex-col p-2 transition-all border border-slate-200 dark:border-slate-700 "
 
     cond do
       is_past ->
-        [base, "text-slate-400 dark:text-slate-600 cursor-not-allowed opacity-50"]
+        base <> "bg-slate-50 dark:bg-slate-800/50 text-slate-300 cursor-not-allowed"
 
-      in_range && assigns.multi_day_mode && assigns.end_date != nil ->
-        cond do
-          is_start ->
-            [
-              base,
-              "rounded-l-lg bg-primary text-white shadow-lg shadow-primary/30 relative z-10 hover:scale-105"
-            ]
+      is_start ->
+        base <> "bg-primary text-white rounded-l-lg z-10 shadow-md"
 
-          is_end ->
-            [
-              base,
-              "rounded-r-lg bg-primary text-white shadow-lg shadow-primary/30 relative z-10 hover:scale-105"
-            ]
+      is_end ->
+        base <> "bg-primary text-white rounded-r-lg z-10 shadow-md"
 
-          true ->
-            [
-              base,
-              "bg-primary/20 dark:bg-primary/30 text-slate-900 dark:text-white border-y border-primary/20 dark:border-primary/50"
-            ]
-        end
+      in_range && multi ->
+        base <> "bg-primary/20 text-slate-900 dark:text-white"
 
-      in_range ->
-        [
-          base,
-          "rounded-lg bg-primary text-white shadow-lg shadow-primary/30 relative z-10 hover:scale-105"
-        ]
+      is_sel ->
+        base <> "bg-primary text-white rounded-lg shadow-md"
 
       true ->
-        [
-          base,
-          "rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-600 hover:border-primary dark:hover:border-primary"
-        ]
+        base <> "bg-white dark:bg-slate-800 hover:bg-slate-50 text-slate-700 dark:text-slate-200"
     end
+  end
+
+  defp echo_label(text) do
+    assigns = %{text: text}
+
+    ~H"""
+    <span class="mt-auto text-[10px] uppercase font-black tracking-tighter">{@text}</span>
+    """
   end
 end

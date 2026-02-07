@@ -438,6 +438,7 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
     prefix "booking"
 
     publish :create, ["created"]
+    publish :create_walk_in, ["created"]
     publish :approve, ["approved"]
     publish :reject, ["rejected"]
     publish :cancel, ["cancelled"]

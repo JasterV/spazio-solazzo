@@ -108,4 +108,37 @@ defmodule SpazioSolazzo.CalendarExt do
       format_time(end_datetime)
     end
   end
+
+  # There are 7 days displayed in the calendar
+  @grid_cols 7
+  # The calendar can show max 6 weeks for one month
+  @grid_rows 6
+
+  @doc """
+  Build a list containing all the dates to be displayed in a
+  Calendar grid.
+
+  6 weeks * 7 days = 42 cells
+  """
+  def build_calendar_grid(date) do
+    first_day = Date.beginning_of_month(date)
+    # Mon=1, Sun=7
+    start_day_of_week = Date.day_of_week(first_day)
+
+    # Calculate days to subtract to get to the previous Monday
+    # If starts on Mon (1), sub 0. If Sun (7), sub 6.
+    days_to_sub = start_day_of_week - 1
+    start_date = Date.add(first_day, -days_to_sub)
+
+    # 6 weeks * 7 days = 42 grid cells
+    Enum.map(0..(@grid_cols * @grid_rows - 1), fn i -> Date.add(start_date, i) end)
+  end
+
+  @doc "Checks if a date is within a start/end range (inclusive)"
+  def date_in_range?(date, start_date, end_date)
+      when not is_nil(start_date) and not is_nil(end_date) do
+    Date.compare(date, start_date) != :lt and Date.compare(date, end_date) != :gt
+  end
+
+  def date_in_range?(_date, _start, _end), do: false
 end

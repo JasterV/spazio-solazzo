@@ -1,134 +1,111 @@
-defmodule SpazioSolazzoWeb.CalendarLiveComponent do
+defmodule SpazioSolazzoWeb.BookingCalendarLiveComponent do
   @moduledoc """
-  LiveView component for rendering booking calendars.
+  The calendar displayed in the space booking view.
+  It allows users to select a date in a beautifully-styled calendar grid.
   """
-
+  
   use SpazioSolazzoWeb, :live_component
-
-  # There are 7 days displayed in the calendar
-  @grid_cols 7
-  # The calendar can show max 6 weeks for one month
-  @grid_rows 6
+  alias SpazioSolazzo.CalendarExt
 
   def update(assigns, socket) do
-    # Initialize navigation date to today's month if not already viewing a month
-    beginning_of_month =
-      socket.assigns[:beginning_of_month] ||
-        Date.utc_today()
-        |> Date.beginning_of_month()
+    first_day =
+      assigns[:first_day_of_month] ||
+        socket.assigns[:first_day_of_month] ||
+        Date.utc_today() |> Date.beginning_of_month()
 
-    selected_date = assigns[:selected_date] || Date.utc_today()
+    grid = CalendarExt.build_calendar_grid(first_day)
 
     {:ok,
      socket
      |> assign(assigns)
-     |> assign(:beginning_of_month, beginning_of_month)
-     |> assign(:selected_date, selected_date)
-     |> assign(:today, Date.utc_today())
-     |> assign_calendar_grid()}
+     |> assign(:first_day_of_month, first_day)
+     |> assign(:grid, grid)}
   end
 
-  def handle_event("prev-month", _params, socket) do
-    new_beginning_of_month =
-      socket.assigns.beginning_of_month
+  def handle_event("prev-month", _, socket) do
+    new_date =
+      socket.assigns.first_day_of_month
       |> Date.shift(month: -1)
       |> Date.beginning_of_month()
 
     {:noreply,
-     socket
-     |> assign(:beginning_of_month, new_beginning_of_month)
-     |> assign_calendar_grid()}
+     assign(socket, first_day_of_month: new_date, grid: CalendarExt.build_calendar_grid(new_date))}
   end
 
-  def handle_event("next-month", _params, socket) do
-    new_beginning_of_month =
-      socket.assigns.beginning_of_month
+  def handle_event("next-month", _, socket) do
+    new_date =
+      socket.assigns.first_day_of_month
       |> Date.shift(month: 1)
       |> Date.beginning_of_month()
 
     {:noreply,
-     socket
-     |> assign(:beginning_of_month, new_beginning_of_month)
-     |> assign_calendar_grid()}
+     assign(socket, first_day_of_month: new_date, grid: CalendarExt.build_calendar_grid(new_date))}
   end
+
+  # --- Selection (Parent IS notified) ---
 
   def handle_event("select-date", %{"date" => date_str}, socket) do
     date = Date.from_iso8601!(date_str)
+
     send(self(), {:date_selected, date})
+
     {:noreply, assign(socket, :selected_date, date)}
-  end
-
-  defp assign_calendar_grid(socket) do
-    first = socket.assigns.beginning_of_month
-    # Calculate offset to start grid on Monday (Monday = 1)
-    day_of_week = Date.day_of_week(socket.assigns.beginning_of_month)
-    days_before = day_of_week - 1
-    start_date = Date.add(first, -days_before)
-    grid = Enum.map(0..(@grid_cols * @grid_rows - 1), fn n -> Date.add(start_date, n) end)
-
-    assign(socket, :grid, grid)
   end
 
   def render(assigns) do
     ~H"""
-    <div id={@id} class="calendar-container">
+    <div class="calendar-container">
+      <%!-- Header --%>
       <div class="flex items-center justify-between mb-4">
         <button
           type="button"
           phx-click="prev-month"
           phx-target={@myself}
-          class="p-2 rounded-full hover:bg-base-200 text-neutral transition-colors"
+          class="p-2 hover:bg-base-200 rounded-full"
         >
           <.icon name="hero-chevron-left" class="w-5 h-5" />
         </button>
-        <h3 class="text-lg font-semibold text-base-content">
-          {Calendar.strftime(@beginning_of_month, "%B %Y")}
+        <h3 class="text-lg font-bold capitalize select-none">
+          {Calendar.strftime(@first_day_of_month, "%B %Y")}
         </h3>
         <button
           type="button"
           phx-click="next-month"
           phx-target={@myself}
-          class="p-2 rounded-full hover:bg-base-200 text-neutral transition-colors"
+          class="p-2 hover:bg-base-200 rounded-full"
         >
           <.icon name="hero-chevron-right" class="w-5 h-5" />
         </button>
       </div>
 
-      <div class="grid grid-cols-7 text-center text-sm font-medium text-neutral mb-2">
+      <div class="grid grid-cols-7 text-center text-sm font-medium opacity-70 mb-2 select-none">
         <span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span>Su</span>
       </div>
 
-      <div class="grid grid-cols-7 gap-y-2 text-center text-base-content">
+      <div class="grid grid-cols-7 gap-1">
         <%= for date <- @grid do %>
-          <% is_selected = Date.compare(date, @selected_date) == :eq
-          is_past = Date.compare(date, @today) == :lt
-          is_beginning_of_month = date.month == @beginning_of_month.month %>
+          <% is_current_month = date.month == @first_day_of_month.month
+          is_selected = @selected_date == date
+          is_past = Date.compare(date, Date.utc_today()) == :lt %>
 
-          <%= if is_beginning_of_month do %>
+          <%= if is_current_month do %>
             <button
               type="button"
               phx-click={!is_past && "select-date"}
-              phx-value-date={Date.to_iso8601(date)}
+              phx-value-date={date}
               phx-target={@myself}
               disabled={is_past}
-              class={
-                [
-                  "p-2 rounded-full transition-colors",
-                  # Styling for past dates (disabled)
-                  is_past && "cursor-not-allowed opacity-40 text-neutral",
-                  # Styling for selected date
-                  is_selected &&
-                    "bg-secondary text-white font-bold shadow-md shadow-secondary/30",
-                  # Styling for regular dates
-                  !is_past && !is_selected &&
-                    "hover:bg-secondary/20"
-                ]
-              }
+              class={[
+                "p-2 rounded-full w-full aspect-square flex items-center justify-center transition-colors",
+                is_past && "cursor-not-allowed opacity-40 text-neutral",
+                is_selected && "bg-secondary text-white font-bold shadow-md",
+                !is_past && !is_selected && "hover:bg-secondary/20"
+              ]}
             >
               {date.day}
             </button>
           <% else %>
-            <div class="p-2"></div>
+            <div class="p-2 w-full aspect-square"></div>
           <% end %>
         <% end %>
       </div>
