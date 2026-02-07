@@ -6,7 +6,7 @@ defmodule SpazioSolazzoWeb.MusicLive do
   import SpazioSolazzoWeb.LandingComponents
 
   def mount(_params, _session, socket) do
-    {:ok, space} = BookingSystem.get_space_by_slug("music")
+    {:ok, space} = BookingSystem.get_space_by_slug("hall")
 
     {:ok, assign(socket, space: space)}
   end

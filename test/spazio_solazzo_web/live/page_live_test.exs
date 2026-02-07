@@ -5,7 +5,7 @@ defmodule SpazioSolazzoWeb.PageLiveTest do
   alias SpazioSolazzo.BookingSystem
 
   setup do
-    for {name, slug} <- [{"Arcipelago", "arcipelago"}, {"Media Room", "media"}, {"Hall", "hall"}] do
+    for {name, slug} <- [{"Arcipelago", "arcipelago"}, {"Media Room", "media-room"}, {"Hall", "hall"}] do
       BookingSystem.create_space!(name, slug, "desc", 10)
     end
 
@@ -18,7 +18,7 @@ defmodule SpazioSolazzoWeb.PageLiveTest do
     html = render(view)
 
     assert String.contains?(html, "/arcipelago")
-    assert String.contains?(html, "/media")
+    assert String.contains?(html, "/media-room")
     assert String.contains?(html, "/hall")
   end
 end

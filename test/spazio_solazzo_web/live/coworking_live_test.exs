@@ -19,7 +19,7 @@ defmodule SpazioSolazzoWeb.CoworkingLiveTest do
     end
 
     test "has link to space booking page with correct space slug", %{conn: conn, space: space} do
-      {:ok, _view, html} = live(conn, "/arcipelago")
+      {:ok, view, _html} = live(conn, "/arcipelago")
 
       assert has_element?(view, "a[href='/book/space/#{space.slug}']")
     end
