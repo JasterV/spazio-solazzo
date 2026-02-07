@@ -43,7 +43,7 @@ defmodule SpazioSolazzoWeb.BookingFormLiveComponent do
     ~H"""
     <div>
       <.modal :if={@show} id={@id} show on_cancel={@on_cancel}>
-        <:title>Complete Your Booking</:title>
+        <:title>Booking request</:title>
         <:subtitle>
           <%= if @selected_time_slot do %>
             {@space.name} | {CalendarExt.format_time_range(@selected_time_slot)} on {CalendarExt.format_date(

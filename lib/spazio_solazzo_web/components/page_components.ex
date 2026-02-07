@@ -35,7 +35,6 @@ defmodule SpazioSolazzoWeb.PageComponents do
         secondary_label_icon="hero-user-group"
         image_position={:right}
         booking_url="/meeting"
-        asset_type="Room"
       />
   """
   attr :title, :string, required: true
@@ -50,7 +49,6 @@ defmodule SpazioSolazzoWeb.PageComponents do
   attr :note, :string, default: nil
   attr :image_position, :atom, default: :left, values: [:left, :right]
   attr :booking_url, :string, required: true
-  attr :asset_type, :string, required: true
   attr :id, :string, default: nil
 
   def space_card(assigns) do
@@ -104,21 +102,15 @@ defmodule SpazioSolazzoWeb.PageComponents do
           </p>
 
           <div class="card-actions flex flex-col sm:flex-row gap-8 sm:items-center justify-between mt-auto pt-10 border-t border-base-200">
-            <div class="flex flex-col">
-              <span class="text-[11px] uppercase font-bold tracking-widest text-neutral">
-                {if @time_unit == "4 hours", do: "Access", else: "Rate"}
-              </span>
-              <span class="text-3xl font-extrabold text-base-content">
-                €{@price}
-                <span class="text-base font-light text-neutral">/ {@time_unit}</span>
-              </span>
-            </div>
+            <span class="text-3xl font-extrabold text-base-content">
+              €{@price}
+              <span class="text-base font-light text-neutral">/ {@time_unit}</span>
+            </span>
             <.link
               navigate={@booking_url}
-              class="btn btn-primary h-14 px-10 rounded-2xl uppercase text-xs tracking-widest"
+              class="btn btn-primary h-10 px-5 rounded-2xl uppercase text-xs tracking-widest"
             >
-              <.icon name="hero-calendar" class="size-5" />
-              {"Book #{@asset_type}"}
+              View more <.icon name="hero-arrow-right" class="size-5" />
             </.link>
           </div>
         </div>
