@@ -7,34 +7,36 @@ defmodule SpazioSolazzoWeb.BookingCancellationLive do
   def mount(%{"token" => token}, _session, socket) do
     case Token.verify(token) do
       {:ok, %{booking_id: booking_id, action: :cancel}} ->
-        case Ash.get(SpazioSolazzo.BookingSystem.Booking, booking_id, load: [:space]) do
-          {:ok, booking} ->
-            if booking.state in [:requested, :accepted] do
-              {:ok,
-               assign(socket,
-                 booking: booking,
-                 token: token,
-                 cancellation_reason: "",
-                 show_success: false
-               )}
-            else
-              {:ok,
-               socket
-               |> put_flash(:error, "This booking has already been cancelled or completed")
-               |> push_navigate(to: "/")}
-            end
-
-          {:error, _} ->
-            {:ok,
-             socket
-             |> put_flash(:error, "Booking not found")
-             |> push_navigate(to: "/")}
-        end
+        handle_booking(booking_id, socket)
 
       {:error, _} ->
         {:ok,
          socket
          |> put_flash(:error, "Invalid or expired cancellation link")
+         |> push_navigate(to: "/")}
+    end
+  end
+
+  defp handle_booking(booking_id, socket) do
+    case Ash.get(SpazioSolazzo.BookingSystem.Booking, booking_id, load: [:space]) do
+      {:ok, %{state: state} = booking} when state in [:requested, :accepted] ->
+        {:ok,
+         assign(socket,
+           booking: booking,
+           cancellation_reason: "",
+           show_success: false
+         )}
+
+      {:ok, _} ->
+        {:ok,
+         socket
+         |> put_flash(:error, "This booking has already been cancelled or completed")
+         |> push_navigate(to: "/")}
+
+      {:error, _} ->
+        {:ok,
+         socket
+         |> put_flash(:error, "Booking not found")
          |> push_navigate(to: "/")}
     end
   end

@@ -65,7 +65,7 @@ defmodule SpazioSolazzo.CalendarExt do
   @doc """
   Checks if a booking spans multiple days
   """
-  def is_multi_day?(%DateTime{} = start_datetime, %DateTime{} = end_datetime) do
+  def multi_day?(%DateTime{} = start_datetime, %DateTime{} = end_datetime) do
     start_date = DateTime.to_date(start_datetime)
     end_date = DateTime.to_date(end_datetime)
     Date.compare(start_date, end_date) != :eq
@@ -78,7 +78,7 @@ defmodule SpazioSolazzo.CalendarExt do
   Multi-day:  "Feb 10, 2026 9:00 AM - Feb 15, 2026 5:00 PM"
   """
   def format_datetime_range(%DateTime{} = start_datetime, %DateTime{} = end_datetime) do
-    if is_multi_day?(start_datetime, end_datetime) do
+    if multi_day?(start_datetime, end_datetime) do
       "#{format_datetime_date(start_datetime)} #{format_time(start_datetime)} - #{format_datetime_date(end_datetime)} #{format_time(end_datetime)}"
     else
       "#{format_datetime_date(start_datetime)} #{format_time_range(start_datetime, end_datetime)}"
@@ -102,7 +102,7 @@ defmodule SpazioSolazzo.CalendarExt do
   Multi-day:  "Feb 15, 2026 5:00 PM"
   """
   def format_datetime_range_end(%DateTime{} = start_datetime, %DateTime{} = end_datetime) do
-    if is_multi_day?(start_datetime, end_datetime) do
+    if multi_day?(start_datetime, end_datetime) do
       "#{format_datetime_date(end_datetime)} #{format_time(end_datetime)}"
     else
       format_time(end_datetime)
