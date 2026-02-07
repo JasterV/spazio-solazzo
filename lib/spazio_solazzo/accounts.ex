@@ -20,6 +20,7 @@ defmodule SpazioSolazzo.Accounts do
       define :get_user_by_email, action: :read, get_by: [:email]
       define :terminate_account, action: :terminate_account, args: [:delete_history]
       define :update_profile, action: :update_profile, args: [:name, :phone_number]
+      define :make_admin, action: :make_admin, args: []
     end
   end
 end

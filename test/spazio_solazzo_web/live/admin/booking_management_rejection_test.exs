@@ -2,20 +2,7 @@ defmodule SpazioSolazzoWeb.Admin.BookingManagementRejectionTest do
   use SpazioSolazzoWeb.ConnCase, async: true
 
   import Phoenix.LiveViewTest
-  import SpazioSolazzo.AuthHelpers
-  import Ecto.Query
-
   alias SpazioSolazzo.BookingSystem
-
-  defp create_admin_user do
-    user = register_user("admin@example.com", "Admin User")
-    {:ok, uuid} = Ecto.UUID.dump(user.id)
-
-    from(u in "users", where: u.id == ^uuid)
-    |> SpazioSolazzo.Repo.update_all(set: [role: "admin"])
-
-    user
-  end
 
   defp create_booking(space, user) do
     tomorrow = Date.add(Date.utc_today(), 1)
@@ -47,7 +34,11 @@ defmodule SpazioSolazzoWeb.Admin.BookingManagementRejectionTest do
         5
       )
 
-    admin_user = create_admin_user()
+    admin_user =
+      "admin@example.com"
+      |> register_user("Admin User")
+      |> SpazioSolazzo.Accounts.make_admin!(authorize?: false)
+
     regular_user = register_user("user@example.com", "Regular User")
 
     %{space: space, admin_user: admin_user, regular_user: regular_user}

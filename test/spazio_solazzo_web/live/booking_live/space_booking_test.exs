@@ -1,8 +1,6 @@
 defmodule SpazioSolazzoWeb.BookingLive.SpaceBookingTest do
   use SpazioSolazzoWeb.ConnCase
   import Phoenix.LiveViewTest
-  import SpazioSolazzo.AuthHelpers
-
   alias SpazioSolazzo.BookingSystem
 
   # Helper to convert old map-based call to new signature

@@ -1,7 +1,7 @@
 <Layouts.app flash={@flash} current_user={@current_user}>
   <section class="mx-auto max-w-[1200px] px-6 py-10">
     <.back_to_link
-      navigate={~p"/#{@space.slug}"}
+      navigate={"/#{@space.slug}"}
       value={"Back to #{@space.name}"}
     />
 

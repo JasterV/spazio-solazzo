@@ -1,35 +1,8 @@
 defmodule SpazioSolazzo.BookingSystem.BookingTest do
   use ExUnit.Case, async: true
+
   use SpazioSolazzo.DataCase
-
-  import SpazioSolazzo.AuthHelpers
-
   alias SpazioSolazzo.BookingSystem
-
-  # Helper for creating booking requests
-  defp request_booking(
-         space_id,
-         user_id,
-         date,
-         start_time,
-         end_time,
-         customer_name,
-         customer_email,
-         customer_phone,
-         customer_comment
-       ) do
-    BookingSystem.create_booking(
-      space_id,
-      user_id,
-      date,
-      start_time,
-      end_time,
-      customer_name,
-      customer_email,
-      customer_phone,
-      customer_comment
-    )
-  end
 
   setup do
     {:ok, space} =
@@ -50,7 +23,7 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
   describe "create_booking" do
     test "creates a booking request successfully", %{space: space, date: date} do
       assert {:ok, booking} =
-               request_booking(
+               BookingSystem.create_booking(
                  space.id,
                  nil,
                  date,
@@ -76,7 +49,7 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
 
     test "creates booking with authenticated user", %{space: space, user: user, date: date} do
       assert {:ok, booking} =
-               request_booking(
+               BookingSystem.create_booking(
                  space.id,
                  user.id,
                  date,
@@ -94,7 +67,7 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
 
     test "rejects booking with end time before start time", %{space: space, date: date} do
       assert {:error, error} =
-               request_booking(
+               BookingSystem.create_booking(
                  space.id,
                  nil,
                  date,
@@ -114,7 +87,7 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
       past_date = Date.add(Date.utc_today(), -1)
 
       assert {:error, error} =
-               request_booking(
+               BookingSystem.create_booking(
                  space.id,
                  nil,
                  past_date,
@@ -134,7 +107,7 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
       today = Date.utc_today()
 
       assert {:ok, booking} =
-               request_booking(
+               BookingSystem.create_booking(
                  space.id,
                  nil,
                  today,
@@ -151,7 +124,7 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
 
     test "requires customer name and email", %{space: space, date: date} do
       assert {:error, _error} =
-               request_booking(
+               BookingSystem.create_booking(
                  space.id,
                  nil,
                  date,
@@ -166,7 +139,7 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
 
     test "phone number is optional", %{space: space, date: date} do
       assert {:ok, booking} =
-               request_booking(
+               BookingSystem.create_booking(
                  space.id,
                  nil,
                  date,
@@ -185,7 +158,7 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
   describe "approve_booking/1" do
     test "approves a pending booking", %{space: space, date: date} do
       {:ok, booking} =
-        request_booking(
+        BookingSystem.create_booking(
           space.id,
           nil,
           date,
@@ -207,7 +180,7 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
 
     test "cannot approve already approved booking", %{space: space, date: date} do
       {:ok, booking} =
-        request_booking(
+        BookingSystem.create_booking(
           space.id,
           nil,
           date,
@@ -228,7 +201,7 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
 
     test "cannot approve cancelled booking", %{space: space, date: date} do
       {:ok, booking} =
-        request_booking(
+        BookingSystem.create_booking(
           space.id,
           nil,
           date,
@@ -251,7 +224,7 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
   describe "cancel_booking/1" do
     test "cancels a pending booking", %{space: space, date: date} do
       {:ok, booking} =
-        request_booking(
+        BookingSystem.create_booking(
           space.id,
           nil,
           date,
@@ -271,7 +244,7 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
 
     test "cancels an approved booking", %{space: space, date: date} do
       {:ok, booking} =
-        request_booking(
+        BookingSystem.create_booking(
           space.id,
           nil,
           date,
@@ -291,7 +264,7 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
 
     test "cannot cancel already cancelled booking", %{space: space, date: date} do
       {:ok, booking} =
-        request_booking(
+        BookingSystem.create_booking(
           space.id,
           nil,
           date,
@@ -314,7 +287,7 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
   describe "search_bookings/5 for accepted bookings" do
     test "returns only approved bookings for specific date", %{space: space, date: date} do
       {:ok, approved1} =
-        request_booking(
+        BookingSystem.create_booking(
           space.id,
           nil,
           date,
@@ -329,7 +302,7 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
       {:ok, _} = BookingSystem.approve_booking(approved1.id)
 
       {:ok, approved2} =
-        request_booking(
+        BookingSystem.create_booking(
           space.id,
           nil,
           date,
@@ -344,7 +317,7 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
       {:ok, _} = BookingSystem.approve_booking(approved2.id)
 
       {:ok, _pending} =
-        request_booking(
+        BookingSystem.create_booking(
           space.id,
           nil,
           date,
@@ -374,7 +347,7 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
 
     test "does not return cancelled bookings", %{space: space, date: date} do
       {:ok, booking} =
-        request_booking(
+        BookingSystem.create_booking(
           space.id,
           nil,
           date,
@@ -408,7 +381,7 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
       other_date = Date.add(date, 1)
 
       {:ok, booking1} =
-        request_booking(
+        BookingSystem.create_booking(
           space.id,
           nil,
           date,
@@ -423,7 +396,7 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
       {:ok, _} = BookingSystem.approve_booking(booking1.id)
 
       {:ok, booking2} =
-        request_booking(
+        BookingSystem.create_booking(
           space.id,
           nil,
           other_date,
@@ -463,7 +436,7 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
         )
 
       {:ok, booking} =
-        request_booking(
+        BookingSystem.create_booking(
           other_space.id,
           nil,
           date,
@@ -496,7 +469,7 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
   describe "count pending requests" do
     test "returns only pending bookings", %{space: space, date: date} do
       {:ok, _pending1} =
-        request_booking(
+        BookingSystem.create_booking(
           space.id,
           nil,
           date,
@@ -509,7 +482,7 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
         )
 
       {:ok, approved} =
-        request_booking(
+        BookingSystem.create_booking(
           space.id,
           nil,
           date,
@@ -524,7 +497,7 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
       {:ok, _} = BookingSystem.approve_booking(approved.id)
 
       {:ok, cancelled} =
-        request_booking(
+        BookingSystem.create_booking(
           space.id,
           nil,
           date,
@@ -548,7 +521,7 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
 
     test "returns zero when no pending requests", %{space: space, date: date} do
       {:ok, booking} =
-        request_booking(
+        BookingSystem.create_booking(
           space.id,
           nil,
           date,
@@ -580,7 +553,7 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
         )
 
       {:ok, _pending1} =
-        request_booking(
+        BookingSystem.create_booking(
           space.id,
           nil,
           date,
@@ -593,7 +566,7 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
         )
 
       {:ok, _pending2} =
-        request_booking(
+        BookingSystem.create_booking(
           other_space.id,
           nil,
           date,

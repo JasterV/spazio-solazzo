@@ -2,21 +2,7 @@ defmodule SpazioSolazzoWeb.Admin.WalkInLiveSimpleTest do
   use SpazioSolazzoWeb.ConnCase, async: true
 
   import Phoenix.LiveViewTest
-  import SpazioSolazzo.AuthHelpers
-  import Ecto.Query
-
   alias SpazioSolazzo.BookingSystem
-
-  defp create_admin_user do
-    user = register_user("admin@example.com", "Admin User")
-    # Directly update role to admin using Ecto
-    {:ok, uuid} = Ecto.UUID.dump(user.id)
-
-    from(u in "users", where: u.id == ^uuid)
-    |> SpazioSolazzo.Repo.update_all(set: [role: "admin"])
-
-    user
-  end
 
   setup do
     {:ok, space} =
@@ -27,7 +13,10 @@ defmodule SpazioSolazzoWeb.Admin.WalkInLiveSimpleTest do
         5
       )
 
-    user = create_admin_user()
+    user =
+      "admin@example.com"
+      |> register_user("Admin User")
+      |> SpazioSolazzo.Accounts.make_admin!(authorize?: false)
 
     %{space: space, user: user}
   end
