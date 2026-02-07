@@ -20,6 +20,10 @@ defmodule SpazioSolazzo.BookingSystem.TimeSlotTemplate do
 
     create :create do
       accept [:start_time, :end_time, :space_id, :day_of_week]
+
+      validate {SpazioSolazzo.BookingSystem.Validations.ChronologicalOrder,
+                start: :start_time, end: :end_time}
+
       change {Changes.PreventCreationOverlap, []}
     end
 
@@ -53,6 +57,19 @@ defmodule SpazioSolazzo.BookingSystem.TimeSlotTemplate do
     belongs_to :space, SpazioSolazzo.BookingSystem.Space do
       allow_nil? false
       public? true
+    end
+  end
+
+  calculations do
+    calculate :booking_stats,
+              :map,
+              {SpazioSolazzo.BookingSystem.TimeSlotTemplate.Calculations.SlotBookingStats, []} do
+      description "Calculates booking counts and availability for this time slot on a specific date"
+
+      argument :date, :date, allow_nil?: false
+      argument :space_id, :uuid, allow_nil?: false
+      argument :capacity, :integer, allow_nil?: false
+      argument :user_id, :uuid, allow_nil?: true
     end
   end
 end

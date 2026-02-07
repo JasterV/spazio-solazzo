@@ -1,11 +1,9 @@
 <Layouts.app flash={@flash} current_user={@current_user}>
   <div class="mx-auto max-w-[800px] px-6 py-12">
-    <div class="mb-10">
-      <.back_to_link
-        navigate={~p"/"}
-        value="Back to Home"
-      />
-    </div>
+    <.back_to_link
+      navigate={~p"/"}
+      value="Back to Home"
+    />
 
     <div class="mb-10 text-center">
       <h1 class="text-4xl font-black text-base-content tracking-tight">

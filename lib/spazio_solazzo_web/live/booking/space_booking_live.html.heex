@@ -1,0 +1,117 @@
+<Layouts.app flash={@flash} current_user={@current_user}>
+  <section class="mx-auto max-w-[1200px] px-6 py-10">
+    <.back_to_link
+      navigate={"/#{@space.slug}"}
+      value={"Back to #{@space.name}"}
+    />
+
+    <div class="text-center mb-12">
+      <h1 class="text-4xl md:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white tracking-tight mb-4">
+        {@space.name}
+      </h1>
+      <p class="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
+        {@space.description}
+      </p>
+    </div>
+
+    <div class="max-w-4xl mx-auto bg-white dark:bg-slate-800 rounded-3xl p-8 md:p-12 border border-slate-200 dark:border-slate-700 shadow-xl shadow-slate-200/50 dark:shadow-none">
+      <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-8">
+        Available Time Slots
+      </h2>
+
+      <div class="mb-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <.live_component
+          module={SpazioSolazzoWeb.BookingCalendarLiveComponent}
+          id="booking-calendar"
+          selected_date={@selected_date}
+        />
+
+        <div class="time-slots-wrapper">
+          <p class="mb-4 text-slate-500 dark:text-slate-400">
+            Selected day:
+            <span class="font-bold text-slate-900 dark:text-white">
+              {Calendar.strftime(@selected_date, "%A, %B %d, %Y")}
+            </span>
+          </p>
+
+          <div class="max-h-80 overflow-y-auto pr-4 space-y-3">
+            <%= if @time_slots == [] do %>
+              <div class="text-center py-8 text-slate-500 dark:text-slate-400">
+                No time slots available for this date
+              </div>
+            <% else %>
+              <%= for time_slot <- @time_slots do %>
+                <.time_slot_card time_slot={time_slot} />
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-8 pt-6 border-t border-slate-200 dark:border-slate-700 text-center">
+        <p class="text-base font-medium text-sky-500 dark:text-sky-400 flex items-center justify-center gap-2">
+          <.icon name="hero-credit-card" class="w-5 h-5" /> Payment due upon arrival.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <.live_component
+    module={SpazioSolazzoWeb.BookingFormLiveComponent}
+    id="booking-modal"
+    show={@show_booking_modal}
+    selected_time_slot={@selected_time_slot}
+    space={@space}
+    selected_date={@selected_date}
+    current_user={@current_user}
+    slot_availability={
+      if @selected_time_slot do
+        @selected_time_slot.booking_stats.availability_status
+      else
+        :available
+      end
+    }
+    on_cancel={JS.push("cancel_booking")}
+  />
+
+  <%= if @show_success_modal do %>
+    <div
+      id="success-modal"
+      class="fixed inset-0 bg-slate-900/20 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+      phx-click="close_success_modal"
+    >
+      <div class="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-xl shadow-slate-200/50 dark:shadow-none max-w-md w-full p-6 text-center">
+        <div class="mb-4">
+          <div class="mx-auto flex items-center justify-center h-14 w-14 rounded-full bg-green-100 dark:bg-green-900/20 mb-3">
+            <svg
+              class="h-8 w-8 text-green-600 dark:text-green-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-2">
+            Request Submitted!
+          </h3>
+          <p class="text-slate-600 dark:text-slate-400 text-sm">
+            Your booking request is pending approval. You'll receive an email confirmation shortly.
+          </p>
+        </div>
+
+        <button
+          phx-click="close_success_modal"
+          class="w-full bg-green-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-600 transition-colors text-sm"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  <% end %>
+</Layouts.app>

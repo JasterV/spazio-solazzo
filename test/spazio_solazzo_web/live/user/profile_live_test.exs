@@ -123,14 +123,15 @@ defmodule SpazioSolazzoWeb.ProfileLiveTest do
       conn: conn,
       user: user
     } do
-      {_space, asset, time_slot} = create_booking_fixtures()
+      {space, _time_slot} = create_booking_fixtures()
 
       {:ok, booking} =
         BookingSystem.create_booking(
-          time_slot.id,
-          asset.id,
+          space.id,
           user.id,
           Date.utc_today(),
+          ~T[09:00:00],
+          ~T[11:00:00],
           "Test User",
           "test@example.com",
           "+1234567890",
@@ -158,14 +159,15 @@ defmodule SpazioSolazzoWeb.ProfileLiveTest do
       conn: conn,
       user: user
     } do
-      {_space, asset, time_slot} = create_booking_fixtures()
+      {space, _time_slot} = create_booking_fixtures()
 
       {:ok, booking} =
         BookingSystem.create_booking(
-          time_slot.id,
-          asset.id,
+          space.id,
           user.id,
           Date.utc_today(),
+          ~T[09:00:00],
+          ~T[11:00:00],
           "Test User",
           "test@example.com",
           "+1234567890",
@@ -199,10 +201,9 @@ defmodule SpazioSolazzoWeb.ProfileLiveTest do
       BookingSystem.create_space(
         "Test Space #{unique_id}",
         "test-space-#{unique_id}",
-        "Test description"
+        "Test description",
+        10
       )
-
-    {:ok, asset} = BookingSystem.create_asset("Test Asset", space.id)
 
     {:ok, time_slot} =
       BookingSystem.create_time_slot_template(
@@ -212,6 +213,6 @@ defmodule SpazioSolazzoWeb.ProfileLiveTest do
         space.id
       )
 
-    {space, asset, time_slot}
+    {space, time_slot}
   end
 end

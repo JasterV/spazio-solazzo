@@ -104,6 +104,11 @@ defmodule SpazioSolazzo.Accounts.User do
       require_atomic? false
     end
 
+    update :make_admin do
+      accept []
+      change set_attribute(:role, :admin)
+    end
+
     destroy :terminate_account do
       description "Delete user account with optional booking data removal"
       require_atomic? false
@@ -120,6 +125,10 @@ defmodule SpazioSolazzo.Accounts.User do
   policies do
     bypass AshAuthentication.Checks.AshAuthenticationInteraction do
       authorize_if always()
+    end
+
+    policy action(:make_admin) do
+      authorize_if never()
     end
 
     policy action_type(:read) do

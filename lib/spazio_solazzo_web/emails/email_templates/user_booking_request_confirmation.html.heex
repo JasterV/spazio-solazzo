@@ -1,0 +1,46 @@
+<h1 class="text-orange">✅ Request Received!</h1>
+
+<p>Hello <strong><%= @customer_name %></strong>,</p>
+<p>
+  Thank you for choosing Spazio Solazzo! Your booking request has been received and is pending approval.
+</p>
+
+<.details_list>
+  <.detail_item label="Date">{@date}</.detail_item>
+  <.detail_item label="Time">{@start_time} - {@end_time}</.detail_item>
+  <.detail_item label="Space">{@space_name}</.detail_item>
+  <.detail_item label="Email">{@customer_email}</.detail_item>
+  <.detail_item label="Phone">{@customer_phone || "N/A"}</.detail_item>
+  <.detail_item label="Note">{@customer_comment || "N/A"}</.detail_item>
+</.details_list>
+
+<div style="background-color: #fffaf0; border-left: 4px solid #ed8936; padding: 15px; margin: 20px 0; color: #2d3748;">
+  <p style="margin: 0; font-weight: 500;">
+    ⏳ Your request is pending approval. You will receive an email once an administrator reviews your request.
+  </p>
+</div>
+
+<p class="text-center">
+  If you need to cancel this request, please use the link below:
+</p>
+
+<.email_button href={@cancel_url} variant={:danger}>
+  Cancel Request
+</.email_button>
+
+<hr class="divider" />
+
+<div style="background-color: #f8fafc; border-radius: 8px; padding: 20px; text-align: center; margin-top: 30px;">
+  <h3 style="color: #2d3748; margin-top: 0;">Need Help?</h3>
+  <p style="color: #4a5568; font-size: 14px; margin-bottom: 15px;">
+    Do you have questions or need to update your request details? <br />
+    Our Front Office is available to assist you at any time.
+  </p>
+
+  <a
+    href={"tel:#{@front_office_phone_number}"}
+    style="display: inline-block; background-color: #edf2f7; color: #2d3748; padding: 10px 20px; border-radius: 50px; text-decoration: none; font-weight: bold; font-size: 18px; border: 1px solid #cbd5e0;"
+  >
+    📞 {@front_office_phone_number}
+  </a>
+</div>

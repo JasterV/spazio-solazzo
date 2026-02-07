@@ -11,7 +11,13 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
     authorizers: [Ash.Policy.Authorizer],
     extensions: [AshStateMachine]
 
-  alias SpazioSolazzo.BookingSystem.Booking.EmailWorker
+  require Ash.Query
+
+  alias SpazioSolazzo.BookingSystem.Booking.{
+    AdminActionEmailWorker,
+    RequestCreatedEmailWorker,
+    UserCancellationEmailWorker
+  }
 
   postgres do
     table "bookings"
@@ -20,112 +26,335 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
     references do
       reference :user, on_delete: :nilify, index?: true
     end
+
+    custom_indexes do
+      # Composite index for space + datetime range queries (most common pattern)
+      index [:space_id, :start_datetime, :end_datetime]
+
+      # Composite index for space + state queries (filtering by status)
+      index [:space_id, :state]
+
+      # Single indexes for datetime overlap queries
+      index [:start_datetime]
+      index [:end_datetime]
+    end
   end
 
   state_machine do
-    initial_states([:reserved])
-    default_initial_state(:reserved)
+    initial_states([:requested])
+    default_initial_state(:requested)
 
     transitions do
-      transition(:confirm_booking, from: :reserved, to: :completed)
-      transition(:cancel, from: :reserved, to: :cancelled)
+      transition(:approve, from: :requested, to: :accepted)
+      transition(:reject, from: :requested, to: :rejected)
+      transition(:cancel, from: [:requested, :accepted], to: :cancelled)
     end
   end
 
   actions do
     defaults [:read]
 
-    read :list_active_asset_bookings_by_date do
-      argument :asset_id, :uuid, allow_nil?: false
-      argument :date, :date, allow_nil?: false
+    read :search do
+      description "Fetch bookings within a date/time range with optional filters"
 
-      filter expr(
-               asset_id == ^arg(:asset_id) and date == ^arg(:date) and
-                 state in [:reserved, :completed]
-             )
+      argument :space_id, :uuid, allow_nil?: true
+      argument :start_datetime, :datetime, allow_nil?: false
+      argument :end_datetime, :datetime, allow_nil?: false
+      argument :states, {:array, :atom}, allow_nil?: true
+      argument :select, {:array, :atom}, allow_nil?: true
+
+      prepare fn query, _ctx ->
+        start_dt = Ash.Query.get_argument(query, :start_datetime)
+        end_dt = Ash.Query.get_argument(query, :end_datetime)
+
+        # Base datetime overlap filter
+        query =
+          Ash.Query.filter(
+            query,
+            start_datetime < ^end_dt and end_datetime > ^start_dt
+          )
+
+        # Optional space filter
+        query =
+          case Ash.Query.get_argument(query, :space_id) do
+            nil -> query
+            space_id -> Ash.Query.filter(query, space_id == ^space_id)
+          end
+
+        # Optional states filter
+        query =
+          case Ash.Query.get_argument(query, :states) do
+            nil -> query
+            [] -> query
+            states -> Ash.Query.filter(query, state in ^states)
+          end
+
+        case Ash.Query.get_argument(query, :select) do
+          nil -> query
+          [] -> query
+          select -> Ash.Query.select(query, select)
+        end
+      end
+    end
+
+    read :read_pending_bookings do
+      description "Fetch pending bookings for admin dashboard with pagination"
+
+      argument :space_id, :uuid, allow_nil?: true
+      argument :email, :string, allow_nil?: true
+      argument :date, :date, allow_nil?: true
+
+      # Only requested bookings
+      filter expr(state == :requested)
+
+      pagination do
+        required? false
+        offset? true
+        countable true
+        default_limit 10
+        max_page_size 50
+      end
+
+      # Apply shared admin filters preparation
+      prepare SpazioSolazzo.BookingSystem.Booking.Preparations.ApplyAdminFilters
+
+      prepare fn query, _ctx ->
+        Ash.Query.sort(query, inserted_at: :desc)
+      end
+    end
+
+    read :read_booking_history do
+      description "Fetch historical bookings (accepted/rejected/cancelled) with pagination"
+
+      argument :space_id, :uuid, allow_nil?: true
+      argument :email, :string, allow_nil?: true
+      argument :date, :date, allow_nil?: true
+
+      # Non-pending states
+      filter expr(state in [:accepted, :rejected, :cancelled])
+
+      pagination do
+        required? false
+        offset? true
+        countable true
+        default_limit 25
+        max_page_size 100
+      end
+
+      # Apply shared admin filters preparation
+      prepare SpazioSolazzo.BookingSystem.Booking.Preparations.ApplyAdminFilters
+
+      prepare fn query, _ctx ->
+        Ash.Query.sort(query, start_datetime: :desc)
+      end
     end
 
     create :create do
-      argument :time_slot_template_id, :uuid, allow_nil?: false
-      argument :asset_id, :uuid, allow_nil?: false
-      argument :user_id, :uuid, allow_nil?: false
+      argument :space_id, :uuid, allow_nil?: false
+      argument :user_id, :uuid, allow_nil?: true
       argument :date, :date, allow_nil?: false
+      argument :start_time, :time, allow_nil?: false
+      argument :end_time, :time, allow_nil?: false
       argument :customer_name, :string, allow_nil?: false
       argument :customer_email, :string, allow_nil?: false
       argument :customer_phone, :string, allow_nil?: true
       argument :customer_comment, :string, allow_nil?: true
 
-      change manage_relationship(:time_slot_template_id, :time_slot_template,
-               type: :append_and_remove
-             )
-
-      change manage_relationship(:asset_id, :asset, type: :append_and_remove)
-
+      change manage_relationship(:space_id, :space, type: :append_and_remove)
       change manage_relationship(:user_id, :user, type: :append_and_remove, authorize?: false)
 
+      validate {SpazioSolazzo.BookingSystem.Validations.FutureDate, field: :date}
+
+      validate {SpazioSolazzo.BookingSystem.Validations.ChronologicalOrder,
+                start: :start_time, end: :end_time}
+
+      validate {SpazioSolazzo.BookingSystem.Validations.Email, field: :customer_email}
+
       change fn changeset, _ctx ->
-        template_id = Ash.Changeset.get_argument(changeset, :time_slot_template_id)
+        date = Ash.Changeset.get_argument(changeset, :date)
+        start_time = Ash.Changeset.get_argument(changeset, :start_time)
+        end_time = Ash.Changeset.get_argument(changeset, :end_time)
 
-        case Ash.get(SpazioSolazzo.BookingSystem.TimeSlotTemplate, template_id) do
-          {:ok, template} ->
-            changeset
-            |> Ash.Changeset.force_change_attribute(:start_time, template.start_time)
-            |> Ash.Changeset.force_change_attribute(:end_time, template.end_time)
-            |> Ash.Changeset.force_change_attribute(
-              :date,
-              Ash.Changeset.get_argument(changeset, :date)
-            )
-            |> Ash.Changeset.force_change_attribute(
-              :customer_name,
-              Ash.Changeset.get_argument(changeset, :customer_name)
-            )
-            |> Ash.Changeset.force_change_attribute(
-              :customer_email,
-              Ash.Changeset.get_argument(changeset, :customer_email)
-            )
-            |> Ash.Changeset.force_change_attribute(
-              :customer_phone,
-              Ash.Changeset.get_argument(changeset, :customer_phone)
-            )
-            |> Ash.Changeset.force_change_attribute(
-              :customer_comment,
-              Ash.Changeset.get_argument(changeset, :customer_comment)
-            )
+        start_datetime = DateTime.new!(date, start_time, "Etc/UTC")
+        end_datetime = DateTime.new!(date, end_time, "Etc/UTC")
 
-          {:error, _} ->
-            Ash.Changeset.add_error(changeset,
-              field: :time_slot_template_id,
-              message: "Template not found"
-            )
-        end
+        changeset
+        |> Ash.Changeset.force_change_attribute(:start_datetime, start_datetime)
+        |> Ash.Changeset.force_change_attribute(:end_datetime, end_datetime)
+        |> Ash.Changeset.force_change_attribute(:date, date)
+        |> Ash.Changeset.force_change_attribute(:start_time, start_time)
+        |> Ash.Changeset.force_change_attribute(:end_time, end_time)
+        |> Ash.Changeset.force_change_attribute(
+          :customer_name,
+          Ash.Changeset.get_argument(changeset, :customer_name)
+        )
+        |> Ash.Changeset.force_change_attribute(
+          :customer_email,
+          Ash.Changeset.get_argument(changeset, :customer_email)
+        )
+        |> Ash.Changeset.force_change_attribute(
+          :customer_phone,
+          Ash.Changeset.get_argument(changeset, :customer_phone)
+        )
+        |> Ash.Changeset.force_change_attribute(
+          :customer_comment,
+          Ash.Changeset.get_argument(changeset, :customer_comment)
+        )
       end
 
       change after_action(fn _changeset, booking, _ctx ->
+               booking = Ash.load!(booking, [:space])
+
                %{
                  booking_id: booking.id,
                  customer_name: booking.customer_name,
                  customer_email: booking.customer_email,
                  customer_phone: booking.customer_phone,
                  customer_comment: booking.customer_comment,
-                 date: Calendar.strftime(booking.date, "%A, %B %d"),
-                 start_time: booking.start_time,
-                 end_time: booking.end_time
+                 space_name: booking.space.name,
+                 start_datetime: booking.start_datetime,
+                 end_datetime: booking.end_datetime
                }
-               |> EmailWorker.new()
+               |> RequestCreatedEmailWorker.new()
                |> Oban.insert!()
 
                {:ok, booking}
              end)
     end
 
-    update :confirm_booking do
+    create :create_walk_in do
+      argument :space_id, :uuid, allow_nil?: false
+      argument :start_datetime, :datetime, allow_nil?: false
+      argument :end_datetime, :datetime, allow_nil?: false
+      argument :customer_name, :string, allow_nil?: false
+      argument :customer_email, :string, allow_nil?: false
+      argument :customer_phone, :string, allow_nil?: true
+
+      change manage_relationship(:space_id, :space, type: :append_and_remove)
+
+      validate {SpazioSolazzo.BookingSystem.Validations.FutureDate, field: :end_datetime}
+
+      validate {SpazioSolazzo.BookingSystem.Validations.ChronologicalOrder,
+                start: :start_datetime, end: :end_datetime}
+
+      validate {SpazioSolazzo.BookingSystem.Validations.Email, field: :customer_email}
+
+      change fn changeset, _ctx ->
+        start_datetime = Ash.Changeset.get_argument(changeset, :start_datetime)
+        end_datetime = Ash.Changeset.get_argument(changeset, :end_datetime)
+
+        date = DateTime.to_date(start_datetime)
+        start_time = DateTime.to_time(start_datetime)
+        end_time = DateTime.to_time(end_datetime)
+
+        changeset
+        |> Ash.Changeset.force_change_attribute(:start_datetime, start_datetime)
+        |> Ash.Changeset.force_change_attribute(:end_datetime, end_datetime)
+        |> Ash.Changeset.force_change_attribute(:date, date)
+        |> Ash.Changeset.force_change_attribute(:start_time, start_time)
+        |> Ash.Changeset.force_change_attribute(:end_time, end_time)
+        |> Ash.Changeset.force_change_attribute(:state, :accepted)
+        |> Ash.Changeset.force_change_attribute(
+          :customer_name,
+          Ash.Changeset.get_argument(changeset, :customer_name)
+        )
+        |> Ash.Changeset.force_change_attribute(
+          :customer_email,
+          Ash.Changeset.get_argument(changeset, :customer_email)
+        )
+        |> Ash.Changeset.force_change_attribute(
+          :customer_phone,
+          Ash.Changeset.get_argument(changeset, :customer_phone)
+        )
+      end
+    end
+
+    update :approve do
       accept []
-      change transition_state(:completed)
+      require_atomic? false
+      change transition_state(:accepted)
+
+      change after_action(fn _changeset, booking, _ctx ->
+               booking = Ash.load!(booking, [:space])
+
+               %{
+                 booking_id: booking.id,
+                 customer_name: booking.customer_name,
+                 customer_email: booking.customer_email,
+                 customer_phone: booking.customer_phone,
+                 space_name: booking.space.name,
+                 start_datetime: booking.start_datetime,
+                 end_datetime: booking.end_datetime,
+                 action: "accepted"
+               }
+               |> AdminActionEmailWorker.new()
+               |> Oban.insert!()
+
+               {:ok, booking}
+             end)
+    end
+
+    update :reject do
+      accept [:rejection_reason]
+      argument :reason, :string, allow_nil?: false
+      require_atomic? false
+
+      change fn changeset, _ctx ->
+        reason = Ash.Changeset.get_argument(changeset, :reason)
+        Ash.Changeset.force_change_attribute(changeset, :rejection_reason, reason)
+      end
+
+      change transition_state(:rejected)
+
+      change after_action(fn _changeset, booking, _ctx ->
+               booking = Ash.load!(booking, [:space])
+
+               %{
+                 customer_name: booking.customer_name,
+                 customer_email: booking.customer_email,
+                 customer_phone: booking.customer_phone,
+                 space_name: booking.space.name,
+                 start_datetime: booking.start_datetime,
+                 end_datetime: booking.end_datetime,
+                 action: "rejected",
+                 rejection_reason: booking.rejection_reason
+               }
+               |> AdminActionEmailWorker.new()
+               |> Oban.insert!()
+
+               {:ok, booking}
+             end)
     end
 
     update :cancel do
-      accept []
+      accept [:cancellation_reason]
+      argument :reason, :string, allow_nil?: false
+      require_atomic? false
+
+      change fn changeset, _ctx ->
+        reason = Ash.Changeset.get_argument(changeset, :reason)
+        Ash.Changeset.force_change_attribute(changeset, :cancellation_reason, reason)
+      end
+
       change transition_state(:cancelled)
+
+      change after_action(fn _changeset, booking, _ctx ->
+               booking = Ash.load!(booking, [:space])
+
+               %{
+                 customer_name: booking.customer_name,
+                 customer_email: booking.customer_email,
+                 customer_phone: booking.customer_phone,
+                 space_name: booking.space.name,
+                 start_datetime: booking.start_datetime,
+                 end_datetime: booking.end_datetime,
+                 cancellation_reason: booking.cancellation_reason
+               }
+               |> UserCancellationEmailWorker.new()
+               |> Oban.insert!()
+
+               {:ok, booking}
+             end)
     end
 
     destroy :destroy do
@@ -135,7 +364,7 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
   end
 
   policies do
-    policy action([:cancel, :confirm_booking]) do
+    policy action([:cancel, :approve, :reject]) do
       authorize_if always()
     end
 
@@ -157,11 +386,16 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
     prefix "booking"
 
     publish :create, ["created"]
+    publish :create_walk_in, ["created"]
+    publish :approve, ["approved"]
+    publish :reject, ["rejected"]
     publish :cancel, ["cancelled"]
   end
 
   attributes do
     uuid_primary_key :id
+    attribute :start_datetime, :datetime, allow_nil?: false
+    attribute :end_datetime, :datetime, allow_nil?: false
     attribute :date, :date, allow_nil?: false
     attribute :customer_name, :string, allow_nil?: false
     attribute :customer_email, :string, allow_nil?: false
@@ -169,12 +403,14 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
     attribute :end_time, :time, allow_nil?: false
     attribute :customer_phone, :string, allow_nil?: true
     attribute :customer_comment, :string, allow_nil?: true
+    attribute :cancellation_reason, :string, allow_nil?: true
+    attribute :rejection_reason, :string, allow_nil?: true
 
     attribute :state, :atom do
       allow_nil? false
-      default :reserved
+      default :requested
       public? true
-      constraints one_of: [:reserved, :completed, :cancelled]
+      constraints one_of: [:requested, :accepted, :rejected, :cancelled]
     end
 
     create_timestamp :inserted_at
@@ -182,8 +418,10 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
   end
 
   relationships do
-    belongs_to :asset, SpazioSolazzo.BookingSystem.Asset
-    belongs_to :time_slot_template, SpazioSolazzo.BookingSystem.TimeSlotTemplate
+    belongs_to :space, SpazioSolazzo.BookingSystem.Space do
+      allow_nil? false
+      public? true
+    end
 
     belongs_to :user, SpazioSolazzo.Accounts.User do
       allow_nil? true

@@ -25,8 +25,6 @@ defmodule SpazioSolazzoWeb.Router do
   scope "/", SpazioSolazzoWeb do
     pipe_through :browser
 
-    get "/bookings/confirm", BookingController, :confirm
-    get "/bookings/cancel", BookingController, :cancel
     get "/sign-out", AuthController, :sign_out
     get "/auth/magic/sign-in", AuthController, :magic_sign_in
     get "/auth/failure", AuthController, :auth_failure
@@ -53,7 +51,8 @@ defmodule SpazioSolazzoWeb.Router do
       on_mount: [
         {SpazioSolazzoWeb.LiveUserAuth, :live_user_required}
       ] do
-      live "/book/asset/:asset_id", AssetBookingLive
+      live "/book/space/:space_slug", SpaceBookingLive
+      live "/bookings/cancel", BookingCancellationLive
       live "/profile", ProfileLive
     end
 
@@ -62,6 +61,8 @@ defmodule SpazioSolazzoWeb.Router do
         {SpazioSolazzoWeb.LiveUserAuth, :live_admin_required}
       ] do
       live "/admin/dashboard", Admin.DashboardLive
+      live "/admin/bookings", Admin.BookingManagementLive
+      live "/admin/walk-in", Admin.WalkInLive
     end
   end
 
@@ -79,16 +80,6 @@ defmodule SpazioSolazzoWeb.Router do
 
       live_dashboard "/dashboard", metrics: SpazioSolazzoWeb.Telemetry
       forward "/mailbox", Plug.Swoosh.MailboxPreview
-    end
-  end
-
-  if Application.compile_env(:spazio_solazzo, :dev_routes) do
-    import AshAdmin.Router
-
-    scope "/admin" do
-      pipe_through :browser
-
-      ash_admin "/"
     end
   end
 end

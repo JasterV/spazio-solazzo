@@ -1,62 +1,49 @@
 <Layouts.app flash={@flash} current_user={@current_user}>
   <.page_header
-    booking_path={~p"/book/asset/#{@asset.id}"}
-    price="€40"
+    booking_path={~p"/book/space/#{@space.slug}"}
+    booking_label="Book Space"
+    price="€35"
     price_unit="hour"
-    capacity="Up to 8 People"
-    images={@images}
+    capacity={@space.capacity}
+    images={[
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuDmh_AkVuUoICqpHk1NdLuLdi0xQBOC8Hy9PrsSNz956igHFRhbNGsB8k0vSLe2U2NW1sxRVZm_dwR27Q4Db_f21XbYkLtfiRYob-j4ran1rTBB0bQAz4QLFSO1yL_cPhDIpAyvC069mDQ33-ckZgZ_yvFsIK_-_0Jj2NEOnDie684uaR7vKuiBWlsr-JmAsPzUp7Aik7Qbzozune348nBz1bvWkBNMCpMO3JV8hrYBo1i6JlUiGSuP3-5fWXKt8dKhxPUN-amjLFgh",
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuCh5O9cz1ruQFH0Pq3MzC_1HsWrLPHbWlfYEdB2dmPi0YDn2L23R5hseUZmb19XlEju1n4a24oD6pH5qiG4SvIemrD45PfKwvNlckpOG59IYz5WYrHzroq7L4Uq9Hxl0PTzU5m8R5k625w_MrdZKidyfM6OnzNJfM5J3XftFI5A9J7wD_BDHRKxq8gxAukUCesuYX8lGm3AhQAZQTjaUY5yeobjt-NCSrlfTzxmcUmibJSTnKZuwx-li4QtFr0wQrzHVLUZYiAhA251",
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuCanfiWzXqH3fBrE6U3phirIFZo5bgKG1aa8wnXCRC12yOXkcgnGUTRhxppIk61QUdQWF9KuFAtjhDEI9AACV-pM7yXyPKbOKognCARD-qbffFtCwGLidcLkoprLnNAW12C7TeRL6gOEBas3RI7jCf30JmzMmSqCjMx3lixgrOr6qlpbHZA4Eog_P41y5zXtn9Nqlq2eB6c7RYhiOIJzXVpMmfLR_qf0HTmOnx2poDbqKcLDcCM-p4S6aAwLxC-GYBmvEfWQ4meToCL"
+    ]}
   >
     <:title>{@space.name}</:title>
     <:description>
-      A private, sun-drenched sanctuary designed for focus and collaboration. Step into a space where Sicilian charm meets modern productivity.
+      A private, professional space equipped for your team meetings, client presentations, or brainstorming sessions.
     </:description>
   </.page_header>
 
   <.features_section
-    title="Everything you need to succeed"
-    description="We've equipped the Meeting Room with top-tier amenities so you can focus on the agenda, not the logistics."
+    title="Built for collaboration"
+    description="A dedicated meeting environment with all the professional amenities you need."
   >
     <:feature
-      icon="hero-tv"
-      title="4K Presentation"
-      description="Crystal clear 65&quot; monitor ready for your slide decks. Connect via HDMI or wireless casting."
-      color="sky"
+      icon="hero-presentation-chart-line"
+      title="Pro Presentation Setup"
+      description="75-inch 4K display, wireless presentation tools, and high-quality audio system."
+      color="blue"
     />
     <:feature
       icon="hero-video-camera"
       title="Video Conferencing"
-      description="Logitech Rally bar with AI framing and noise cancellation for seamless remote meetings."
-      color="orange"
-    />
-    <:feature
-      icon="hero-pencil"
-      title="Creative Tools"
-      description="Wall-to-wall glass whiteboard, sticky notes, and markers to capture every brainstorming session."
-      color="yellow"
-    />
-    <:feature
-      icon="hero-wifi"
-      title="Fiber Internet"
-      description="Dedicated 1Gbps symmetrical fiber line ensuring you never drop a call or buffer a video."
+      description="Professional webcam and microphone setup optimized for hybrid meetings."
       color="emerald"
     />
     <:feature
-      icon="hero-home"
-      title="Ergonomic Comfort"
-      description="Herman Miller chairs and a solid oak table designed to keep you comfortable during long sessions."
-      color="indigo"
-    />
-    <:feature
       icon="hero-cake"
-      title="Catering Available"
-      description="Pre-order coffee carafes, Sicilian pastries, or light lunch options from local partners."
+      title="Hospitality Station"
+      description="Coffee, tea, and water service to keep your team refreshed and focused."
       color="purple"
     />
   </.features_section>
 
-  <.house_rules title="House Rules">
-    <:rule>Please clean the whiteboard after use.</:rule>
-    <:rule>Outside food is allowed, but please be tidy.</:rule>
-    <:rule>Cancel up to 24 hours before for a full refund.</:rule>
+  <.house_rules title="Meeting Room Guidelines">
+    <:rule>Please arrive on time and end on schedule.</:rule>
+    <:rule>Reset the room to its original setup after use.</:rule>
+    <:rule>Technical support is available upon request.</:rule>
   </.house_rules>
 </Layouts.app>

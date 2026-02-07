@@ -1,6 +1,6 @@
 defmodule SpazioSolazzo.BookingSystem do
   @moduledoc """
-  Manages bookings, spaces, assets and time slots for the booking system.
+  Manages bookings, spaces, and time slots for the booking system.
   """
 
   use Ash.Domain,
@@ -9,14 +9,10 @@ defmodule SpazioSolazzo.BookingSystem do
   resources do
     resource SpazioSolazzo.BookingSystem.Space do
       define :get_space_by_slug, action: :read, get_by: [:slug]
-      define :create_space, action: :create, args: [:name, :slug, :description]
-    end
 
-    resource SpazioSolazzo.BookingSystem.Asset do
-      define :get_asset_by_id, action: :read, get_by: [:id]
-      define :get_asset_by_space_id, action: :read, get_by: [:space_id]
-      define :get_space_assets, action: :get_space_assets, args: [:space_id]
-      define :create_asset, action: :create, args: [:name, :space_id]
+      define :create_space,
+        action: :create,
+        args: [:name, :slug, :description, :capacity]
     end
 
     resource SpazioSolazzo.BookingSystem.TimeSlotTemplate do
@@ -30,26 +26,46 @@ defmodule SpazioSolazzo.BookingSystem do
     end
 
     resource SpazioSolazzo.BookingSystem.Booking do
-      define :list_active_asset_bookings_by_date,
-        action: :list_active_asset_bookings_by_date,
-        args: [:asset_id, :date]
+      define :read_pending_bookings,
+        action: :read_pending_bookings,
+        args: [:space_id, :email, :date]
+
+      define :read_booking_history,
+        action: :read_booking_history,
+        args: [:space_id, :email, :date]
+
+      define :search_bookings,
+        action: :search,
+        args: [:space_id, :start_datetime, :end_datetime, :states, :select]
 
       define :create_booking,
         action: :create,
         args: [
-          :time_slot_template_id,
-          :asset_id,
+          :space_id,
           :user_id,
           :date,
+          :start_time,
+          :end_time,
           :customer_name,
           :customer_email,
           :customer_phone,
           :customer_comment
         ]
 
-      define :confirm_booking, action: :confirm_booking, args: []
-      define :cancel_booking, action: :cancel, args: []
-      define :delete_booking, action: :destroy, args: []
+      define :create_walk_in,
+        action: :create_walk_in,
+        args: [
+          :space_id,
+          :start_datetime,
+          :end_datetime,
+          :customer_name,
+          :customer_email,
+          :customer_phone
+        ]
+
+      define :approve_booking, action: :approve, args: []
+      define :reject_booking, action: :reject, args: [:reason]
+      define :cancel_booking, action: :cancel, args: [:reason]
     end
   end
 end

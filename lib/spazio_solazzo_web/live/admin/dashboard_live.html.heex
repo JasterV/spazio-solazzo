@@ -1,28 +1,32 @@
 <Layouts.app flash={@flash} current_user={@current_user}>
-  <div class="mx-auto max-w-[1200px] px-6 py-12">
-    <.back_to_link
-      navigate={~p"/"}
-      value="Back to Home"
-    />
+  <main class="flex-grow px-4 py-8 md:px-8">
+    <div class="max-w-6xl mx-auto">
+      <div class="mb-12 text-center">
+        <h1 class="text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight mb-4">
+          Admin Dashboard
+        </h1>
+        <p class="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
+          Welcome to Spazio Solazzo management center.
+        </p>
+      </div>
 
-    <h1 class="text-3xl text-base-content font-bold mb-8">Admin Dashboard</h1>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <%= if @meeting_space do %>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
         <.tool_card
-          title={@meeting_space.name}
-          description="Create walk-in bookings for the space"
-          icon="hero-user-group"
+          title="Booking Management"
+          description="Review and manage pending booking requests. Approve or reject reservations and view booking history."
+          color={:primary}
+          icon="hero-clipboard-document-list"
+          navigate={~p"/admin/bookings"}
         />
-      <% end %>
 
-      <%= if @coworking_space do %>
         <.tool_card
-          title={@coworking_space.name}
-          description="Create walk-in bookings for the space"
-          icon="hero-user-group"
+          title="Arcipelago Walk-in Booking"
+          description="Create instant bookings for walk-in customers at the coworking space."
+          color={:secondary}
+          icon="hero-building-office-2"
+          navigate={~p"/admin/walk-in"}
         />
-      <% end %>
+      </div>
     </div>
-  </div>
+  </main>
 </Layouts.app>
