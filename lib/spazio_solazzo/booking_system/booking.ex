@@ -164,7 +164,10 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
       change manage_relationship(:user_id, :user, type: :append_and_remove, authorize?: false)
 
       validate {SpazioSolazzo.BookingSystem.Validations.FutureDate, field: :date}
-      validate {SpazioSolazzo.BookingSystem.Validations.ChronologicalOrder, start: :start_time, end: :end_time}
+
+      validate {SpazioSolazzo.BookingSystem.Validations.ChronologicalOrder,
+                start: :start_time, end: :end_time}
+
       validate {SpazioSolazzo.BookingSystem.Validations.Email, field: :customer_email}
 
       change fn changeset, _ctx ->
@@ -230,7 +233,10 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
       change manage_relationship(:space_id, :space, type: :append_and_remove)
 
       validate {SpazioSolazzo.BookingSystem.Validations.FutureDate, field: :end_datetime}
-      validate {SpazioSolazzo.BookingSystem.Validations.ChronologicalOrder, start: :start_datetime, end: :end_datetime}
+
+      validate {SpazioSolazzo.BookingSystem.Validations.ChronologicalOrder,
+                start: :start_datetime, end: :end_datetime}
+
       validate {SpazioSolazzo.BookingSystem.Validations.Email, field: :customer_email}
 
       change fn changeset, _ctx ->
