@@ -1,4 +1,4 @@
-defmodule SpazioSolazzo.BookingSystem.Preparations.ApplyAdminFilters do
+defmodule SpazioSolazzo.BookingSystem.Booking.Preparations.ApplyAdminFilters do
   @moduledoc """
   Ash Preparation that applies common admin filters (space_id, email, date) to booking queries.
   """

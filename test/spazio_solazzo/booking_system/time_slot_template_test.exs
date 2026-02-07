@@ -136,7 +136,7 @@ defmodule SpazioSolazzo.BookingSystem.TimeSlotTemplateTest do
                )
 
       error_messages = Ash.Error.error_descriptions(error)
-      assert String.contains?(error_messages, "must be after start time")
+      assert String.contains?(error_messages, "must be after start_time")
     end
 
     test "rejects equal start and end times", %{space: space} do
@@ -149,7 +149,7 @@ defmodule SpazioSolazzo.BookingSystem.TimeSlotTemplateTest do
                )
 
       error_messages = Ash.Error.error_descriptions(error)
-      assert String.contains?(error_messages, "must be after start time")
+      assert String.contains?(error_messages, "must be after start_time")
     end
   end
 

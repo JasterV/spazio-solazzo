@@ -3,7 +3,7 @@ defmodule SpazioSolazzoWeb.BookingCalendarLiveComponent do
   The calendar displayed in the space booking view.
   It allows users to select a date in a beautifully-styled calendar grid.
   """
-  
+
   use SpazioSolazzoWeb, :live_component
   alias SpazioSolazzo.CalendarExt
 
@@ -54,7 +54,7 @@ defmodule SpazioSolazzoWeb.BookingCalendarLiveComponent do
 
   def render(assigns) do
     ~H"""
-    <div class="calendar-container">
+    <div id={@id} class="calendar-container">
       <%!-- Header --%>
       <div class="flex items-center justify-between mb-4">
         <button

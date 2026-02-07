@@ -116,7 +116,7 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
       end
 
       # Apply shared admin filters preparation
-      prepare SpazioSolazzo.BookingSystem.Preparations.ApplyAdminFilters
+      prepare SpazioSolazzo.BookingSystem.Booking.Preparations.ApplyAdminFilters
 
       prepare fn query, _ctx ->
         Ash.Query.sort(query, inserted_at: :desc)
@@ -142,7 +142,7 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
       end
 
       # Apply shared admin filters preparation
-      prepare SpazioSolazzo.BookingSystem.Preparations.ApplyAdminFilters
+      prepare SpazioSolazzo.BookingSystem.Booking.Preparations.ApplyAdminFilters
 
       prepare fn query, _ctx ->
         Ash.Query.sort(query, start_datetime: :desc)
@@ -161,40 +161,11 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
       argument :customer_comment, :string, allow_nil?: true
 
       change manage_relationship(:space_id, :space, type: :append_and_remove)
-
       change manage_relationship(:user_id, :user, type: :append_and_remove, authorize?: false)
 
-      validate fn changeset, _ctx ->
-        date = Ash.Changeset.get_argument(changeset, :date)
-        today = Date.utc_today()
-
-        if date && Date.compare(date, today) == :lt do
-          {:error, field: :date, message: "cannot be in the past"}
-        else
-          :ok
-        end
-      end
-
-      validate fn changeset, _ctx ->
-        start_time = Ash.Changeset.get_argument(changeset, :start_time)
-        end_time = Ash.Changeset.get_argument(changeset, :end_time)
-
-        if start_time && end_time && Time.compare(end_time, start_time) != :gt do
-          {:error, field: :end_time, message: "must be after start time"}
-        else
-          :ok
-        end
-      end
-
-      validate fn changeset, _ctx ->
-        email = Ash.Changeset.get_argument(changeset, :customer_email)
-
-        if email && !String.match?(email, ~r/^[^\s@]+@[^\s@]+\.[^\s@]+$/) do
-          {:error, field: :customer_email, message: "must be a valid email"}
-        else
-          :ok
-        end
-      end
+      validate {SpazioSolazzo.BookingSystem.Validations.FutureDate, field: :date}
+      validate {SpazioSolazzo.BookingSystem.Validations.ChronologicalOrder, start: :start_time, end: :end_time}
+      validate {SpazioSolazzo.BookingSystem.Validations.Email, field: :customer_email}
 
       change fn changeset, _ctx ->
         date = Ash.Changeset.get_argument(changeset, :date)
@@ -258,38 +229,9 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
 
       change manage_relationship(:space_id, :space, type: :append_and_remove)
 
-      validate fn changeset, _ctx ->
-        end_datetime = Ash.Changeset.get_argument(changeset, :end_datetime)
-        now = DateTime.utc_now()
-
-        if end_datetime && DateTime.compare(end_datetime, now) == :lt do
-          {:error, field: :end_datetime, message: "cannot be in the past"}
-        else
-          :ok
-        end
-      end
-
-      validate fn changeset, _ctx ->
-        start_datetime = Ash.Changeset.get_argument(changeset, :start_datetime)
-        end_datetime = Ash.Changeset.get_argument(changeset, :end_datetime)
-
-        if start_datetime && end_datetime &&
-             DateTime.compare(end_datetime, start_datetime) != :gt do
-          {:error, field: :end_datetime, message: "must be after start datetime"}
-        else
-          :ok
-        end
-      end
-
-      validate fn changeset, _ctx ->
-        email = Ash.Changeset.get_argument(changeset, :customer_email)
-
-        if email && !String.match?(email, ~r/^[^\s@]+@[^\s@]+\.[^\s@]+$/) do
-          {:error, field: :customer_email, message: "must be a valid email"}
-        else
-          :ok
-        end
-      end
+      validate {SpazioSolazzo.BookingSystem.Validations.FutureDate, field: :end_datetime}
+      validate {SpazioSolazzo.BookingSystem.Validations.ChronologicalOrder, start: :start_datetime, end: :end_datetime}
+      validate {SpazioSolazzo.BookingSystem.Validations.Email, field: :customer_email}
 
       change fn changeset, _ctx ->
         start_datetime = Ash.Changeset.get_argument(changeset, :start_datetime)

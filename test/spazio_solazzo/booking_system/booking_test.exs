@@ -107,7 +107,7 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
                )
 
       error_messages = Ash.Error.error_descriptions(error)
-      assert String.contains?(error_messages, "must be after start time")
+      assert String.contains?(error_messages, "must be after start_time")
     end
 
     test "rejects booking in the past", %{space: space} do
@@ -682,7 +682,7 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
                )
 
       error_messages = Ash.Error.error_descriptions(error)
-      assert String.contains?(error_messages, "must be after start datetime")
+      assert String.contains?(error_messages, "must be after start_datetime")
     end
 
     test "rejects walk-in with end time in the past", %{space: space} do
