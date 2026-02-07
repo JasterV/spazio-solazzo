@@ -141,38 +141,6 @@ defmodule SpazioSolazzoWeb.Layouts do
         <div class="flex gap-16 flex-wrap md:justify-end">
           <div>
             <h3 class="text-sm font-bold text-base-content uppercase tracking-wider mb-4">
-              Spaces
-            </h3>
-            <ul class="flex flex-col gap-3">
-              <li>
-                <a
-                  href="/coworking"
-                  class="text-sm text-neutral hover:text-secondary transition-colors"
-                >
-                  Coworking
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/meeting"
-                  class="text-sm text-neutral hover:text-secondary transition-colors"
-                >
-                  Meeting Room
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/music"
-                  class="text-sm text-neutral hover:text-secondary transition-colors"
-                >
-                  Music Room
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 class="text-sm font-bold text-base-content uppercase tracking-wider mb-4">
               Community
             </h3>
             <ul class="flex flex-col gap-3">
