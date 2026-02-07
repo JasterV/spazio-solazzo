@@ -34,9 +34,9 @@ defmodule SpazioSolazzoWeb.Router do
         {SpazioSolazzoWeb.LiveUserAuth, :live_user_optional}
       ] do
       live "/", PageLive
-      live "/coworking", CoworkingLive
-      live "/meeting", MeetingLive
-      live "/music", MusicLive
+      live "/arcipelago", CoworkingLive
+      live "/media-room", MeetingLive
+      live "/hall", MusicLive
     end
 
     ash_authentication_live_session :no_user_routes,

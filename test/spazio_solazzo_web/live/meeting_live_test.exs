@@ -5,7 +5,7 @@ defmodule SpazioSolazzoWeb.MeetingLiveTest do
   alias SpazioSolazzo.BookingSystem
 
   setup do
-    {:ok, space} = BookingSystem.create_space("MeetingTest", "meeting", "desc", 1)
+    {:ok, space} = BookingSystem.create_space("MediaRoomTest", "media-room", "desc", 1)
 
     %{space: space}
   end
@@ -15,13 +15,13 @@ defmodule SpazioSolazzoWeb.MeetingLiveTest do
       conn: conn,
       space: space
     } do
-      {:ok, _view, html} = live(conn, "/meeting")
+      {:ok, _view, html} = live(conn, "/media-room")
 
       assert html =~ space.name
     end
 
     test "has link to space booking page with correct space slug", %{conn: conn, space: space} do
-      {:ok, view, _html} = live(conn, "/meeting")
+      {:ok, view, _html} = live(conn, "/media-room")
 
       assert has_element?(view, "a[href='/book/space/#{space.slug}']")
     end

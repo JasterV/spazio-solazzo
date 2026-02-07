@@ -37,7 +37,7 @@ defmodule SpazioSolazzoWeb.CarouselLiveComponent do
   def render(assigns) do
     ~H"""
     <div
-      class="relative carousel w-full max-h-160"
+      class="relative carousel w-full"
       style={"height: #{@height};"}
     >
       <div
