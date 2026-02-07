@@ -7,7 +7,7 @@ defmodule SpazioSolazzoWeb.Admin.WalkInLive do
   alias SpazioSolazzo.BookingSystem
 
   def mount(_params, _session, socket) do
-    {:ok, space} = BookingSystem.get_space_by_slug("coworking")
+    {:ok, space} = BookingSystem.get_space_by_slug("arcipelago")
 
     today = Date.utc_today()
     first_day = Date.beginning_of_month(today)

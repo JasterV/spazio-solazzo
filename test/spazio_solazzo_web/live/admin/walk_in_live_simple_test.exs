@@ -7,8 +7,8 @@ defmodule SpazioSolazzoWeb.Admin.WalkInLiveSimpleTest do
   setup do
     {:ok, space} =
       BookingSystem.create_space(
-        "Coworking",
-        "coworking",
+        "Arcipelago",
+        "arcipelago",
         "Coworking space",
         5
       )
