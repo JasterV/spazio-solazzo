@@ -8,6 +8,7 @@ defmodule SpazioSolazzo.BookingSystem do
 
   resources do
     resource SpazioSolazzo.BookingSystem.Space do
+      define :list_spaces, action: :read
       define :get_space_by_slug, action: :read, get_by: [:slug]
 
       define :create_space,

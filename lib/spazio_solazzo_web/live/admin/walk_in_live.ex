@@ -7,11 +7,12 @@ defmodule SpazioSolazzoWeb.Admin.WalkInLive do
   alias SpazioSolazzo.BookingSystem
 
   def mount(_params, _session, socket) do
-    {:ok, space} = BookingSystem.get_space_by_slug("arcipelago")
+    {:ok, spaces} = BookingSystem.list_spaces()
+    {:ok, default_space} = BookingSystem.get_space_by_slug("arcipelago")
 
     today = Date.utc_today()
     first_day = Date.beginning_of_month(today)
-    booking_counts = fetch_booking_counts(space.id, first_day)
+    booking_counts = fetch_booking_counts(default_space.id, first_day)
 
     if connected?(socket) do
       Phoenix.PubSub.subscribe(SpazioSolazzo.PubSub, "booking:created")
@@ -22,7 +23,8 @@ defmodule SpazioSolazzoWeb.Admin.WalkInLive do
 
     {:ok,
      assign(socket,
-       space: space,
+       spaces: spaces,
+       space: default_space,
        first_day_of_month: first_day,
        booking_counts: booking_counts,
        start_date: nil,
@@ -50,6 +52,25 @@ defmodule SpazioSolazzoWeb.Admin.WalkInLive do
 
   def handle_event("validate_customer_details", form, socket) do
     {:noreply, assign(socket, customer_details_form: to_form(form))}
+  end
+
+  def handle_event("select_space", %{"space_slug" => space_slug}, socket) do
+    space = Enum.find(socket.assigns.spaces, &(&1.slug == space_slug))
+
+    if space do
+      booking_counts = fetch_booking_counts(space.id, socket.assigns.first_day_of_month)
+      SpazioSolazzoWeb.Admin.AdminCalendarComponent.reset("walk-in-calendar")
+
+      {:noreply,
+       assign(socket,
+         space: space,
+         booking_counts: booking_counts,
+         start_date: nil,
+         end_date: nil
+       )}
+    else
+      {:noreply, socket}
+    end
   end
 
   def handle_event("create_booking", _, %{assigns: %{start_date: s, end_date: e}} = socket)

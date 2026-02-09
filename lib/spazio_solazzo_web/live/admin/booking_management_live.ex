@@ -13,7 +13,7 @@ defmodule SpazioSolazzoWeb.Admin.BookingManagementLive do
   @history_limit 10
 
   def mount(_params, _session, socket) do
-    {:ok, spaces} = Ash.read(SpazioSolazzo.BookingSystem.Space)
+    {:ok, spaces} = SpazioSolazzo.BookingSystem.list_spaces()
 
     if connected?(socket) do
       Phoenix.PubSub.subscribe(SpazioSolazzo.PubSub, "booking:created")

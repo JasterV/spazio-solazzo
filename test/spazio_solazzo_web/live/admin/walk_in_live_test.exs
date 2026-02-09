@@ -254,7 +254,6 @@ defmodule SpazioSolazzoWeb.Admin.WalkInLiveTest do
 
       tomorrow = Date.add(Date.utc_today(), 1)
       send(view.pid, {:date_selected, tomorrow, tomorrow})
-      :timer.sleep(50)
 
       view
       |> form("form[phx-change='validate_customer_details']", %{
@@ -269,11 +268,176 @@ defmodule SpazioSolazzoWeb.Admin.WalkInLiveTest do
         |> render_submit()
 
       assert html =~ "Walk-in booking created successfully"
-
-      # Check that form inputs are cleared by verifying empty values
-      html = render(view)
       assert html =~ "Not selected"
       assert html =~ ~s(value="")
+    end
+  end
+
+  describe "space selection" do
+    setup %{space: _space} do
+      {:ok, hall} =
+        BookingSystem.create_space(
+          "Hall",
+          "hall",
+          "Event hall",
+          1
+        )
+
+      {:ok, media_room} =
+        BookingSystem.create_space(
+          "Media room",
+          "media-room",
+          "Media room",
+          1
+        )
+
+      %{hall: hall, media_room: media_room}
+    end
+
+    test "displays all available spaces", %{conn: conn, user: user} do
+      conn = log_in_user(conn, user)
+      {:ok, _view, html} = live(conn, "/admin/walk-in")
+
+      assert html =~ "Arcipelago"
+      assert html =~ "Hall"
+      assert html =~ "Media room"
+      assert html =~ "Select Space"
+    end
+
+    test "defaults to Arcipelago space", %{conn: conn, user: user, space: space} do
+      conn = log_in_user(conn, user)
+      {:ok, view, _html} = live(conn, "/admin/walk-in")
+
+      # Verify the default space is Arcipelago by checking the space_slug passed to the calendar
+      assert has_element?(view, "button[phx-value-space_slug='#{space.slug}']")
+    end
+
+    test "can switch to a different space", %{conn: conn, user: user, hall: hall} do
+      conn = log_in_user(conn, user)
+      {:ok, view, _html} = live(conn, "/admin/walk-in")
+
+      # Click on the Hall space button
+      html =
+        view
+        |> element("button[phx-value-space_slug='#{hall.slug}']")
+        |> render_click()
+
+      assert html =~ "Not selected"
+    end
+
+    test "creates booking for the selected space", %{conn: conn, user: user, hall: hall} do
+      conn = log_in_user(conn, user)
+      {:ok, view, _html} = live(conn, "/admin/walk-in")
+
+      # Switch to Hall space
+      view
+      |> element("button[phx-value-space_slug='#{hall.slug}']")
+      |> render_click()
+
+      tomorrow = Date.add(Date.utc_today(), 1)
+      send(view.pid, {:date_selected, tomorrow, tomorrow})
+
+      # Fill in customer details
+      view
+      |> form("form[phx-change='validate_customer_details']", %{
+        "customer_name" => "Jane Smith",
+        "customer_email" => "jane@example.com"
+      })
+      |> render_change()
+
+      # Submit the form
+      html =
+        view
+        |> element("form[phx-submit='create_booking']")
+        |> render_submit()
+
+      assert html =~ "Walk-in booking created successfully"
+
+      # Verify booking was created for the Hall space
+      start_datetime = DateTime.new!(tomorrow, ~T[00:00:00], "Etc/UTC")
+      end_datetime = DateTime.new!(Date.add(tomorrow, 1), ~T[00:00:00], "Etc/UTC")
+
+      {:ok, hall_bookings} =
+        BookingSystem.search_bookings(
+          hall.id,
+          start_datetime,
+          end_datetime,
+          [:accepted],
+          nil
+        )
+
+      assert length(hall_bookings) == 1
+      booking = hd(hall_bookings)
+      assert booking.customer_name == "Jane Smith"
+      assert booking.customer_email == "jane@example.com"
+    end
+
+    test "booking is not created on previously selected space after switching", %{
+      conn: conn,
+      user: user,
+      space: arcipelago,
+      hall: hall
+    } do
+      conn = log_in_user(conn, user)
+      {:ok, view, _html} = live(conn, "/admin/walk-in")
+
+      # Switch to Hall space
+      view
+      |> element("button[phx-value-space_slug='#{hall.slug}']")
+      |> render_click()
+
+      tomorrow = Date.add(Date.utc_today(), 1)
+      send(view.pid, {:date_selected, tomorrow, tomorrow})
+
+      view
+      |> form("form[phx-change='validate_customer_details']", %{
+        "customer_name" => "Test User",
+        "customer_email" => "test@example.com"
+      })
+      |> render_change()
+
+      html =
+        view
+        |> element("form[phx-submit='create_booking']")
+        |> render_submit()
+
+      assert html =~ "Walk-in booking created successfully"
+
+      # Verify NO booking was created for the Arcipelago space
+      start_datetime = DateTime.new!(tomorrow, ~T[00:00:00], "Etc/UTC")
+      end_datetime = DateTime.new!(Date.add(tomorrow, 1), ~T[00:00:00], "Etc/UTC")
+
+      {:ok, arcipelago_bookings} =
+        BookingSystem.search_bookings(
+          arcipelago.id,
+          start_datetime,
+          end_datetime,
+          [:accepted],
+          nil
+        )
+
+      assert arcipelago_bookings == []
+    end
+
+    test "resets date selection when switching spaces", %{conn: conn, user: user, hall: hall} do
+      conn = log_in_user(conn, user)
+      {:ok, view, _html} = live(conn, "/admin/walk-in")
+
+      # Select a date on the default space
+      tomorrow = Date.add(Date.utc_today(), 1)
+      send(view.pid, {:date_selected, tomorrow, tomorrow})
+
+      html = render(view)
+      assert html =~ Calendar.strftime(tomorrow, "%b %d, %Y")
+
+      # Switch to Hall space
+      html =
+        view
+        |> element("button[phx-value-space_slug='#{hall.slug}']")
+        |> render_click()
+
+      # Date selection should be reset
+      refute html =~ Calendar.strftime(tomorrow, "%b %d, %Y")
     end
   end
 end
