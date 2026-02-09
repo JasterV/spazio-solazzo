@@ -134,15 +134,18 @@ defmodule SpazioSolazzoWeb.SpaceBookingLive do
   end
 
   defp load_time_slots_with_stats(space, date, current_user) do
-    BookingSystem.get_space_time_slots_by_date!(space.id, date,
-      load: [
-        booking_stats: %{
-          date: date,
-          space_id: space.id,
-          capacity: space.capacity,
-          user_id: current_user.id
-        }
-      ]
-    )
+    time_slots =
+      BookingSystem.get_space_time_slots_by_date!(space.id, date,
+        load: [
+          booking_stats: %{
+            date: date,
+            space_id: space.id,
+            capacity: space.capacity,
+            user_id: current_user.id
+          }
+        ]
+      )
+
+    Enum.sort_by(time_slots, fn slot -> slot.start_time end)
   end
 end
