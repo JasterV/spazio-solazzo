@@ -35,6 +35,11 @@ defmodule SpazioSolazzoWeb.Layouts do
     default: nil,
     doc: "the current authenticated user"
 
+  attr :current_path, :string,
+    default: "",
+    required: false,
+    doc: "The path in the current URL"
+
   slot :inner_block, required: true
 
   def app(assigns) do
@@ -53,11 +58,53 @@ defmodule SpazioSolazzoWeb.Layouts do
         <ul class="menu menu-horizontal px-1">
           <%= if @current_user && @current_user.is_admin do %>
             <li>
-              <.link class="dark:hover:bg-secondary/20" navigate={~p"/admin/dashboard"}>
+              <.link
+                class={[
+                  "dark:hover:bg-secondary/20",
+                  String.starts_with?(@current_path, "/admin") &&
+                    "bg-base-200 dark:bg-secondary/20 dark:text-white"
+                ]}
+                navigate={~p"/admin/dashboard"}
+              >
                 Dashboard
               </.link>
             </li>
           <% end %>
+          <li>
+            <.link
+              class={[
+                "dark:hover:bg-secondary/20",
+                @current_path == "/arcipelago" && "bg-base-200 dark:bg-secondary/20 dark:text-white"
+              ]}
+              navigate={~p"/arcipelago"}
+            >
+              Arcipelago
+            </.link>
+          </li>
+
+          <li>
+            <.link
+              class={[
+                "dark:hover:bg-secondary/20",
+                @current_path == "/media-room" && "bg-base-200 dark:bg-secondary/20 dark:text-white"
+              ]}
+              navigate={~p"/media-room"}
+            >
+              Media Room
+            </.link>
+          </li>
+
+          <li>
+            <.link
+              class={[
+                "dark:hover:bg-secondary/20",
+                @current_path == "/hall" && "bg-base-200 dark:bg-secondary/20 dark:text-white"
+              ]}
+              navigate={~p"/hall"}
+            >
+              Hall
+            </.link>
+          </li>
         </ul>
       </div>
       <div class="navbar-end flex gap-3">
@@ -81,29 +128,80 @@ defmodule SpazioSolazzoWeb.Layouts do
         <% end %>
 
         <%!-- Mobile menu --%>
-        <%= if @current_user do %>
-          <div class="dropdown dropdown-end">
-            <div
-              tabindex="0"
-              role="button"
-              class="btn btn-ghost p-2 hover:bg-secondary/20 border-none"
-            >
-              <.menu_svg />
-            </div>
-            <ul
-              tabindex="-1"
-              class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow dark:shadow-none dark:border dark:border-white/40 bg-base-100 rounded-box w-52"
-            >
-              <%= if @current_user && @current_user.is_admin do %>
+        <div class={[
+          "dropdown dropdown-end",
+          @current_user == nil && "md:hidden"
+        ]}>
+          <div
+            tabindex="0"
+            role="button"
+            class="btn btn-ghost p-2 hover:bg-secondary/20 border-none"
+          >
+            <.menu_svg />
+          </div>
+          <ul
+            tabindex="-1"
+            class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow dark:shadow-none dark:border dark:border-white/40 bg-base-100 rounded-box w-52"
+          >
+            <li class="md:hidden">
+              <.link
+                navigate={~p"/arcipelago"}
+                class={[
+                  "dark:hover:bg-secondary/20",
+                  @current_path == "/arcipelago" && "bg-base-200 dark:bg-secondary/20 dark:text-white"
+                ]}
+              >
+                <.icon name="hero-briefcase" class="size-4" /> Arcipelago
+              </.link>
+            </li>
+
+            <li class="md:hidden">
+              <.link
+                navigate={~p"/media-room"}
+                class={[
+                  "dark:hover:bg-secondary/20",
+                  @current_path == "/media-room" && "bg-base-200 dark:bg-secondary/20 dark:text-white"
+                ]}
+              >
+                <.icon name="hero-computer-desktop" class="size-4" /> Media Room
+              </.link>
+            </li>
+
+            <li class="md:hidden">
+              <.link
+                navigate={~p"/hall"}
+                class={[
+                  "dark:hover:bg-secondary/20",
+                  @current_path == "/hall" && "bg-base-200 dark:bg-secondary/20 dark:text-white"
+                ]}
+              >
+                <.icon name="hero-musical-note" class="size-4" /> Hall
+              </.link>
+            </li>
+
+            <%= if @current_user do %>
+              <%= if @current_user.is_admin do %>
                 <li class="md:hidden">
-                  <.link navigate={~p"/admin/dashboard"}>
+                  <.link
+                    navigate={~p"/admin/dashboard"}
+                    class={[
+                      "dark:hover:bg-secondary/20",
+                      String.starts_with?(@current_path, "/admin") &&
+                        "bg-base-200 dark:bg-secondary/20 dark:text-white"
+                    ]}
+                  >
                     <.icon name="hero-squares-2x2" class="size-4" /> Dashboard
                   </.link>
                 </li>
               <% end %>
-
               <li class="md:hidden">
-                <.link navigate={~p"/profile"}>
+                <.link
+                  navigate={~p"/profile"}
+                  class={[
+                    "dark:hover:bg-secondary/20",
+                    @current_path == "/profile" && "bg-base-200 dark:bg-secondary/20 dark:text-white"
+                  ]}
+                >
                   <.icon name="hero-user" class="size-4" /> Profile
                 </.link>
               </li>
@@ -112,9 +210,9 @@ defmodule SpazioSolazzoWeb.Layouts do
                   <.icon name="hero-arrow-right-on-rectangle" class="size-4" /> Sign Out
                 </.link>
               </li>
-            </ul>
-          </div>
-        <% end %>
+            <% end %>
+          </ul>
+        </div>
       </div>
     </header>
 

@@ -31,7 +31,8 @@ defmodule SpazioSolazzoWeb.Router do
 
     ash_authentication_live_session :unauthenticated_routes,
       on_mount: [
-        {SpazioSolazzoWeb.LiveUserAuth, :live_user_optional}
+        {SpazioSolazzoWeb.LiveUserAuth, :live_user_optional},
+        SpazioSolazzoWeb.AssignPathHook
       ] do
       live "/", PageLive
       live "/arcipelago", CoworkingLive
@@ -41,7 +42,8 @@ defmodule SpazioSolazzoWeb.Router do
 
     ash_authentication_live_session :no_user_routes,
       on_mount: [
-        {SpazioSolazzoWeb.LiveUserAuth, :live_no_user}
+        {SpazioSolazzoWeb.LiveUserAuth, :live_no_user},
+        SpazioSolazzoWeb.AssignPathHook
       ] do
       live "/sign-in/callback", AuthCallbackLive
       live "/sign-in", SignInLive
@@ -49,7 +51,8 @@ defmodule SpazioSolazzoWeb.Router do
 
     ash_authentication_live_session :authenticated_routes,
       on_mount: [
-        {SpazioSolazzoWeb.LiveUserAuth, :live_user_required}
+        {SpazioSolazzoWeb.LiveUserAuth, :live_user_required},
+        SpazioSolazzoWeb.AssignPathHook
       ] do
       live "/book/space/:space_slug", SpaceBookingLive
       live "/bookings/cancel", BookingCancellationLive
@@ -58,7 +61,8 @@ defmodule SpazioSolazzoWeb.Router do
 
     ash_authentication_live_session :admin_routes,
       on_mount: [
-        {SpazioSolazzoWeb.LiveUserAuth, :live_admin_required}
+        {SpazioSolazzoWeb.LiveUserAuth, :live_admin_required},
+        SpazioSolazzoWeb.AssignPathHook
       ] do
       live "/admin/dashboard", Admin.DashboardLive
       live "/admin/bookings", Admin.BookingManagementLive
