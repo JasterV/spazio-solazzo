@@ -36,14 +36,14 @@ defmodule SpazioSolazzoWeb.Admin.WalkInLive do
      )}
   end
 
-  def handle_event("update_start_time", %{"value" => time_str}, socket) do
+  def handle_event("update_start_time", %{"start-time" => time_str}, socket) do
     case Time.from_iso8601(time_str <> ":00") do
       {:ok, time} -> {:noreply, assign(socket, start_time: time)}
       _ -> {:noreply, socket}
     end
   end
 
-  def handle_event("update_end_time", %{"value" => time_str}, socket) do
+  def handle_event("update_end_time", %{"end-time" => time_str}, socket) do
     case Time.from_iso8601(time_str <> ":00") do
       {:ok, time} -> {:noreply, assign(socket, end_time: time)}
       _ -> {:noreply, socket}

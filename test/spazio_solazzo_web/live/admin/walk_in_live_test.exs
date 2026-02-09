@@ -271,6 +271,58 @@ defmodule SpazioSolazzoWeb.Admin.WalkInLiveTest do
       assert html =~ "Not selected"
       assert html =~ ~s(value="")
     end
+
+    test "updates start and end time", %{conn: conn, user: user, space: space} do
+      conn = log_in_user(conn, user)
+      {:ok, view, _html} = live(conn, "/admin/walk-in")
+
+      tomorrow = Date.add(Date.utc_today(), 1)
+      send(view.pid, {:date_selected, tomorrow, tomorrow})
+      :timer.sleep(50)
+
+      view
+      |> element("input[name='start-time']")
+      |> render_change(%{"start-time" => "10:00"})
+
+      html =
+        view
+        |> element("input[name='end-time']")
+        |> render_change(%{"end-time" => "17:00"})
+
+      assert html =~ "value=\"10:00\""
+      assert html =~ "value=\"17:00\""
+
+      view
+      |> form("form[phx-change='validate_customer_details']", %{
+        "customer_name" => "Time Tester",
+        "customer_email" => "time@test.com"
+      })
+      |> render_change()
+
+      html =
+        view
+        |> element("form[phx-submit='create_booking']")
+        |> render_submit()
+
+      assert html =~ "Walk-in booking created successfully"
+
+      start_search = DateTime.new!(tomorrow, ~T[00:00:00], "Etc/UTC")
+      end_search = DateTime.new!(tomorrow, ~T[23:59:59], "Etc/UTC")
+
+      {:ok, bookings} =
+        BookingSystem.search_bookings(
+          space.id,
+          start_search,
+          end_search,
+          [:accepted],
+          nil
+        )
+
+      assert length(bookings) == 1
+      booking = hd(bookings)
+      assert DateTime.to_time(booking.start_datetime) == ~T[10:00:00]
+      assert DateTime.to_time(booking.end_datetime) == ~T[17:00:00]
+    end
   end
 
   describe "space selection" do

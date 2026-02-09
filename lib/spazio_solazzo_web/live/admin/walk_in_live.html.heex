@@ -161,7 +161,12 @@
                   </div>
                 <% else %>
                   <%!-- Single-day mode: Show time inputs --%>
-                  <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 flex flex-col gap-4">
+                  <.form
+                    for={%{}}
+                    as={:schedule}
+                    id="walk-in-schedule-form"
+                    class="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 flex flex-col gap-4"
+                  >
                     <div class="relative">
                       <label
                         class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-2"
@@ -173,8 +178,9 @@
                         <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 pointer-events-none">
                           <.icon name="hero-clock" class="w-4 h-4" />
                         </span>
-                        <input
+                        <.input
                           id="start-time"
+                          name="start-time"
                           type="time"
                           value={Calendar.strftime(@start_time, "%H:%M")}
                           phx-change="update_start_time"
@@ -194,8 +200,9 @@
                         <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 pointer-events-none">
                           <.icon name="hero-clock" class="w-4 h-4" />
                         </span>
-                        <input
+                        <.input
                           id="end-time"
+                          name="end-time"
                           type="time"
                           value={Calendar.strftime(@end_time, "%H:%M")}
                           phx-change="update_end_time"
@@ -203,7 +210,7 @@
                         />
                       </div>
                     </div>
-                  </div>
+                  </.form>
                 <% end %>
               </div>
             </div>
