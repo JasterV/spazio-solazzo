@@ -15,7 +15,7 @@ release_command = '/app/bin/migrate'
 wait_timeout = "10m"
 
 [env]
-PHX_HOST = 'spazio-solazzo.fly.dev'
+PHX_HOST = 'spaziosolazzo.mojocohouse.com'
 PORT = '8080'
 
 [http_service]
