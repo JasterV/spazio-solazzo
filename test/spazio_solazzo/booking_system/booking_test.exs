@@ -15,7 +15,7 @@ defmodule SpazioSolazzo.BookingSystem.BookingTest do
 
     user = register_user("testuser@example.com", "Test User")
 
-    date = ~D[2026-02-10]
+    date = Date.add(Date.utc_today(), 7)
 
     %{space: space, user: user, date: date}
   end

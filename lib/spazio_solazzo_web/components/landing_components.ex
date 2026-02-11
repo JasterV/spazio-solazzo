@@ -112,8 +112,6 @@ defmodule SpazioSolazzoWeb.LandingComponents do
         title="Meeting Room"
         description="A private, sun-drenched sanctuary designed for focus and collaboration."
         booking_path={~p"/book/asset/\#{@asset.id}"}
-        price="€40"
-        price_unit="hour"
         capacity="Up to 8 People"
         images={@images}
       />
@@ -122,8 +120,6 @@ defmodule SpazioSolazzoWeb.LandingComponents do
   slot :description, required: true
   attr :booking_path, :string, required: true
   attr :booking_label, :string, default: "Book This Room"
-  attr :price, :string, required: true
-  attr :price_unit, :string, default: "hour"
   attr :capacity, :string, required: true
   attr :images, :list, default: []
 
@@ -145,18 +141,14 @@ defmodule SpazioSolazzoWeb.LandingComponents do
             <p class="text-lg text-neutral leading-relaxed max-w-xl">
               {render_slot(@description)}
             </p>
-            <div class="flex flex-col sm:flex-row gap-4 pt-2">
+            <div class="flex pt-2">
               <.link
                 navigate={@booking_path}
-                class="btn btn-primary h-14 px-8 rounded-2xl text-lg font-bold shadow-xl w-full sm:w-auto hover:-translate-y-1"
+                class="btn btn-primary h-14 px-8 rounded-2xl text-lg font-bold shadow-xl hover:-translate-y-1"
               >
                 <span>{@booking_label}</span>
                 <.icon name="hero-arrow-right" class="w-5 h-5" />
               </.link>
-              <div class="flex items-center gap-2 text-neutral px-4 h-14 w-full sm:w-auto justify-center">
-                <span class="text-2xl font-bold text-base-content">{@price}</span>
-                <span class="text-sm">/ {@price_unit}</span>
-              </div>
             </div>
           </div>
           <div class="order-1 lg:order-2 relative group">

@@ -13,6 +13,7 @@ defmodule SpazioSolazzo.BookingSystem.Booking.RequestCreatedEmailWorkerTest do
         "customer_phone" => "+1234567890",
         "customer_comment" => "Test comment",
         "space_name" => "Coworking Space",
+        "space_slug" => "arcipelago",
         "start_datetime" => "2026-02-02T09:00:00Z",
         "end_datetime" => "2026-02-02T13:00:00Z"
       }
@@ -35,6 +36,7 @@ defmodule SpazioSolazzo.BookingSystem.Booking.RequestCreatedEmailWorkerTest do
         "customer_phone" => "+1234567890",
         "customer_comment" => "Test comment",
         "space_name" => "Coworking Space",
+        "space_slug" => "arcipelago",
         "start_datetime" => "2026-02-02T09:00:00Z",
         "end_datetime" => "2026-02-02T13:00:00Z"
       }
@@ -59,6 +61,7 @@ defmodule SpazioSolazzo.BookingSystem.Booking.RequestCreatedEmailWorkerTest do
         "customer_phone" => "+1234567890",
         "customer_comment" => "Another test",
         "space_name" => "Meeting Room",
+        "space_slug" => "media-room",
         "start_datetime" => "2026-02-03T14:00:00Z",
         "end_datetime" => "2026-02-03T18:00:00Z"
       }
@@ -84,6 +87,7 @@ defmodule SpazioSolazzo.BookingSystem.Booking.RequestCreatedEmailWorkerTest do
         "customer_phone" => "+1234567890",
         "customer_comment" => "Test",
         "space_name" => "Music Room",
+        "space_slug" => "hall",
         "start_datetime" => "2026-02-04T10:00:00Z",
         "end_datetime" => "2026-02-04T12:00:00Z"
       }
@@ -110,6 +114,7 @@ defmodule SpazioSolazzo.BookingSystem.Booking.RequestCreatedEmailWorkerTest do
         "customer_phone" => "+1234567890",
         "customer_comment" => "Admin comment",
         "space_name" => "Coworking Space",
+        "space_slug" => "arcipelago",
         "start_datetime" => "2026-02-05T09:00:00Z",
         "end_datetime" => "2026-02-05T11:00:00Z"
       }

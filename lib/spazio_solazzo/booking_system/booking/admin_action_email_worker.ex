@@ -16,6 +16,7 @@ defmodule SpazioSolazzo.BookingSystem.Booking.AdminActionEmailWorker do
           "customer_email" => customer_email,
           "customer_phone" => customer_phone,
           "space_name" => space_name,
+          "space_slug" => space_slug,
           "start_datetime" => start_datetime_str,
           "end_datetime" => end_datetime_str,
           "action" => "accepted"
@@ -30,6 +31,7 @@ defmodule SpazioSolazzo.BookingSystem.Booking.AdminActionEmailWorker do
       customer_email: customer_email,
       customer_phone: customer_phone,
       space_name: space_name,
+      space_slug: space_slug,
       start_datetime: start_datetime,
       end_datetime: end_datetime,
       date: CalendarExt.format_datetime_date_only(start_datetime),

@@ -18,6 +18,7 @@ defmodule SpazioSolazzo.BookingSystem.Booking.Email do
         customer_phone: customer_phone,
         customer_comment: customer_comment,
         space_name: space_name,
+        space_slug: space_slug,
         date: date,
         start_time: start_time,
         end_time: end_time
@@ -31,6 +32,7 @@ defmodule SpazioSolazzo.BookingSystem.Booking.Email do
       customer_phone: customer_phone,
       customer_comment: customer_comment,
       space_name: space_name,
+      space_slug: space_slug,
       date: date,
       start_time: start_time,
       end_time: end_time,
@@ -115,6 +117,7 @@ defmodule SpazioSolazzo.BookingSystem.Booking.Email do
         customer_email: customer_email,
         customer_phone: customer_phone,
         space_name: space_name,
+        space_slug: space_slug,
         date: date,
         start_time: start_time,
         end_time: end_time
@@ -127,6 +130,7 @@ defmodule SpazioSolazzo.BookingSystem.Booking.Email do
       customer_email: customer_email,
       customer_phone: customer_phone,
       space_name: space_name,
+      space_slug: space_slug,
       date: date,
       start_time: start_time,
       end_time: end_time,

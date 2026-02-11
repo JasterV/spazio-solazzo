@@ -130,12 +130,29 @@ defmodule SpazioSolazzoWeb.BookingFormLiveComponent do
                 </div>
                 <div class="text-xs text-neutral space-y-1">
                   <ul class="list-disc list-inside space-y-0.5 ml-1">
+                    <li>Pricing details will be sent to your email</li>
+                    <li>Payment via cash or POS on arrival</li>
                     <li>Cancel anytime with no commitment</li>
-                    <li>Payment upon arrival only</li>
                   </ul>
                 </div>
               </div>
             </div>
+
+            <%= if @space.slug == "arcipelago" do %>
+              <div class="mt-4 p-4 bg-warning/5 border border-warning/20 rounded-xl">
+                <div class="flex gap-3">
+                  <div class="flex-shrink-0">
+                    <.icon name="hero-user-group" class="size-5 text-warning" />
+                  </div>
+                  <div class="text-xs text-neutral space-y-1">
+                    <p class="font-semibold">Membership Required</p>
+                    <p>
+                      Coworking is for Caravanserai association members. Membership costs €3, can be done at the space, and is valid until December 31, 2026.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            <% end %>
 
             <div class="mt-6 flex items-center gap-3">
               <button

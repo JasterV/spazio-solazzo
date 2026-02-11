@@ -14,8 +14,6 @@ defmodule SpazioSolazzoWeb.PageComponents do
       <.space_card
         title="Coworking"
         description="Flexible desk spaces for remote work"
-        price="15"
-        time_unit="4 hours"
         image_url="https://..."
         primary_label="Workspace"
         image_position={:left}
@@ -26,8 +24,6 @@ defmodule SpazioSolazzoWeb.PageComponents do
       <.space_card
         title="Meeting Room"
         description="Private conference rooms"
-        price="40"
-        time_unit="hour"
         image_url="https://..."
         primary_label="Business"
         primary_label_variant={:secondary}
@@ -39,8 +35,6 @@ defmodule SpazioSolazzoWeb.PageComponents do
   """
   attr :title, :string, required: true
   attr :description, :string, required: true
-  attr :price, :string, required: true
-  attr :time_unit, :string, required: true
   attr :image_url, :string, required: true
   attr :primary_label, :string, required: true
   attr :primary_label_variant, :atom, default: :primary, values: [:primary, :secondary, :accent]
@@ -101,14 +95,10 @@ defmodule SpazioSolazzoWeb.PageComponents do
             <% end %>
           </p>
 
-          <div class="card-actions flex flex-col sm:flex-row gap-8 sm:items-center justify-between mt-auto pt-10 border-t border-base-200">
-            <span class="text-3xl font-extrabold text-base-content">
-              €{@price}
-              <span class="text-base font-light text-neutral">/ {@time_unit}</span>
-            </span>
+          <div class="card-actions flex justify-center mt-auto pt-10 border-t border-base-200">
             <.link
               navigate={@booking_url}
-              class="btn btn-primary h-10 px-5 rounded-2xl uppercase text-xs tracking-widest"
+              class="btn btn-primary h-12 px-8 rounded-2xl uppercase text-xs tracking-widest"
             >
               View more <.icon name="hero-arrow-right" class="size-5" />
             </.link>

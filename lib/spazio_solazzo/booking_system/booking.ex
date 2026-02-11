@@ -212,6 +212,7 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
                  customer_phone: booking.customer_phone,
                  customer_comment: booking.customer_comment,
                  space_name: booking.space.name,
+                 space_slug: booking.space.slug,
                  start_datetime: booking.start_datetime,
                  end_datetime: booking.end_datetime
                }
@@ -283,6 +284,7 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
                  customer_email: booking.customer_email,
                  customer_phone: booking.customer_phone,
                  space_name: booking.space.name,
+                 space_slug: booking.space.slug,
                  start_datetime: booking.start_datetime,
                  end_datetime: booking.end_datetime,
                  action: "accepted"
@@ -314,6 +316,7 @@ defmodule SpazioSolazzo.BookingSystem.Booking do
                  customer_email: booking.customer_email,
                  customer_phone: booking.customer_phone,
                  space_name: booking.space.name,
+                 space_slug: booking.space.slug,
                  start_datetime: booking.start_datetime,
                  end_datetime: booking.end_datetime,
                  action: "rejected",

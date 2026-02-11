@@ -2,8 +2,6 @@
   <.page_header
     booking_path={~p"/book/space/#{@space.slug}"}
     booking_label="Request a desk"
-    price="€25"
-    price_unit="day"
     capacity={@space.capacity}
     images={[
       ~p"/images/coworking_room/01.jpg",
@@ -17,6 +15,35 @@
       Join a vibrant community of innovators in the heart of Palermo. A flexible, open-plan sanctuary designed for focus and connection.
     </:description>
   </.page_header>
+
+  <section class="py-6 px-6 bg-base-100">
+    <div class="mx-auto max-w-[1000px]">
+      <div class="p-6 bg-warning/10 border-l-4 border-warning rounded-xl">
+        <div class="flex gap-4">
+          <div class="flex-shrink-0">
+            <.icon name="hero-user-group" class="size-6 text-warning" />
+          </div>
+          <div>
+            <h3 class="text-lg font-bold text-base-content mb-2">Membership Required</h3>
+            <p class="text-neutral mb-3">
+              The coworking space is for <strong>Caravanserai association members</strong>
+              only. If you're not yet a member, don't worry!
+            </p>
+            <div class="bg-base-100/50 rounded-lg p-4 mt-3">
+              <p class="text-sm text-neutral mb-2">
+                <strong>💳 Membership Details:</strong>
+              </p>
+              <ul class="text-sm text-neutral space-y-1 ml-4 list-disc">
+                <li>Cost: <strong>€3</strong></li>
+                <li>Can be completed directly at the space</li>
+                <li>Valid until <strong>December 31, 2026</strong></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <.features_section
     title="Everything for the modern nomad"

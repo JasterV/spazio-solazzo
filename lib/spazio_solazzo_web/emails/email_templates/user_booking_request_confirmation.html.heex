@@ -14,6 +14,53 @@
   <.detail_item label="Note">{@customer_comment || "N/A"}</.detail_item>
 </.details_list>
 
+<div style="background-color: #f0f9ff; border-left: 4px solid #3b82f6; padding: 15px; margin: 20px 0; color: #2d3748;">
+  <h3 style="margin: 0 0 10px 0; font-weight: 600; color: #1e40af;">
+    💰 Pricing Information
+  </h3>
+  <%= cond do %>
+    <% @space_slug == "arcipelago" -> %>
+      <p style="margin: 0; font-size: 16px; color: #2d3748;">
+        <strong>€5</strong> for half day (up to 4 hours)<br />
+        <strong>€9</strong> for full day (more than 4 hours)
+      </p>
+    <% @space_slug == "media-room" -> %>
+      <p style="margin: 0; font-size: 16px; color: #2d3748;">
+        <strong>€15</strong> per hour
+      </p>
+    <% @space_slug == "hall" -> %>
+      <p style="margin: 0; font-size: 16px; color: #2d3748;">
+        <strong>€5</strong> per person for the entire time slot
+      </p>
+    <% true -> %>
+      <p style="margin: 0; font-size: 16px; color: #2d3748;">
+        Pricing information will be confirmed shortly.
+      </p>
+  <% end %>
+</div>
+
+<div style="background-color: #f9fafb; border-radius: 8px; padding: 20px; margin: 20px 0;">
+  <h3 style="color: #2d3748; margin-top: 0;">💳 Payment Information</h3>
+  <p style="color: #4a5568; font-size: 14px; margin-bottom: 10px;">
+    Payment can be made on arrival via:
+  </p>
+  <ul style="color: #4a5568; font-size: 14px; margin: 0; padding-left: 20px;">
+    <li>Cash</li>
+    <li>POS (card payment)</li>
+  </ul>
+</div>
+
+<%= if @space_slug == "arcipelago" do %>
+  <div style="background-color: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; margin: 20px 0; color: #2d3748;">
+    <h3 style="margin: 0 0 10px 0; font-weight: 600; color: #92400e;">
+      👥 Membership Required
+    </h3>
+    <p style="margin: 0; font-size: 14px; color: #78350f;">
+      The coworking space is for Caravanserai association members only. Membership costs €3 and can be completed at the space. Your membership will be valid until December 31, 2026.
+    </p>
+  </div>
+<% end %>
+
 <div style="background-color: #fffaf0; border-left: 4px solid #ed8936; padding: 15px; margin: 20px 0; color: #2d3748;">
   <p style="margin: 0; font-weight: 500;">
     ⏳ Your request is pending approval. You will receive an email once an administrator reviews your request.

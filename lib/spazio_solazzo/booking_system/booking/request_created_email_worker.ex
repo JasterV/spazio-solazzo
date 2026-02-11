@@ -18,6 +18,7 @@ defmodule SpazioSolazzo.BookingSystem.Booking.RequestCreatedEmailWorker do
           "customer_phone" => customer_phone,
           "customer_comment" => customer_comment,
           "space_name" => space_name,
+          "space_slug" => space_slug,
           "start_datetime" => start_datetime_str,
           "end_datetime" => end_datetime_str
         }
@@ -32,6 +33,7 @@ defmodule SpazioSolazzo.BookingSystem.Booking.RequestCreatedEmailWorker do
       customer_phone: customer_phone,
       customer_comment: customer_comment,
       space_name: space_name,
+      space_slug: space_slug,
       start_datetime: start_datetime,
       end_datetime: end_datetime,
       date: CalendarExt.format_datetime_date_only(start_datetime),
